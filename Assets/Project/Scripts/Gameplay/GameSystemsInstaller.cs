@@ -1,0 +1,25 @@
+using Leopotam.EcsLite;
+using Project.Scripts.Gameplay;
+using Project.Scripts.Gameplay.Systems;
+using VContainer;
+using VContainer.Unity;
+
+namespace Gameplay
+{
+  public class GameSystemsInstaller : IInstaller
+  {
+    public void Install(IContainerBuilder builder)
+    {
+      builder.Register<IEcsSystem, InputSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CreateGameLevelViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CameraResizeInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, HeroInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, FlipHeroViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, GroundCheckSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, RunSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, JumpSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, AnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
+    }
+  }
+}

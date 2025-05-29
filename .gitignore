@@ -1,0 +1,13 @@
+*.csproj
+*.sln
+*.vsconfig
+Library/
+GooglePlayUpload/
+.vscode/
+.vs/
+obj/
+Temp/
+Logs/*
+UserSettings/*
+UIElementsSchema/*
+.idea/
