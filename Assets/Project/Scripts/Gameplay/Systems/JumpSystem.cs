@@ -30,8 +30,8 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_jumperFilter = m_world.Filter<GroundCheckComponent>().Inc<AnimatorComponent>().Inc<Rigidbody2dComponent>().Inc<JumpComponent>().End();
-            m_withoutJumpFilter = m_world.Filter<GroundCheckComponent>().Inc<AnimatorComponent>().Inc<Rigidbody2dComponent>().Exc<JumpComponent>().End();
+            m_jumperFilter = m_world.Filter<GroundCheckComponent>().Inc<Rigidbody2dComponent>().Inc<JumpComponent>().End();
+            m_withoutJumpFilter = m_world.Filter<GroundCheckComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
 
             m_jumpPool = m_world.GetPool<JumpComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
@@ -47,13 +47,16 @@ namespace Project.Scripts.Gameplay.Systems
                 if (m_inputPool.Get(input).IsJumpPressed && m_groundCheckPool.Get(withoutJump).GroundSensor.IsGrounded)
                 {
                     m_jumpPool.Add(withoutJump);
-                    m_groundCheckPool.Get(withoutJump).GroundSensor.Disable(0.2f);
                 }
             }
 
             foreach (var jumper in m_jumperFilter)
             {
-                m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity = new Vector2(m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity.x, m_heroData.JumpForce);
+                if (m_groundCheckPool.Get(jumper).GroundSensor.IsGrounded)
+                {
+                    m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity = new Vector2(m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity.x, m_heroData.JumpForce);
+                    m_groundCheckPool.Get(jumper).GroundSensor.Disable(0.2f);
+                }
             }
         }
     }

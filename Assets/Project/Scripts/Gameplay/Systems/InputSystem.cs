@@ -11,8 +11,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_inputFilter;
         
         private EcsPool<InputComponent> m_inputPool;
-
-
+        
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
@@ -30,6 +29,7 @@ namespace Project.Scripts.Gameplay.Systems
                 ref var input = ref m_inputPool.Get(i);
             
                 input.IsJumpPressed = Input.GetKeyDown(KeyCode.Space);
+                input.IsRollPressed = Input.GetKeyDown(KeyCode.LeftShift);
                 
                 input.IsMoveLeftPressed = Input.GetKey(KeyCode.A);
                 input.IsMoveRightPressed = Input.GetKey(KeyCode.D);

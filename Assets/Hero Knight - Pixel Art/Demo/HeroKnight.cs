@@ -42,13 +42,13 @@ public class HeroKnight : MonoBehaviour
         // Increase timer that controls attack combo
         m_timeSinceAttack += Time.deltaTime;
 
-        // Increase timer that checks roll duration
+        /*// Increase timer that checks roll duration
         if(m_rolling)
             m_rollCurrentTime += Time.deltaTime;
 
         // Disable rolling if timer extends duration
         if(m_rollCurrentTime > m_rollDuration)
-            m_rolling = false;
+            m_rolling = false;*/
 
         //Check if character just landed on the ground
         /*if (!m_grounded && m_groundSensor.State())
@@ -65,7 +65,7 @@ public class HeroKnight : MonoBehaviour
         }*/
 
         // -- Handle input and movement --
-        float inputX = Input.GetAxis("Horizontal");
+        /*float inputX = Input.GetAxis("Horizontal");
 
         // Swap direction of sprite depending on walk direction
         if (inputX > 0)
@@ -76,11 +76,11 @@ public class HeroKnight : MonoBehaviour
         else if (inputX < 0)
         {
             m_facingDirection = -1;
-        }
+        }*/
 
         // Move
-        if (!m_rolling )
-            m_body2d.linearVelocity = new Vector2(inputX * m_speed, m_body2d.linearVelocity.y);
+        // if (!m_rolling )
+        //     m_body2d.linearVelocity = new Vector2(inputX * m_speed, m_body2d.linearVelocity.y);
 
         //Set AirSpeed in ani mator
         // m_animator.SetFloat("AirSpeedY", m_body2d.linearVelocity.y);
@@ -102,7 +102,7 @@ public class HeroKnight : MonoBehaviour
             m_animator.SetTrigger("Hurt");*/
 
         //Attack
-        else if(Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling)
+        /*else */if(Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling)
         {
             m_currentAttack++;
 
@@ -132,12 +132,12 @@ public class HeroKnight : MonoBehaviour
             m_animator.SetBool("IdleBlock", false);
 
         // Roll
-        else if (Input.GetKeyDown("left shift") && !m_rolling && !m_isWallSliding)
+        /*else if (Input.GetKeyDown("left shift") && !m_rolling && !m_isWallSliding)
         {
             m_rolling = true;
             m_animator.SetTrigger("Roll");
             m_body2d.linearVelocity = new Vector2(m_facingDirection * m_rollForce, m_body2d.linearVelocity.y);
-        }
+        }*/
             
 
         //Jump
@@ -151,7 +151,7 @@ public class HeroKnight : MonoBehaviour
         }*/
 
         //Run
-        else if (Mathf.Abs(inputX) > Mathf.Epsilon)
+        /*else if (Mathf.Abs(inputX) > Mathf.Epsilon)
         {
             // Reset timer
             m_delayToIdle = 0.05f;
@@ -165,12 +165,12 @@ public class HeroKnight : MonoBehaviour
             m_delayToIdle -= Time.deltaTime;
                 if(m_delayToIdle < 0)
                     m_animator.SetInteger("AnimState", 0);
-        }
+        }*/
     }
 
     // Animation Events
     // Called in slide animation.
-    void AE_SlideDust()
+    /*void AE_SlideDust()
     {
         Vector3 spawnPosition;
 
@@ -186,5 +186,5 @@ public class HeroKnight : MonoBehaviour
             // Turn arrow in correct direction
             dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
         }
-    }
+    }*/
 }

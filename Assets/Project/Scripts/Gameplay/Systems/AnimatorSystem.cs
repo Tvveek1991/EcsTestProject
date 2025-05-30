@@ -12,6 +12,7 @@ namespace Project.Scripts.Gameplay.Systems
         private readonly int m_airSpeedY = Animator.StringToHash("AirSpeedY");
         private readonly int m_death = Animator.StringToHash("Death");
         private readonly int m_hurt = Animator.StringToHash("Hurt");
+        private readonly int m_roll = Animator.StringToHash("Roll");
 
         private EcsWorld m_world;
 
@@ -19,12 +20,14 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_heroFilter;
         private EcsFilter m_runFilter;
         private EcsFilter m_jumperFilter;
+        private EcsFilter m_rollingFilter;
         private EcsFilter m_airSpeedYFilter;
         private EcsFilter m_groundCheckFilter;
 
         private EcsPool<RunComponent> m_runPool;
-        private EcsPool<InputComponent> m_inputPool;
         private EcsPool<JumpComponent> m_jumpPool;
+        private EcsPool<InputComponent> m_inputPool;
+        private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<AnimatorComponent> m_animatorPool;
         private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
@@ -34,14 +37,16 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_heroFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().End();
             m_runFilter = m_world.Filter<AnimatorComponent>().Inc<RunComponent>().End();
+            m_heroFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().End();
             m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
+            m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
             m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
 
-            m_inputPool = m_world.GetPool<InputComponent>();
             m_runPool = m_world.GetPool<RunComponent>();
+            m_inputPool = m_world.GetPool<InputComponent>();
+            m_rollingPool = m_world.GetPool<RollingComponent>();
             m_animatorPool = m_world.GetPool<AnimatorComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
@@ -49,10 +54,11 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
+            CheckRun();
             RefreshAirSpeedY();
             CheckFalling();
-            CheckRun();
             CheckJump();
+            CheckRolling();
             CheckSimpleAnimation();
         }
 
@@ -72,8 +78,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var index in m_airSpeedYFilter)
             {
-                m_animatorPool.Get(index).AnimatorController.SetFloat(m_airSpeedY,
-                    m_rigidbody2dPool.Get(index).Rigidbody.linearVelocity.y);
+                m_animatorPool.Get(index).AnimatorController.SetFloat(m_airSpeedY, m_rigidbody2dPool.Get(index).Rigidbody.linearVelocity.y);
             }
         }
 
@@ -82,14 +87,10 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var index in m_groundCheckFilter)
             {
                 if (m_groundCheckPool.Get(index).GroundSensor.IsGrounded)
-                {
                     m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, true);
-                }
 
                 if (!m_groundCheckPool.Get(index).GroundSensor.IsGrounded)
-                {
                     m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, false);
-                }
             }
         }
 
@@ -108,6 +109,18 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 m_animatorPool.Get(jumper).AnimatorController.SetTrigger(m_jump);
                 m_animatorPool.Get(jumper).AnimatorController.SetBool(m_grounded, false);
+            }
+        }
+        
+        private void CheckRolling()
+        {
+            foreach (var roller in m_rollingFilter)
+            {
+                if (!m_rollingPool.Get(roller).IsRolling)
+                {
+                    m_rollingPool.Get(roller).IsRolling = true;
+                    m_animatorPool.Get(roller).AnimatorController.SetTrigger(m_roll);
+                }
             }
         }
     }
