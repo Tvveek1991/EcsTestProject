@@ -10,7 +10,7 @@ public class HeroKnight : MonoBehaviour
     [SerializeField] GameObject m_slideDust;
 
     private Animator            m_animator;
-    private Rigidbody2D         m_body2d;
+    // private Rigidbody2D         m_body2d;
     // private Sensor   m_groundSensor;
     private Sensor   m_wallSensorR1;
     private Sensor   m_wallSensorR2;
@@ -19,17 +19,17 @@ public class HeroKnight : MonoBehaviour
     private bool                m_isWallSliding = false;
     // private bool                m_grounded = false;
     private bool                m_rolling = false;
-    private int                 m_facingDirection = 1;
+    // private int                 m_facingDirection = 1;
     private int                 m_currentAttack = 0;
     private float               m_timeSinceAttack = 0.0f;
-    private float               m_delayToIdle = 0.0f;
-    private float               m_rollDuration = 8.0f / 14.0f;
-    private float               m_rollCurrentTime;
+    // private float               m_delayToIdle = 0.0f;
+    // private float               m_rollDuration = 8.0f / 14.0f;
+    // private float               m_rollCurrentTime;
     
     void Start ()
     {
         m_animator = GetComponent<Animator>();
-        m_body2d = GetComponent<Rigidbody2D>();
+        // m_body2d = GetComponent<Rigidbody2D>();
         // m_groundSensor = transform.Find("GroundSensor").GetComponent<Sensor>();
         m_wallSensorR1 = transform.Find("WallSensor_R1").GetComponent<Sensor>();
         m_wallSensorR2 = transform.Find("WallSensor_R2").GetComponent<Sensor>();
@@ -122,14 +122,14 @@ public class HeroKnight : MonoBehaviour
         }
 
         // Block
-        else if (Input.GetMouseButtonDown(1) && !m_rolling)
+        /*else if (Input.GetMouseButtonDown(1) && !m_rolling)
         {
             m_animator.SetTrigger("Block");
             m_animator.SetBool("IdleBlock", true);
         }
 
         else if (Input.GetMouseButtonUp(1))
-            m_animator.SetBool("IdleBlock", false);
+            m_animator.SetBool("IdleBlock", false);*/
 
         // Roll
         /*else if (Input.GetKeyDown("left shift") && !m_rolling && !m_isWallSliding)

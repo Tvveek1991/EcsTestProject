@@ -13,11 +13,15 @@ namespace Project.Scripts.Gameplay.Systems
         private readonly int m_death = Animator.StringToHash("Death");
         private readonly int m_hurt = Animator.StringToHash("Hurt");
         private readonly int m_roll = Animator.StringToHash("Roll");
+        private readonly int m_block = Animator.StringToHash("Block");
+        private readonly int m_idleBlock = Animator.StringToHash("IdleBlock");
+        private readonly int m_attack = Animator.StringToHash("Attack");
 
         private EcsWorld m_world;
 
         private EcsFilter m_inputFilter;
         private EcsFilter m_heroFilter;
+        private EcsFilter m_blockFilter;
         private EcsFilter m_runFilter;
         private EcsFilter m_jumperFilter;
         private EcsFilter m_rollingFilter;
@@ -43,6 +47,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
             m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
+            m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Exc<RollingComponent>().End();
 
             m_runPool = m_world.GetPool<RunComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
@@ -59,6 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
             CheckFalling();
             CheckJump();
             CheckRolling();
+            CheckBlock();
             CheckSimpleAnimation();
         }
 
@@ -69,7 +75,7 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 if (m_inputPool.Get(input).IsDead)
                     m_animatorPool.Get(index).AnimatorController.SetTrigger(m_death);
-                else if(m_inputPool.Get(input).IsHurt)
+                else if (m_inputPool.Get(input).IsHurt)
                     m_animatorPool.Get(index).AnimatorController.SetTrigger(m_hurt);
             }
         }
@@ -78,7 +84,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var index in m_airSpeedYFilter)
             {
-                m_animatorPool.Get(index).AnimatorController.SetFloat(m_airSpeedY, m_rigidbody2dPool.Get(index).Rigidbody.linearVelocity.y);
+                m_animatorPool.Get(index).AnimatorController.SetFloat(m_airSpeedY,
+                    m_rigidbody2dPool.Get(index).Rigidbody.linearVelocity.y);
             }
         }
 
@@ -111,7 +118,7 @@ namespace Project.Scripts.Gameplay.Systems
                 m_animatorPool.Get(jumper).AnimatorController.SetBool(m_grounded, false);
             }
         }
-        
+
         private void CheckRolling()
         {
             foreach (var roller in m_rollingFilter)
@@ -122,6 +129,22 @@ namespace Project.Scripts.Gameplay.Systems
                     m_animatorPool.Get(roller).AnimatorController.SetTrigger(m_roll);
                 }
             }
+        }
+        
+        private void CheckBlock()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var personIndex in m_blockFilter)
+            {
+                if (m_inputPool.Get(input).IsBlock)
+                {
+                    m_animatorPool.Get(personIndex).AnimatorController.SetTrigger(m_block);
+                    m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, true);
+                }
+                else if (!m_inputPool.Get(input).IsBlock)
+                    m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, false);
+            }
+            
         }
     }
 }
