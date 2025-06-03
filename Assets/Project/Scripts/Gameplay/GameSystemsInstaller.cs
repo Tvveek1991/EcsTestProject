@@ -19,6 +19,7 @@ namespace Gameplay
       builder.Register<IEcsSystem, RunSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, JumpSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, RollingSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, AttackSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, AnimatorSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyRollingSystem>(Lifetime.Scoped);

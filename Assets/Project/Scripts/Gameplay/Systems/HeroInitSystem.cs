@@ -53,6 +53,7 @@ namespace Project.Scripts.Gameplay.Systems
             AttachTransformComponent();
             AttachFlipViewComponent();
             AttachRunComponent();
+            AttachAttackComponent();
             AttachGroundCheckComponent();
             AttachAnimatorComponent();
             AttachRigidbody2dComponent();
@@ -88,6 +89,11 @@ namespace Project.Scripts.Gameplay.Systems
             void AttachRunComponent()
             {
                 m_world.GetPool<RunComponent>().Add(gameLevelEntityIndex);
+            }
+            
+            void AttachAttackComponent()
+            {
+                m_world.GetPool<AttackComponent>().Add(gameLevelEntityIndex);
             }
             
             void AttachAnimatorComponent()

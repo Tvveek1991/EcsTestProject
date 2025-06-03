@@ -18,10 +18,10 @@ public class HeroKnight : MonoBehaviour
     private Sensor   m_wallSensorL2;
     private bool                m_isWallSliding = false;
     // private bool                m_grounded = false;
-    private bool                m_rolling = false;
+    // private bool                m_rolling = false;
     // private int                 m_facingDirection = 1;
-    private int                 m_currentAttack = 0;
-    private float               m_timeSinceAttack = 0.0f;
+    // private int                 m_currentAttack = 0;
+    // private float               m_timeSinceAttack = 0.0f;
     // private float               m_delayToIdle = 0.0f;
     // private float               m_rollDuration = 8.0f / 14.0f;
     // private float               m_rollCurrentTime;
@@ -40,7 +40,7 @@ public class HeroKnight : MonoBehaviour
     void Update ()
     {
         // Increase timer that controls attack combo
-        m_timeSinceAttack += Time.deltaTime;
+        // m_timeSinceAttack += Time.deltaTime;
 
         /*// Increase timer that checks roll duration
         if(m_rolling)
@@ -102,7 +102,7 @@ public class HeroKnight : MonoBehaviour
             m_animator.SetTrigger("Hurt");*/
 
         //Attack
-        /*else */if(Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling)
+        /*else *//*if(Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling)
         {
             m_currentAttack++;
 
@@ -119,7 +119,7 @@ public class HeroKnight : MonoBehaviour
 
             // Reset timer
             m_timeSinceAttack = 0.0f;
-        }
+        }*/
 
         // Block
         /*else if (Input.GetMouseButtonDown(1) && !m_rolling)

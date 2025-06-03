@@ -43,9 +43,9 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var runIndex in m_runFilter)
             {
                 int inputX = 0;
-                if (m_inputPool.Get(inputIndex).IsMoveRightPressed)
+                if (m_inputPool.Get(inputIndex).IsMoveRightPressed && !m_inputPool.Get(inputIndex).IsBlock)
                     inputX = 1;
-                else if (m_inputPool.Get(inputIndex).IsMoveLeftPressed)
+                else if (m_inputPool.Get(inputIndex).IsMoveLeftPressed && !m_inputPool.Get(inputIndex).IsBlock)
                     inputX = -1;
                 else
                     inputX = 0;
