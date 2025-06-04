@@ -44,7 +44,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var withoutRollIndex in m_notReadyRollingFilter)
             {
-                if (m_inputPool.Get(input).IsRollPressed && m_groundCheckPool.Get(withoutRollIndex).GroundSensor.IsGrounded)
+                if (m_inputPool.Get(input).IsRollPressed && m_groundCheckPool.Get(withoutRollIndex).GroundSensor.IsConnected)
                 {
                     m_rollingPool.Add(withoutRollIndex);
                     

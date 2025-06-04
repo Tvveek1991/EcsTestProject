@@ -1,14 +1,16 @@
+using System.Linq;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class AnimatorSystem : IEcsInitSystem, IEcsRunSystem
+    public class PersonAnimatorSystem : IEcsInitSystem, IEcsRunSystem
     {
         private const string ATTACK_KEY = "Attack";
-        
+
         private readonly int m_jump = Animator.StringToHash("Jump");
+        private readonly int m_wallSliding = Animator.StringToHash("WallSlide");
         private readonly int m_grounded = Animator.StringToHash("Grounded");
         private readonly int m_animState = Animator.StringToHash("AnimState");
         private readonly int m_airSpeedY = Animator.StringToHash("AirSpeedY");
@@ -27,6 +29,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_jumperFilter;
         private EcsFilter m_rollingFilter;
         private EcsFilter m_airSpeedYFilter;
+        private EcsFilter m_wallCheckFilter;
         private EcsFilter m_groundCheckFilter;
 
         private EcsPool<RunComponent> m_runPool;
@@ -36,6 +39,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<AnimatorComponent> m_animatorPool;
         private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
+        private EcsPool<WallCheckComponent> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
 
         public void Init(IEcsSystems systems)
@@ -48,6 +52,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
             m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
             m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
+            m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
             m_actionFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Exc<RollingComponent>().End();
 
@@ -57,6 +62,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_rollingPool = m_world.GetPool<RollingComponent>();
             m_animatorPool = m_world.GetPool<AnimatorComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
+            m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
 
@@ -69,6 +75,7 @@ namespace Project.Scripts.Gameplay.Systems
             CheckRolling();
             CheckBlock();
             CheckAttack();
+            CheckSliding();
             CheckSimpleAnimation();
         }
 
@@ -97,10 +104,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var index in m_groundCheckFilter)
             {
-                if (m_groundCheckPool.Get(index).GroundSensor.IsGrounded)
+                if (m_groundCheckPool.Get(index).GroundSensor.IsConnected)
                     m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, true);
 
-                if (!m_groundCheckPool.Get(index).GroundSensor.IsGrounded)
+                if (!m_groundCheckPool.Get(index).GroundSensor.IsConnected)
                     m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, false);
             }
         }
@@ -134,7 +141,7 @@ namespace Project.Scripts.Gameplay.Systems
                 }
             }
         }
-        
+
         private void CheckBlock()
         {
             foreach (var input in m_inputFilter)
@@ -148,7 +155,6 @@ namespace Project.Scripts.Gameplay.Systems
                 else if (!m_inputPool.Get(input).IsBlock)
                     m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, false);
             }
-            
         }
 
         private void CheckAttack()
@@ -158,8 +164,18 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 if (m_inputPool.Get(input).IsAttack)
                 {
-                    m_animatorPool.Get(personIndex).AnimatorController.SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personIndex).CurrentAttackIndex}");
+                    m_animatorPool.Get(personIndex).AnimatorController
+                        .SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personIndex).CurrentAttackIndex}");
                 }
+            }
+        }
+
+        private void CheckSliding()
+        {
+            foreach (var wallIndex in m_wallCheckFilter)
+            {
+                if (m_wallCheckPool.Get(wallIndex).WallSensors != null)
+                    m_animatorPool.Get(wallIndex).AnimatorController.SetBool(m_wallSliding, m_wallCheckPool.Get(wallIndex).WallSensors.Any(item => item.IsConnected));
             }
         }
     }

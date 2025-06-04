@@ -4,24 +4,24 @@ namespace Project.Scripts.Gameplay.Sensors
 {
     public class Sensor : MonoBehaviour
     {
-        private bool m_isGrounded;
+        private bool m_isConnected;
         private float m_disableTimer;
         
-        public bool IsGrounded => m_disableTimer <= 0 && m_isGrounded;
+        public bool IsConnected => m_disableTimer <= 0 && m_isConnected;
 
         private void OnEnable()
         {
-            m_isGrounded = false;
+            m_isConnected = false;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            m_isGrounded = true;
+            m_isConnected = true;
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
-            m_isGrounded = false;
+            m_isConnected = false;
         }
 
         public void SubtractTimer()

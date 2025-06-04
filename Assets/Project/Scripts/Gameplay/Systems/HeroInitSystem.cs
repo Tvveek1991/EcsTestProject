@@ -55,6 +55,7 @@ namespace Project.Scripts.Gameplay.Systems
             AttachRunComponent();
             AttachAttackComponent();
             AttachGroundCheckComponent();
+            AttachWallCheckComponent();
             AttachAnimatorComponent();
             AttachRigidbody2dComponent();
             AttachViewToHeroViewReferenceComponent();
@@ -84,6 +85,11 @@ namespace Project.Scripts.Gameplay.Systems
             void AttachGroundCheckComponent()
             {
                 m_world.GetPool<GroundCheckComponent>().Add(gameLevelEntityIndex);
+            }
+            
+            void AttachWallCheckComponent()
+            {
+                m_world.GetPool<WallCheckComponent>().Add(gameLevelEntityIndex);
             }
             
             void AttachRunComponent()

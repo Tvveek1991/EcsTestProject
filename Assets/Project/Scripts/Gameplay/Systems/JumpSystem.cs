@@ -44,7 +44,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var withoutJump in m_withoutJumpFilter)
             {
-                if (m_inputPool.Get(input).IsJumpPressed && m_groundCheckPool.Get(withoutJump).GroundSensor.IsGrounded)
+                if (m_inputPool.Get(input).IsJumpPressed && m_groundCheckPool.Get(withoutJump).GroundSensor.IsConnected)
                 {
                     m_jumpPool.Add(withoutJump);
                 }
@@ -52,7 +52,7 @@ namespace Project.Scripts.Gameplay.Systems
 
             foreach (var jumper in m_jumperFilter)
             {
-                if (m_groundCheckPool.Get(jumper).GroundSensor.IsGrounded)
+                if (m_groundCheckPool.Get(jumper).GroundSensor.IsConnected)
                 {
                     m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity = new Vector2(m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity.x, m_heroData.JumpForce);
                     m_groundCheckPool.Get(jumper).GroundSensor.Disable(0.2f);

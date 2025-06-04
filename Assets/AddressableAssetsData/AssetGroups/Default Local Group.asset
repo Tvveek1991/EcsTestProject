@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: b727d9cc32ea24c4f920539b6b87c3c4
   m_SerializeEntries:
   - m_GUID: 07bf9af637d7e7e41b5f4fd6954a31c8
-    m_Address: GroundSensor
+    m_Address: ConnectSensor
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -32,6 +32,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 31c76debd901b6248ac1947f09aef878
     m_Address: GameLevelView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6b4d4612c0aee5543aef93fbe33d65bd
+    m_Address: Sensors Data
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 977927386352824993}
   - component: {fileID: 3334520575318695871}
   m_Layer: 0
-  m_Name: GroundSensor
+  m_Name: ConnectSensor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
