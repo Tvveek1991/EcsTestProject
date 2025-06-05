@@ -18,6 +18,7 @@ namespace Project.Scripts.Gameplay.Systems
         private readonly int m_hurt = Animator.StringToHash("Hurt");
         private readonly int m_roll = Animator.StringToHash("Roll");
         private readonly int m_block = Animator.StringToHash("Block");
+        private readonly int m_blocked = Animator.StringToHash("Blocked");
         private readonly int m_idleBlock = Animator.StringToHash("IdleBlock");
 
         private EcsWorld m_world;
@@ -153,8 +154,8 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 if (m_inputPool.Get(input).IsBlock && !m_blockPool.Get(personIndex).IsIdling)
                 {
-                    // m_animatorPool.Get(personIndex).AnimatorController.SetTrigger(m_block);
                     m_blockPool.Get(personIndex).IsIdling = true;
+                    m_animatorPool.Get(personIndex).AnimatorController.SetTrigger(m_block);
                     m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, true);
                 }
                 else if (!m_inputPool.Get(input).IsBlock && m_blockPool.Get(personIndex).IsIdling)
