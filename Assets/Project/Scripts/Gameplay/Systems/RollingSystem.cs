@@ -30,7 +30,8 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_notReadyRollingFilter = m_world.Filter<GroundCheckComponent>().Inc<Rigidbody2dComponent>().Inc<SpriteRendererComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
+            m_notReadyRollingFilter = m_world.Filter<GroundCheckComponent>().Inc<Rigidbody2dComponent>().Inc<SpriteRendererComponent>()
+                .Exc<BlockComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
 
             m_inputPool = m_world.GetPool<InputComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();

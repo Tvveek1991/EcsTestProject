@@ -34,8 +34,8 @@ namespace Project.Scripts.Gameplay.Systems
                 input.IsMoveLeftPressed = Input.GetKey(KeyCode.A);
                 input.IsMoveRightPressed = Input.GetKey(KeyCode.D);
                 
-                input.IsDead = Input.GetKey(KeyCode.E);
-                input.IsHurt = Input.GetKey(KeyCode.Q);
+                input.IsDead = Input.GetKeyDown(KeyCode.E);
+                input.IsHurt = Input.GetKeyDown(KeyCode.Q);
                 
                 input.IsAttack = Input.GetKeyDown(KeyCode.Mouse0);
                 input.IsBlock = Input.GetKey(KeyCode.Mouse1);

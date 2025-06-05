@@ -24,7 +24,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_inputFilter;
         private EcsFilter m_heroFilter;
-        private EcsFilter m_actionFilter;
+        private EcsFilter m_blockFilter;
+        private EcsFilter m_attackFilter;
         private EcsFilter m_runFilter;
         private EcsFilter m_jumperFilter;
         private EcsFilter m_rollingFilter;
@@ -35,6 +36,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<RunComponent> m_runPool;
         private EcsPool<JumpComponent> m_jumpPool;
         private EcsPool<InputComponent> m_inputPool;
+        private EcsPool<BlockComponent> m_blockPool;
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<AnimatorComponent> m_animatorPool;
@@ -54,11 +56,13 @@ namespace Project.Scripts.Gameplay.Systems
             m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
-            m_actionFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Exc<RollingComponent>().End();
+            m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Exc<RollingComponent>().End();
+            m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Inc<BlockComponent>().End();
 
             m_runPool = m_world.GetPool<RunComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
+            m_blockPool = m_world.GetPool<BlockComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
             m_animatorPool = m_world.GetPool<AnimatorComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
@@ -145,22 +149,26 @@ namespace Project.Scripts.Gameplay.Systems
         private void CheckBlock()
         {
             foreach (var input in m_inputFilter)
-            foreach (var personIndex in m_actionFilter)
+            foreach (var personIndex in m_blockFilter)
             {
-                if (m_inputPool.Get(input).IsBlock)
+                if (m_inputPool.Get(input).IsBlock && !m_blockPool.Get(personIndex).IsIdling)
                 {
-                    m_animatorPool.Get(personIndex).AnimatorController.SetTrigger(m_block);
+                    // m_animatorPool.Get(personIndex).AnimatorController.SetTrigger(m_block);
+                    m_blockPool.Get(personIndex).IsIdling = true;
                     m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, true);
                 }
-                else if (!m_inputPool.Get(input).IsBlock)
+                else if (!m_inputPool.Get(input).IsBlock && m_blockPool.Get(personIndex).IsIdling)
+                {
+                    m_blockPool.Get(personIndex).IsIdling = false;
                     m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, false);
+                }
             }
         }
 
         private void CheckAttack()
         {
             foreach (var input in m_inputFilter)
-            foreach (var personIndex in m_actionFilter)
+            foreach (var personIndex in m_attackFilter)
             {
                 if (m_inputPool.Get(input).IsAttack)
                 {
