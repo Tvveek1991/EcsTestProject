@@ -35,7 +35,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_wallCheckFilter;
         private EcsFilter m_groundCheckFilter;
 
-        private EcsPool<RunComponent> m_runPool;
         private EcsPool<JumpComponent> m_jumpPool;
         private EcsPool<InputComponent> m_inputPool;
         private EcsPool<AttackComponent> m_attackPool;
@@ -61,7 +60,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Exc<RollingComponent>().End();
             m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Inc<BlockComponent>().End();
 
-            m_runPool = m_world.GetPool<RunComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
