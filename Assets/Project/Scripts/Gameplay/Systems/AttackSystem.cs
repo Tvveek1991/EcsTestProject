@@ -19,7 +19,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_attackFilter = m_world.Filter<HeroComponent>().Inc<AttackComponent>().Exc<RollingComponent>().End();
+            m_attackFilter = m_world.Filter<HeroComponent>().Inc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
 
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();

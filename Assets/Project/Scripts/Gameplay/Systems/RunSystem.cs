@@ -52,26 +52,22 @@ namespace Project.Scripts.Gameplay.Systems
 
                 m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(inputX * m_heroData.Speed, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
 
-                if (inputX != 0 && !m_runPool.Has(runIndex)) 
-                    m_runPool.Add(runIndex);
-
-                if (m_runPool.Has(runIndex))
+                //Run
+                if (Mathf.Abs(inputX) > Mathf.Epsilon)
                 {
-                    //Run
-                    if (Mathf.Abs(inputX) > Mathf.Epsilon)
-                    {
-                        // Reset timer
-                        m_delayToIdle = 0.05f;
-                        m_runPool.Get(runIndex).IsRun = true;
-                    }
-                    //Idle
-                    else
-                    {
-                        // Prevents flickering transitions to idle
-                        m_delayToIdle -= Time.deltaTime;
-                        if (m_delayToIdle < 0)
-                            m_runPool.Get(runIndex).IsRun = false;
-                    }
+                    // Reset timer
+                    m_delayToIdle = 0.05f;
+                        
+                    if(!m_runPool.Has(runIndex))
+                        m_runPool.Add(runIndex);
+                }
+                //Idle
+                else
+                {
+                    // Prevents flickering transitions to idle
+                    m_delayToIdle -= Time.deltaTime;
+                    if (m_delayToIdle < 0 && m_runPool.Has(runIndex))
+                        m_runPool.Del(runIndex);
                 }
                 
             }

@@ -27,9 +27,8 @@ namespace Project.Scripts.Gameplay.Systems
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
-
-            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
             
+            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             CreateHeroView();
@@ -52,7 +51,6 @@ namespace Project.Scripts.Gameplay.Systems
             AttachSpriteRendererComponent();
             AttachTransformComponent();
             AttachFlipViewComponent();
-            // AttachRunComponent();
             AttachAttackComponent();
             AttachGroundCheckComponent();
             AttachWallCheckComponent();

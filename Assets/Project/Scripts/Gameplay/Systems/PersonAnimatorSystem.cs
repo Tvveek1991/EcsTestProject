@@ -28,6 +28,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_blockFilter;
         private EcsFilter m_attackFilter;
         private EcsFilter m_runFilter;
+        private EcsFilter m_outOfRunFilter;
         private EcsFilter m_jumperFilter;
         private EcsFilter m_rollingFilter;
         private EcsFilter m_airSpeedYFilter;
@@ -50,6 +51,7 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
             m_runFilter = m_world.Filter<AnimatorComponent>().Inc<RunComponent>().End();
+            m_outOfRunFilter = m_world.Filter<AnimatorComponent>().Exc<RunComponent>().End();
             m_heroFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().End();
             m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
             m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
@@ -118,10 +120,10 @@ namespace Project.Scripts.Gameplay.Systems
         private void CheckRun()
         {
             foreach (var index in m_runFilter)
-            {
-                m_animatorPool.Get(index).AnimatorController
-                    .SetInteger(m_animState, m_runPool.Get(index).IsRun ? 1 : 0);
-            }
+                m_animatorPool.Get(index).AnimatorController.SetInteger(m_animState, 1);
+
+            foreach (var index in m_outOfRunFilter)
+                m_animatorPool.Get(index).AnimatorController.SetInteger(m_animState, 0);
         }
 
         private void CheckJump()
