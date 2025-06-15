@@ -152,15 +152,13 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var personIndex in m_blockFilter)
             {
-                if (m_inputPool.Get(input).IsBlock && !m_blockPool.Get(personIndex).IsIdling)
+                if (m_inputPool.Get(input).IsBlock)
                 {
-                    m_blockPool.Get(personIndex).IsIdling = true;
                     m_animatorPool.Get(personIndex).AnimatorController.SetTrigger(m_block);
                     m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, true);
                 }
-                else if (!m_inputPool.Get(input).IsBlock && m_blockPool.Get(personIndex).IsIdling)
+                else if (!m_inputPool.Get(input).IsBlock)
                 {
-                    m_blockPool.Get(personIndex).IsIdling = false;
                     m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, false);
                 }
             }
