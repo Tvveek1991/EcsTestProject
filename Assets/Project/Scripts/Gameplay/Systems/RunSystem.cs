@@ -30,7 +30,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_runFilter = m_world.Filter<RunComponent>().Inc<Rigidbody2dComponent>().Exc<RollingComponent>().End();
+            m_runFilter = m_world.Filter<HeroComponent>().Inc<Rigidbody2dComponent>().Exc<RollingComponent>().End();
 
             m_runPool = m_world.GetPool<RunComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
@@ -52,21 +52,28 @@ namespace Project.Scripts.Gameplay.Systems
 
                 m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(inputX * m_heroData.Speed, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
 
-                //Run
-                if (Mathf.Abs(inputX) > Mathf.Epsilon)
+                if (inputX != 0 && !m_runPool.Has(runIndex)) 
+                    m_runPool.Add(runIndex);
+
+                if (m_runPool.Has(runIndex))
                 {
-                    // Reset timer
-                    m_delayToIdle = 0.05f;
-                    m_runPool.Get(runIndex).IsRun = true;
+                    //Run
+                    if (Mathf.Abs(inputX) > Mathf.Epsilon)
+                    {
+                        // Reset timer
+                        m_delayToIdle = 0.05f;
+                        m_runPool.Get(runIndex).IsRun = true;
+                    }
+                    //Idle
+                    else
+                    {
+                        // Prevents flickering transitions to idle
+                        m_delayToIdle -= Time.deltaTime;
+                        if (m_delayToIdle < 0)
+                            m_runPool.Get(runIndex).IsRun = false;
+                    }
                 }
-                //Idle
-                else
-                {
-                    // Prevents flickering transitions to idle
-                    m_delayToIdle -= Time.deltaTime;
-                    if (m_delayToIdle < 0)
-                        m_runPool.Get(runIndex).IsRun = false;
-                }
+                
             }
         }
     }

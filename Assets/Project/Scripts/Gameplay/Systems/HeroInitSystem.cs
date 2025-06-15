@@ -52,7 +52,7 @@ namespace Project.Scripts.Gameplay.Systems
             AttachSpriteRendererComponent();
             AttachTransformComponent();
             AttachFlipViewComponent();
-            AttachRunComponent();
+            // AttachRunComponent();
             AttachAttackComponent();
             AttachGroundCheckComponent();
             AttachWallCheckComponent();
@@ -90,11 +90,6 @@ namespace Project.Scripts.Gameplay.Systems
             void AttachWallCheckComponent()
             {
                 m_world.GetPool<WallCheckComponent>().Add(gameLevelEntityIndex);
-            }
-            
-            void AttachRunComponent()
-            {
-                m_world.GetPool<RunComponent>().Add(gameLevelEntityIndex);
             }
             
             void AttachAttackComponent()

@@ -37,7 +37,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<RunComponent> m_runPool;
         private EcsPool<JumpComponent> m_jumpPool;
         private EcsPool<InputComponent> m_inputPool;
-        private EcsPool<BlockComponent> m_blockPool;
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<AnimatorComponent> m_animatorPool;
@@ -63,7 +62,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_runPool = m_world.GetPool<RunComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
-            m_blockPool = m_world.GetPool<BlockComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
             m_animatorPool = m_world.GetPool<AnimatorComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
