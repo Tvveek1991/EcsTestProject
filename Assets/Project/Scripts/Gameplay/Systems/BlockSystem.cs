@@ -13,6 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<BlockComponent> m_blockPool;
         private EcsPool<InputComponent> m_inputPool;
+        private EcsPool<GroundCheckComponent> m_groundCheckPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -20,16 +21,16 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
             m_blockFilter = m_world.Filter<BlockComponent>().End();
-            m_withoutBlockFilter = m_world.Filter<PersonComponent>().Exc<BlockComponent>().Exc<RollingComponent>().End();
+            m_withoutBlockFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>().Exc<BlockComponent>().Exc<RollingComponent>().End();
 
             m_inputPool = m_world.GetPool<InputComponent>();
             m_blockPool = m_world.GetPool<BlockComponent>();
+            m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
 
         public void Run(IEcsSystems systems)
         {
             AttachBlockComponent();
-
             DeleteComponent();
         }
 
@@ -38,7 +39,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var personIndex in m_withoutBlockFilter)
             {
-                if (m_inputPool.Get(input).IsBlock)
+                if (m_inputPool.Get(input).IsBlock && m_groundCheckPool.Get(personIndex).GroundSensor.IsConnected)
                     m_blockPool.Add(personIndex).IsAnimate = true;
             }
         }

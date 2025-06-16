@@ -156,11 +156,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var roller in m_rollingFilter)
             {
-                if (!m_rollingPool.Get(roller).IsRolling)
-                {
-                    m_rollingPool.Get(roller).IsRolling = true;
-                    m_animatorPool.Get(roller).AnimatorController.SetTrigger(m_roll);
-                }
+                if (!m_rollingPool.Get(roller).IsAnimate) continue;
+                
+                m_rollingPool.Get(roller).IsAnimate = false;
+                m_animatorPool.Get(roller).AnimatorController.SetTrigger(m_roll);
             }
         }
 

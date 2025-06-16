@@ -1,6 +1,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
+using Unity.Android.Gradle;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -8,13 +9,13 @@ namespace Project.Scripts.Gameplay.Systems
     public class JumpSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly HeroData m_heroData;
-        
+
         private EcsWorld m_world;
 
         private EcsFilter m_inputFilter;
         private EcsFilter m_jumperFilter;
         private EcsFilter m_withoutJumpFilter;
-        
+
         private EcsPool<JumpComponent> m_jumpPool;
         private EcsPool<InputComponent> m_inputPool;
         private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
@@ -31,7 +32,7 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
             m_jumperFilter = m_world.Filter<GroundCheckComponent>().Inc<Rigidbody2dComponent>().Inc<JumpComponent>().End();
-            m_withoutJumpFilter = m_world.Filter<GroundCheckComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
+            m_withoutJumpFilter = m_world.Filter<GroundCheckComponent>().Exc<JumpComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
 
             m_jumpPool = m_world.GetPool<JumpComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
@@ -41,6 +42,12 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
+            AttachJumpComponent();
+            TryJump();
+        }
+
+        private void AttachJumpComponent()
+        {
             foreach (var input in m_inputFilter)
             foreach (var withoutJump in m_withoutJumpFilter)
             {
@@ -49,7 +56,10 @@ namespace Project.Scripts.Gameplay.Systems
                     m_jumpPool.Add(withoutJump);
                 }
             }
+        }
 
+        private void TryJump()
+        {
             foreach (var jumper in m_jumperFilter)
             {
                 if (m_groundCheckPool.Get(jumper).GroundSensor.IsConnected)
