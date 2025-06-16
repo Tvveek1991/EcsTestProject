@@ -8,16 +8,18 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_inputFilter;
+        private EcsFilter m_blockFilter;
         private EcsFilter m_withoutBlockFilter;
 
         private EcsPool<BlockComponent> m_blockPool;
         private EcsPool<InputComponent> m_inputPool;
-        
+
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
+            m_blockFilter = m_world.Filter<BlockComponent>().End();
             m_withoutBlockFilter = m_world.Filter<PersonComponent>().Exc<BlockComponent>().Exc<RollingComponent>().End();
 
             m_inputPool = m_world.GetPool<InputComponent>();
@@ -26,11 +28,28 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
+            AttachBlockComponent();
+
+            DeleteComponent();
+        }
+
+        private void AttachBlockComponent()
+        {
             foreach (var input in m_inputFilter)
             foreach (var personIndex in m_withoutBlockFilter)
             {
-                if (m_inputPool.Get(input).IsBlock) 
-                    m_blockPool.Add(personIndex);
+                if (m_inputPool.Get(input).IsBlock)
+                    m_blockPool.Add(personIndex).IsAnimate = true;
+            }
+        }
+
+        private void DeleteComponent()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var blockIndex in m_blockFilter)
+            {
+                if (!m_inputPool.Get(input).IsBlock)
+                    m_blockPool.Del(blockIndex);
             }
         }
     }

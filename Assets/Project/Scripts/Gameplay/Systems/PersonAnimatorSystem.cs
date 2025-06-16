@@ -26,6 +26,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_inputFilter;
         private EcsFilter m_personFilter;
         private EcsFilter m_blockFilter;
+        private EcsFilter m_outOfBlockFilter;
         private EcsFilter m_attackFilter;
         private EcsFilter m_runFilter;
         private EcsFilter m_outOfRunFilter;
@@ -37,6 +38,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<JumpComponent> m_jumpPool;
         private EcsPool<InputComponent> m_inputPool;
+        private EcsPool<BlockComponent> m_blockPool;
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<AnimatorComponent> m_animatorPool;
@@ -68,12 +70,15 @@ namespace Project.Scripts.Gameplay.Systems
             m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
             m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
             m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<AttackComponent>().Exc<RollingComponent>().End();
+            
             m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<BlockComponent>().End();
+            m_outOfBlockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Exc<BlockComponent>().End();
         }
 
         private void SetPools()
         {
             m_inputPool = m_world.GetPool<InputComponent>();
+            m_blockPool = m_world.GetPool<BlockComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
             m_animatorPool = m_world.GetPool<AnimatorComponent>();
@@ -97,6 +102,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CheckSimpleAnimation()
         {
+            //ToDo Вычистить со временем
             foreach (var input in m_inputFilter)
             foreach (var index in m_personFilter)
             {
@@ -160,18 +166,18 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CheckBlock()
         {
-            foreach (var input in m_inputFilter)
-            foreach (var personIndex in m_blockFilter)
+            foreach (var index in m_blockFilter)
             {
-                if (m_inputPool.Get(input).IsBlock)
-                {
-                    m_animatorPool.Get(personIndex).AnimatorController.SetTrigger(m_block);
-                    m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, true);
-                }
-                else if (!m_inputPool.Get(input).IsBlock)
-                {
-                    m_animatorPool.Get(personIndex).AnimatorController.SetBool(m_idleBlock, false);
-                }
+                if (!m_blockPool.Get(index).IsAnimate) continue;
+                
+                m_blockPool.Get(index).IsAnimate = false;
+                m_animatorPool.Get(index).AnimatorController.SetTrigger(m_block);
+                m_animatorPool.Get(index).AnimatorController.SetBool(m_idleBlock, true);
+            }
+            
+            foreach (var index in m_outOfBlockFilter)
+            {
+                m_animatorPool.Get(index).AnimatorController.SetBool(m_idleBlock, false);
             }
         }
 

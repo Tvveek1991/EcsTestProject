@@ -1,4 +1,7 @@
 ﻿namespace Project.Scripts.Gameplay.Components
 {
-    public struct BlockComponent { }
+    public struct BlockComponent
+    {
+        public bool IsAnimate;
+    }
 }

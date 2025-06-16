@@ -28,14 +28,11 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var roller in m_rollingFilter)
             {
-                if (m_rollingPool.Has(roller))
+                m_rollCurrentTime += Time.deltaTime;
+                if (m_rollCurrentTime > m_rollDuration)
                 {
-                    m_rollCurrentTime += Time.deltaTime;
-                    if (m_rollCurrentTime > m_rollDuration)
-                    {
-                        m_rollCurrentTime = 0.0f;
-                        m_rollingPool.Del(roller);
-                    }
+                    m_rollCurrentTime = 0.0f;
+                    m_rollingPool.Del(roller);
                 }
             }
         }
