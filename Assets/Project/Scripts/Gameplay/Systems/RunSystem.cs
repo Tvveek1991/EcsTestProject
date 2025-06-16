@@ -37,7 +37,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_inputFilter = m_world.Filter<InputComponent>().End();
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
-            m_runFilter = m_world.Filter<HeroComponent>().Inc<Rigidbody2dComponent>().Exc<RollingComponent>().End();
+            m_runFilter = m_world.Filter<PersonComponent>().Inc<Rigidbody2dComponent>().Exc<RollingComponent>().End();
 
             m_runPool = m_world.GetPool<RunComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();

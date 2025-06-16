@@ -18,7 +18,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_withoutBlockFilter = m_world.Filter<HeroComponent>().Exc<BlockComponent>().Exc<RollingComponent>().End();
+            m_withoutBlockFilter = m_world.Filter<PersonComponent>().Exc<BlockComponent>().Exc<RollingComponent>().End();
 
             m_inputPool = m_world.GetPool<InputComponent>();
             m_blockPool = m_world.GetPool<BlockComponent>();
@@ -29,10 +29,8 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var personIndex in m_withoutBlockFilter)
             {
-                if (m_inputPool.Get(input).IsBlock)
-                {
+                if (m_inputPool.Get(input).IsBlock) 
                     m_blockPool.Add(personIndex);
-                }
             }
         }
     }

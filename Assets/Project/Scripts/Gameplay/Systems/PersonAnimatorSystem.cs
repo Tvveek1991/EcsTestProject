@@ -24,7 +24,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_inputFilter;
-        private EcsFilter m_heroFilter;
+        private EcsFilter m_personFilter;
         private EcsFilter m_blockFilter;
         private EcsFilter m_attackFilter;
         private EcsFilter m_runFilter;
@@ -48,18 +48,31 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
+            SetFilters();
+            SetPools();
+        }
+
+        private void SetFilters()
+        {
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_runFilter = m_world.Filter<AnimatorComponent>().Inc<RunComponent>().End();
-            m_outOfRunFilter = m_world.Filter<AnimatorComponent>().Exc<RunComponent>().End();
-            m_heroFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().End();
-            m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
-            m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
-            m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
+
+            m_personFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().End();
+
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
-            m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Exc<RollingComponent>().End();
-            m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<HeroComponent>().Inc<BlockComponent>().End();
 
+            m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
+
+            m_runFilter = m_world.Filter<AnimatorComponent>().Inc<RunComponent>().End();
+            m_outOfRunFilter = m_world.Filter<AnimatorComponent>().Exc<RunComponent>().End();
+            m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
+            m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
+            m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<AttackComponent>().Exc<RollingComponent>().End();
+            m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<BlockComponent>().End();
+        }
+
+        private void SetPools()
+        {
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
@@ -85,7 +98,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void CheckSimpleAnimation()
         {
             foreach (var input in m_inputFilter)
-            foreach (var index in m_heroFilter)
+            foreach (var index in m_personFilter)
             {
                 if (m_inputPool.Get(input).IsDead)
                     m_animatorPool.Get(index).AnimatorController.SetTrigger(m_death);
@@ -164,14 +177,12 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CheckAttack()
         {
-            foreach (var input in m_inputFilter)
             foreach (var personIndex in m_attackFilter)
             {
-                if (m_inputPool.Get(input).IsAttack)
-                {
-                    m_animatorPool.Get(personIndex).AnimatorController
-                        .SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personIndex).CurrentAttackIndex}");
-                }
+                if (!m_attackPool.Get(personIndex).IsAnimate) continue;
+                
+                m_animatorPool.Get(personIndex).AnimatorController.SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personIndex).CurrentAttackIndex}");
+                m_attackPool.Get(personIndex).IsAnimate = false;
             }
         }
 

@@ -6,5 +6,7 @@ namespace Project.Scripts.Gameplay.Data
     public class CameraData : ScriptableObject
     {
         public Vector2 FieldViewCenterOffset;
+        public float OffsetZ = -10f;
+        public float SmoothSpeed = 0.125f;
     }
 }

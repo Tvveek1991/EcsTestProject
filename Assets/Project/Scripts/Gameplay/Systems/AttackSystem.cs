@@ -7,10 +7,11 @@ namespace Project.Scripts.Gameplay.Systems
     public class AttackSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld m_world;
-        
-        private EcsFilter m_attackFilter;
+
         private EcsFilter m_inputFilter;
-        
+        private EcsFilter m_attackFilter;
+        private EcsFilter m_readyToAttackFilter;
+
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<InputComponent> m_inputPool;
 
@@ -19,7 +20,8 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_attackFilter = m_world.Filter<HeroComponent>().Inc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
+            m_attackFilter = m_world.Filter<PersonComponent>().Inc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
+            m_readyToAttackFilter = m_world.Filter<PersonComponent>().Exc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
 
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
@@ -27,6 +29,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
+            AttachAttackComponent();
+
             foreach (var input in m_inputFilter)
             foreach (var personIndex in m_attackFilter)
             {
@@ -35,16 +39,30 @@ namespace Project.Scripts.Gameplay.Systems
                 
                 if (m_inputPool.Get(input).IsAttack && attackComponent.TimeSinceAttack > 0.25f)
                 {
+                    attackComponent.IsAnimate = true;
                     attackComponent.CurrentAttackIndex++;
-                    
+
                     if (attackComponent.CurrentAttackIndex > 3)
                         attackComponent.CurrentAttackIndex = 1;
 
                     if (attackComponent.TimeSinceAttack > 1.0f)
                         attackComponent.CurrentAttackIndex = 1;
                     
+                    attackComponent.IsAnimate = true;
                     attackComponent.TimeSinceAttack = 0.0f;
                 }
+            }
+        }
+
+        private void AttachAttackComponent()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var personIndex in m_readyToAttackFilter)
+            {
+                if (!m_inputPool.Get(input).IsAttack) continue;
+
+                ref AttackComponent attackComponent = ref m_attackPool.Add(personIndex);
+                attackComponent.TimeSinceAttack = .3f;
             }
         }
     }
