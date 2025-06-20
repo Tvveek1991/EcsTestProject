@@ -21,6 +21,8 @@ namespace Gameplay
 
       builder.Register<IEcsSystem, PersonConnectSensorsInitSystem>(Lifetime.Scoped);
       
+      builder.Register<IEcsSystem, CheckPlayerInputSystem>(Lifetime.Scoped);
+      
       builder.Register<IEcsSystem, FlipHeroViewSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, JumpSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, BlockSystem>(Lifetime.Scoped);
