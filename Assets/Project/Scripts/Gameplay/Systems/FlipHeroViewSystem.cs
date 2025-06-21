@@ -8,12 +8,11 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private EcsWorld m_world;
 
-        private EcsFilter m_inputFilter;
-        private EcsFilter m_flipViewFilter;
+        private EcsFilter m_runFilter;
         private EcsFilter m_wallCheckFilter;
         private EcsFilter m_groundCheckFilter;
 
-        private EcsPool<InputComponent> m_inputPool;
+        private EcsPool<RunComponent> m_runPool;
         private EcsPool<WallCheckComponent> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
         private EcsPool<SpriteRendererComponent> m_spriteRendererPool;
@@ -22,12 +21,12 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_flipViewFilter = m_world.Filter<FlipViewComponent>().Inc<SpriteRendererComponent>().End();
+            m_runFilter = m_world.Filter<RunComponent>().Inc<SpriteRendererComponent>()
+                .Exc<RollingComponent>().End();
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
 
-            m_inputPool = m_world.GetPool<InputComponent>();
+            m_runPool = m_world.GetPool<RunComponent>();
             m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
             m_spriteRendererPool = m_world.GetPool<SpriteRendererComponent>();
@@ -35,22 +34,18 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
-            foreach (var flipView in m_flipViewFilter)
-            foreach (var input in m_inputFilter)
+            foreach (var runEntity in m_runFilter)
             foreach (var wallIndex in m_wallCheckFilter)
             foreach (var groundIndex in m_groundCheckFilter)
             {
-                if (CheckSideInSlide(wallIndex, groundIndex, flipView))
+                if (CheckSideInSlide(wallIndex, groundIndex, runEntity))
                     continue;
-
-                if (m_inputPool.Get(input).IsMoveRightPressed)
-                {
-                    m_spriteRendererPool.Get(flipView).SpriteRenderer.flipX = false;
-                }
-                else if (m_inputPool.Get(input).IsMoveLeftPressed)
-                {
-                    m_spriteRendererPool.Get(flipView).SpriteRenderer.flipX = true;
-                }
+                
+                var flipDirection = m_runPool.Get(runEntity).Direction;
+                if(flipDirection == 0)
+                    continue;
+                
+                m_spriteRendererPool.Get(runEntity).SpriteRenderer.flipX = flipDirection < 0;
             }
         }
 

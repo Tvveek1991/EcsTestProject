@@ -50,7 +50,6 @@ namespace Project.Scripts.Gameplay.Systems
             AttachPlayerComponent();
             AttachPersonComponent();
             AttachAnimatorComponent();
-            AttachFlipViewComponent();
             AttachTransformComponent();
             AttachWallCheckComponent();
             AttachGroundCheckComponent();
@@ -74,11 +73,6 @@ namespace Project.Scripts.Gameplay.Systems
                 animatorComponent.AnimatorController = heroView.GetComponent<Animator>();
             }
 
-            void AttachFlipViewComponent()
-            {
-                m_world.GetPool<FlipViewComponent>().Add(gameLevelEntityIndex);
-            }
-            
             void AttachTransformComponent()
             {
                 ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(gameLevelEntityIndex);

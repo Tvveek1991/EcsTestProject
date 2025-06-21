@@ -12,7 +12,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_runFilter;
-        private EcsFilter m_blockFilter;
 
         private EcsPool<RunComponent> m_runPool;
         private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
@@ -28,8 +27,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_blockFilter = m_world.Filter<BlockComponent>().Inc<Rigidbody2dComponent>().End();
-            m_runFilter = m_world.Filter<RunComponent>().Inc<Rigidbody2dComponent>().End();
+            m_runFilter = m_world.Filter<RunComponent>().Inc<Rigidbody2dComponent>()
+                .Exc<RollingComponent>().Exc<BlockComponent>().End();
 
             m_runPool = m_world.GetPool<RunComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
@@ -54,18 +53,12 @@ namespace Project.Scripts.Gameplay.Systems
                     // Prevents flickering transitions to idle
                     m_delayToIdle -= Time.deltaTime;
                     if (m_delayToIdle < 0 && m_runPool.Has(runIndex))
+                    {
                         m_runPool.Del(runIndex);
+                        m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(0, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
+                    }
                 }
             }
-            
-            //if no need a person drift
-            StopDrift();
-        }
-
-        private void StopDrift()
-        {
-            foreach (var blockIndex in m_blockFilter)
-                m_rigidbody2dPool.Get(blockIndex).Rigidbody.linearVelocity = Vector2.zero;
         }
     }
 }

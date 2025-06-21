@@ -13,6 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<InputComponent> m_inputPool;
         private EcsPool<BlockComponent> m_blockPool;
+        private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -23,16 +24,21 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_inputPool = m_world.GetPool<InputComponent>();
             m_blockPool = m_world.GetPool<BlockComponent>();
+            m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
         }
 
         public void Run(IEcsSystems systems)
         {
-            TryBlock();
+            StopMoving();
             DelComponent();
         }
 
-        private void TryBlock()
+        private void StopMoving()
         {
+            foreach (var entity in m_blockFilter)
+            {
+                m_rigidbody2dPool.Get(entity).Rigidbody.linearVelocity = new Vector2(0, m_rigidbody2dPool.Get(entity).Rigidbody.linearVelocity.y);
+            }
         }
 
         private void DelComponent()

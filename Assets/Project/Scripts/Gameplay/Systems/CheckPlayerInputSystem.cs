@@ -12,13 +12,18 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_inputFilter;
         private EcsFilter m_readyToJumpFilter;
         private EcsFilter m_readyToBlockFilter;
+        private EcsFilter m_attackFilter;
+        private EcsFilter m_readyToAttackFilter;
         private EcsFilter m_runFilter;
         private EcsFilter m_readyToRunFilter;
+        private EcsFilter m_readyRollingFilter;
 
         private EcsPool<RunComponent> m_runPool;
         private EcsPool<JumpComponent> m_jumpPool;
         private EcsPool<BlockComponent> m_blockPool;
         private EcsPool<InputComponent> m_inputPool;
+        private EcsPool<AttackComponent> m_attackPool;
+        private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<WallCheckComponent> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
         
@@ -27,18 +32,30 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
             
             m_inputFilter = m_world.Filter<InputComponent>().End();
+            
             m_readyToJumpFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<RollingComponent>().Exc<JumpComponent>().End();
+            
             m_readyToBlockFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<RollingComponent>().End();
+            
             m_runFilter = m_world.Filter<RunComponent>().End();
             m_readyToRunFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>().Inc<WallCheckComponent>()
                 .Exc<RollingComponent>().Exc<BlockComponent>().End();
+            
+            m_attackFilter = m_world.Filter<AttackComponent>().End();
+            m_readyToAttackFilter = m_world.Filter<PersonComponent>()
+                .Exc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
+            
+            m_readyRollingFilter = m_world.Filter<GroundCheckComponent>()
+                .Exc<BlockComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
             
             m_runPool = m_world.GetPool<RunComponent>();
             m_jumpPool = m_world.GetPool<JumpComponent>();
             m_blockPool = m_world.GetPool<BlockComponent>();
             m_inputPool = m_world.GetPool<InputComponent>();
+            m_attackPool = m_world.GetPool<AttackComponent>();
+            m_rollingPool = m_world.GetPool<RollingComponent>();
             m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
@@ -49,6 +66,9 @@ namespace Project.Scripts.Gameplay.Systems
             AttachBlockComponent();
             AttachRunComponent();
             CheckRunDirection();
+            AttachAttackComponent();
+            CheckAttack();
+            AttachRollerComponent();
         }
 
         private void AttachJumpComponent()
@@ -106,6 +126,42 @@ namespace Project.Scripts.Gameplay.Systems
             else
                 inputX = 0;
             return inputX;
+        }
+        
+        private void AttachAttackComponent()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var personIndex in m_readyToAttackFilter)
+            {
+                if (!m_inputPool.Get(input).IsAttack) continue;
+
+                m_attackPool.Add(personIndex);
+            }
+        }
+
+        private void CheckAttack()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var entity in m_attackFilter)
+            {
+                if (!m_inputPool.Get(input).IsAttack) continue;
+
+                ref AttackComponent attackComponent = ref m_attackPool.Get(entity);
+                attackComponent.IsAnimate = true;
+                attackComponent.TimeSinceAttack = .3f;
+            }
+        }
+
+        private void AttachRollerComponent()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var withoutRollIndex in m_readyRollingFilter)
+            {
+                if (m_inputPool.Get(input).IsRollPressed && m_groundCheckPool.Get(withoutRollIndex).GroundSensor.IsConnected)
+                {
+                    m_rollingPool.Add(withoutRollIndex).IsAnimate = true;
+                }
+            }
         }
     }
 }
