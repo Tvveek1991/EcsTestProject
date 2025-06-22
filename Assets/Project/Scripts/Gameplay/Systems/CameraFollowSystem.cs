@@ -38,7 +38,10 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 Transform cameraTransform;
                 Vector3 target = m_transformPool.Get(index).ObjectTransform.position;
+                
                 Vector3 desiredPosition = new Vector3(target.x, (cameraTransform = m_camera.transform).position.y, m_cameraData.OffsetZ);
+                desiredPosition.x = Mathf.Clamp(desiredPosition.x, m_cameraData.MinPositionX, m_cameraData.MaxPositionX);
+                
                 Vector3 smoothedPosition = Vector3.Lerp(cameraTransform.position, desiredPosition, m_cameraData.SmoothSpeed);
                 cameraTransform.position = smoothedPosition;
             }

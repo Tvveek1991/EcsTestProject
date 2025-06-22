@@ -96,10 +96,6 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var runIndex in m_readyToRunFilter)
             {
-                if (m_wallCheckPool.Get(runIndex).WallSensors != null)
-                    if (m_wallCheckPool.Get(runIndex).WallSensors.Any(item => item.IsConnected) && !m_groundCheckPool.Get(runIndex).GroundSensor.IsConnected)
-                        continue;
-
                 bool isInMove = Mathf.Abs(GetDirection(input)) > Mathf.Epsilon;
                 
                 if(!m_runPool.Has(runIndex) && isInMove)

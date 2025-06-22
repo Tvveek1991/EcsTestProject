@@ -1,3 +1,4 @@
+using System.Linq;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
@@ -15,6 +16,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<RunComponent> m_runPool;
         private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
+        private EcsPool<WallCheckComponent> m_wallCheckPool;
+        private EcsPool<GroundCheckComponent> m_groundCheckPool;
 
         private float m_delayToIdle;
 
@@ -32,12 +35,18 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_runPool = m_world.GetPool<RunComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
+            m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
+            m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
 
         public void Run(IEcsSystems systems)
         {
             foreach (var runIndex in m_runFilter)
             {
+                if (m_wallCheckPool.Get(runIndex).WallSensors != null)
+                    if (m_wallCheckPool.Get(runIndex).WallSensors.Any(item => item.IsConnected) && !m_groundCheckPool.Get(runIndex).GroundSensor.IsConnected)
+                        continue;
+                
                 int direction = m_runPool.Get(runIndex).Direction;
                 m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(direction * m_heroData.Speed, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
 

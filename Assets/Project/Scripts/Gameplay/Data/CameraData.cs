@@ -8,5 +8,7 @@ namespace Project.Scripts.Gameplay.Data
         public Vector2 FieldViewCenterOffset;
         public float OffsetZ = -10f;
         public float SmoothSpeed = 0.125f;
+        public int MinPositionX = -4;
+        public int MaxPositionX = 110;
     }
 }
