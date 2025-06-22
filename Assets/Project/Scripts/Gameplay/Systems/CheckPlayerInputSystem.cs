@@ -11,6 +11,7 @@ namespace Project.Scripts.Gameplay.Systems
         
         private EcsFilter m_inputFilter;
         private EcsFilter m_readyToJumpFilter;
+        private EcsFilter m_blockFilter;
         private EcsFilter m_readyToBlockFilter;
         private EcsFilter m_attackFilter;
         private EcsFilter m_readyToAttackFilter;
@@ -36,6 +37,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_readyToJumpFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<RollingComponent>().Exc<JumpComponent>().End();
             
+            m_blockFilter = m_world.Filter<BlockComponent>().End();
             m_readyToBlockFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<RollingComponent>().End();
             
@@ -64,6 +66,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             AttachJumpComponent();
             AttachBlockComponent();
+            CheckUnblock();
             AttachRunComponent();
             CheckRunDirection();
             AttachAttackComponent();
@@ -88,6 +91,16 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 if (m_inputPool.Get(input).IsBlock && m_groundCheckPool.Get(readyToBlockEntity).GroundSensor.IsConnected)
                     m_blockPool.Add(readyToBlockEntity).IsAnimate = true;
+            }
+        }
+
+        private void CheckUnblock()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var entity in m_blockFilter)
+            {
+                if (!m_inputPool.Get(input).IsBlock)
+                    m_blockPool.Del(entity);
             }
         }
 
