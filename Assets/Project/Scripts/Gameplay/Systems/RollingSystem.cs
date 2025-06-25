@@ -15,7 +15,6 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
-        private EcsPool<GroundCheckComponent> m_groundCheckPool;
         private EcsPool<SpriteRendererComponent> m_spriteRendererPool;
         
         private float m_rollDuration = .643f;
@@ -34,7 +33,6 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_rollingPool = m_world.GetPool<RollingComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
-            m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
             m_spriteRendererPool = m_world.GetPool<SpriteRendererComponent>();
         }
 
