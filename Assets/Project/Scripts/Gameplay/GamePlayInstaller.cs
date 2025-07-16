@@ -18,8 +18,9 @@ namespace Gameplay
     private const string AnimationDataAddress = "Field Animation Data";
     
     private const string ConnectSensorAddress = "ConnectSensor";
-    private const string HeroViewAddress = "HeroView";
+    private const string PersonViewAddress = "PersonView";
     private const string GameLevelViewAddress = "GameLevelView";
+    private const string HealthViewAddress = "HealthView";
     
     private const string CameraAddress = "Camera";
 
@@ -29,8 +30,9 @@ namespace Gameplay
     private FieldAnimationData _fieldAnimationData;
 
     private Sensor m_connectSensorPrefab;
-    private HeroView m_heroViewPrefab;
+    private PersonView m_personViewPrefab;
     private GameLevelView m_gameLevelViewPrefab;
+    private HealthView m_healthViewPrefab;
 
     private Camera _camera;
 
@@ -46,9 +48,10 @@ namespace Gameplay
       _cameraData = await _assetProvider.Load<CameraData>(CameraDataAddress);
       _fieldAnimationData = await _assetProvider.Load<FieldAnimationData>(AnimationDataAddress);
 
-      m_heroViewPrefab = (await _assetProvider.Load<GameObject>(HeroViewAddress)).GetComponentInChildren<HeroView>();
+      m_personViewPrefab = (await _assetProvider.Load<GameObject>(PersonViewAddress)).GetComponentInChildren<PersonView>();
+      m_healthViewPrefab = (await _assetProvider.Load<GameObject>(HealthViewAddress)).GetComponentInChildren<HealthView>();
       m_gameLevelViewPrefab = (await _assetProvider.Load<GameObject>(GameLevelViewAddress)).GetComponentInChildren<GameLevelView>();
-      
+
       m_connectSensorPrefab = (await _assetProvider.Load<GameObject>(ConnectSensorAddress)).GetComponentInChildren<Sensor>();
 
       _camera = (Object.Instantiate(await _assetProvider.Load<GameObject>(CameraAddress))).GetComponentInChildren<Camera>();
@@ -61,7 +64,8 @@ namespace Gameplay
       builder.RegisterInstance(_cameraData);
       builder.RegisterInstance(_fieldAnimationData);
       
-      builder.RegisterInstance(m_heroViewPrefab);
+      builder.RegisterInstance(m_personViewPrefab);
+      builder.RegisterInstance(m_healthViewPrefab);
       builder.RegisterInstance(m_gameLevelViewPrefab);
         
       builder.RegisterInstance(m_connectSensorPrefab);
@@ -76,7 +80,8 @@ namespace Gameplay
       _assetProvider.Release(CameraDataAddress);
       _assetProvider.Release(AnimationDataAddress);
 
-      _assetProvider.Release(HeroViewAddress);
+      _assetProvider.Release(PersonViewAddress);
+      _assetProvider.Release(HealthViewAddress);
       _assetProvider.Release(GameLevelViewAddress);
       
       _assetProvider.Release(ConnectSensorAddress);

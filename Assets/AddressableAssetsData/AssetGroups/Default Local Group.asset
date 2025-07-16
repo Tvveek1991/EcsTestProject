@@ -51,7 +51,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d0fbf817379191b4588195d25ca4c7eb
-    m_Address: HeroView
+    m_Address: PersonView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4f1d99195de60644a5955e8783770f9
+    m_Address: HealthView
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8769897211714110727}
   - component: {fileID: 6726929281226279942}
   m_Layer: 0
-  m_Name: HeroView
+  m_Name: PersonView
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33,7 +33,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7540054490317538932}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7789234094715037994
@@ -48,6 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfc74661b455ebc4fa48f76bb3ed41d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_healthSpawnPoint: {fileID: 7540054490317538932}
 --- !u!95 &8914189871134186729
 Animator:
   serializedVersion: 7
@@ -198,3 +200,34 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.73, y: 1.2}
   m_EdgeRadius: 0
+--- !u!1 &7788129455207098739
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7540054490317538932}
+  m_Layer: 0
+  m_Name: Hero spawn point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7540054490317538932
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7788129455207098739}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5751874661492228648}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

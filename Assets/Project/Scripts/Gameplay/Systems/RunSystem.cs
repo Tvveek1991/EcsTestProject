@@ -2,7 +2,6 @@ using System.Linq;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
-using Unity.Android.Gradle;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Leopotam.EcsLite;
+﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using UnityEngine;
 
@@ -25,7 +24,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<InputComponent> m_inputPool;
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<RollingComponent> m_rollingPool;
-        private EcsPool<WallCheckComponent> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
         
         public void Init(IEcsSystems systems)
@@ -34,19 +32,19 @@ namespace Project.Scripts.Gameplay.Systems
             
             m_inputFilter = m_world.Filter<InputComponent>().End();
             
-            m_readyToJumpFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>()
+            m_readyToJumpFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<RollingComponent>().Exc<JumpComponent>().End();
             
             m_blockFilter = m_world.Filter<BlockComponent>().End();
-            m_readyToBlockFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>()
+            m_readyToBlockFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<RollingComponent>().End();
             
             m_runFilter = m_world.Filter<RunComponent>().End();
-            m_readyToRunFilter = m_world.Filter<PersonComponent>().Inc<GroundCheckComponent>().Inc<WallCheckComponent>()
+            m_readyToRunFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>().Inc<WallCheckComponent>()
                 .Exc<RollingComponent>().Exc<BlockComponent>().End();
             
             m_attackFilter = m_world.Filter<AttackComponent>().End();
-            m_readyToAttackFilter = m_world.Filter<PersonComponent>()
+            m_readyToAttackFilter = m_world.Filter<PlayerComponent>()
                 .Exc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
             
             m_readyRollingFilter = m_world.Filter<GroundCheckComponent>()
@@ -58,7 +56,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
-            m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
 

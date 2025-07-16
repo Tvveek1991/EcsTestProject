@@ -15,6 +15,10 @@ namespace Gameplay
       builder.Register<IEcsSystem, CreateGameLevelViewSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, EnemyInitSystem>(Lifetime.Scoped);
+      
+      builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CreateHealthViewSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, CameraResizeInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CameraFollowSystem>(Lifetime.Scoped);
