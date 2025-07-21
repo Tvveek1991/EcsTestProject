@@ -41,7 +41,13 @@ namespace Project.Scripts.Gameplay.Systems
         {
             CreateHealthView();
         }
-        
+
+        public void Destroy(IEcsSystems systems)
+        {
+            foreach (var healthViewEntity in m_healthViewFilter)
+                Object.Destroy(m_healthViewPool.Get(healthViewEntity).HealthView);
+        }
+
         private void CreateHealthView()
         {
             foreach (var readyToHealthViewEntity in m_healthReadyToViewFilter)
@@ -57,18 +63,24 @@ namespace Project.Scripts.Gameplay.Systems
                     
                 var healthView = Object.Instantiate(m_healthViewPrefab, spawnPoint).GetComponent<HealthView>();
                 healthView.transform.localPosition = Vector3.zero;
-                    
-                ref HealthViewRefComponent view = ref m_healthViewPool.Add(newEntity);
-                view.HealthView = healthView;
-
+                
+                AttacheHealthViewComponent(newEntity, healthView);
+                AttachTransformComponent(newEntity, healthView.transform);
+                
                 healthComponent.ViewEntityIndex = newEntity;
             }
         }
-        
-        public void Destroy(IEcsSystems systems)
+
+        private void AttacheHealthViewComponent(int newEntity, HealthView healthView)
         {
-            foreach (var healthViewEntity in m_healthViewFilter)
-                Object.Destroy(m_healthViewPool.Get(healthViewEntity).HealthView);
+            ref HealthViewRefComponent view = ref m_healthViewPool.Add(newEntity);
+            view.HealthView = healthView;
+        }
+
+        private void AttachTransformComponent(int entity, Transform attachedTransform)
+        {
+            ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(entity);
+            transformComponent.ObjectTransform = attachedTransform;
         }
     }
 }

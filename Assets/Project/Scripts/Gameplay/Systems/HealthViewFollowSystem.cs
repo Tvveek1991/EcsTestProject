@@ -13,8 +13,8 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_personViewWithHealthFilter;
 
         private EcsPool<HealthComponent> m_healthPool;
+        private EcsPool<TransformComponent> m_transformPool;
         private EcsPool<PersonViewRefComponent> m_personViewPool;
-        private EcsPool<HealthViewRefComponent> m_healthViewPool;
 
         public HealthViewFollowSystem(Camera camera)
         {
@@ -25,12 +25,12 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_healthViewFilter = m_world.Filter<HealthViewRefComponent>().End();
+            m_healthViewFilter = m_world.Filter<HealthViewRefComponent>().Inc<TransformComponent>().End();
             m_personViewWithHealthFilter = m_world.Filter<PersonViewRefComponent>().Inc<HealthComponent>().End();
 
             m_healthPool = m_world.GetPool<HealthComponent>();
+            m_transformPool = m_world.GetPool<TransformComponent>();
             m_personViewPool = m_world.GetPool<PersonViewRefComponent>();
-            m_healthViewPool = m_world.GetPool<HealthViewRefComponent>();
         }
         
         public void Run(IEcsSystems systems)
@@ -46,11 +46,11 @@ namespace Project.Scripts.Gameplay.Systems
                 ref HealthComponent healthComponent = ref m_healthPool.Get(personViewWithHealthEntity);
                 if (healthViewEntity == healthComponent.ViewEntityIndex)
                 {
+                    ref TransformComponent transformComponent = ref m_transformPool.Get(healthViewEntity);
                     ref PersonViewRefComponent personViewComponent = ref m_personViewPool.Get(personViewWithHealthEntity);
-                    ref HealthViewRefComponent healthViewComponent = ref m_healthViewPool.Get(healthViewEntity);
 
                     Vector3 screenPosition = m_camera.WorldToScreenPoint(personViewComponent.PersonView.GetHealthFollowPoint().position);
-                    healthViewComponent.HealthView.GetComponent<RectTransform>().position = new Vector2(screenPosition.x, screenPosition.y);
+                    transformComponent.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
                 }
             }
         }
