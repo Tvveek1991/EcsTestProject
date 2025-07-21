@@ -47,7 +47,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_readyToAttackFilter = m_world.Filter<PlayerComponent>()
                 .Exc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
             
-            m_readyRollingFilter = m_world.Filter<GroundCheckComponent>()
+            m_readyRollingFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
             
             m_runPool = m_world.GetPool<RunComponent>();

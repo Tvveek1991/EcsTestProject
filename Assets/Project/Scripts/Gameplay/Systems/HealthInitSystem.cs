@@ -9,14 +9,15 @@ namespace Project.Scripts.Gameplay.Systems
         
         private EcsFilter m_personFilter;
         
-        private EcsPool<HealthComponent> m_healthPool;
+        private EcsPool<HealthComponent> m_addHealthPool;
         
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
             
             m_personFilter = m_world.Filter<PersonComponent>().Exc<HealthComponent>().End();
-            m_healthPool = m_world.GetPool<HealthComponent>();
+            
+            m_addHealthPool = m_world.GetPool<HealthComponent>();
         }
 
         public void Run(IEcsSystems systems)
@@ -27,7 +28,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void TryAttacheHealthComponent()
         {
             foreach (var person in m_personFilter) 
-                m_healthPool.Add(person);
+                m_addHealthPool.Add(person);
         }
     }
 }

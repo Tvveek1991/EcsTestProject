@@ -55,6 +55,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f3f7fb48c13768a4f90455d46cf12387
+    m_Address: Canvas
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f4f1d99195de60644a5955e8783770f9
     m_Address: HealthView
     m_ReadOnly: 0

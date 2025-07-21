@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using System;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Sensors
@@ -13,6 +14,12 @@ namespace Project.Scripts.Gameplay.Sensors
         private Tween m_disconnectTween;
         
         public bool IsConnected => m_disableTimer <= 0 && m_isConnected;
+
+        private void OnDestroy()
+        {
+            m_disconnectTween?.Kill();
+            m_disconnectTween = null;
+        }
 
         private void OnEnable()
         {

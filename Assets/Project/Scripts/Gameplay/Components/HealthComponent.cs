@@ -2,5 +2,6 @@
 {
     public struct HealthComponent
     {
+        public int ViewEntityIndex;
     }
 }

@@ -9,7 +9,7 @@ namespace Project.Scripts.Gameplay.Views
         public void SetPosition(Vector3 newPosition) => 
             transform.position = newPosition;
         
-        public Transform GetHealthSpawnPoint() =>
+        public Transform GetHealthFollowPoint() =>
             m_healthSpawnPoint;
     }
 }

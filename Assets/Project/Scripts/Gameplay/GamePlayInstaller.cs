@@ -12,6 +12,7 @@ namespace Gameplay
 {
   public class GamePlayInstaller : IInstaller
   {
+    private const string CanvasAddress = "Canvas";
     private const string HeroDataAddress = "Hero Data";
     private const string SensorsDataAddress = "Sensors Data";
     private const string CameraDataAddress = "Camera Data";
@@ -24,6 +25,8 @@ namespace Gameplay
     
     private const string CameraAddress = "Camera";
 
+    private Canvas _canvasPrefab;
+    
     private HeroData _heroData;
     private SensorsData _sensorsData;
     private CameraData _cameraData;
@@ -43,6 +46,8 @@ namespace Gameplay
 
     public async UniTask Preload()
     {
+      _canvasPrefab = (await _assetProvider.Load<GameObject>(CanvasAddress)).GetComponentInChildren<Canvas>();
+      
       _heroData = await _assetProvider.Load<HeroData>(HeroDataAddress);
       _sensorsData = await _assetProvider.Load<SensorsData>(SensorsDataAddress);
       _cameraData = await _assetProvider.Load<CameraData>(CameraDataAddress);
@@ -59,6 +64,8 @@ namespace Gameplay
 
     public void Install(IContainerBuilder builder)
     {
+      builder.RegisterInstance(_canvasPrefab);
+      
       builder.RegisterInstance(_heroData);
       builder.RegisterInstance(_sensorsData);
       builder.RegisterInstance(_cameraData);
@@ -75,6 +82,8 @@ namespace Gameplay
 
     public void Clear()
     {
+      _assetProvider.Release(CanvasAddress);
+      
       _assetProvider.Release(HeroDataAddress);
       _assetProvider.Release(SensorsDataAddress);
       _assetProvider.Release(CameraDataAddress);

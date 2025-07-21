@@ -1,16 +1,8 @@
 using UnityEngine;
 
-public class HealthView : MonoBehaviour
+namespace Project.Scripts.Gameplay.Views
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class HealthView : MonoBehaviour
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
