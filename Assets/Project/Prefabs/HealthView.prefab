@@ -285,6 +285,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6788896031738020066}
   - component: {fileID: 1234541055284362576}
+  - component: {fileID: 3566572428510632092}
   m_Layer: 5
   m_Name: HealthView
   m_TagString: Untagged
@@ -324,3 +325,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ea963f7d1faeed448b55e297e18ea05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_healthBar: {fileID: 545789225190782289}
+  m_canvasGroup: {fileID: 3566572428510632092}
+--- !u!225 &3566572428510632092
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7383205110141294423}
+  m_Enabled: 1
+  m_Alpha: 0.61
+  m_Interactable: 1
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0

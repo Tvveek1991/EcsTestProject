@@ -39,6 +39,9 @@ namespace Gameplay
       
       builder.Register<IEcsSystem, PersonAnimatorSystem>(Lifetime.Scoped);
       
+      
+      builder.Register<IEcsSystem, HealthViewChangeSystem>(Lifetime.Scoped);
+      
       builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
     }
   }
