@@ -8,7 +8,7 @@ namespace Project.Scripts.Gameplay.Systems
 {
     public class RunSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private readonly HeroData m_heroData;
+        private readonly PersonData m_personData;
 
         private EcsWorld m_world;
 
@@ -22,9 +22,9 @@ namespace Project.Scripts.Gameplay.Systems
 
         private float m_delayToIdle;
 
-        public RunSystem(HeroData heroData)
+        public RunSystem(PersonData personData)
         {
-            m_heroData = heroData;
+            m_personData = personData;
         }
 
         public void Init(IEcsSystems systems)
@@ -54,7 +54,7 @@ namespace Project.Scripts.Gameplay.Systems
                         continue;
 
                 int direction = m_runPool.Get(runIndex).Direction;
-                m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(direction * m_heroData.Speed, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
+                m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(direction * m_personData.Speed, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
 
                 //Run
                 if (Mathf.Abs(direction) > Mathf.Epsilon)

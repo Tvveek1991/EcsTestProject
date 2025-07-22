@@ -7,7 +7,7 @@ namespace Project.Scripts.Gameplay.Systems
 {
     public class JumpSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private readonly HeroData m_heroData;
+        private readonly PersonData m_personData;
 
         private EcsWorld m_world;
 
@@ -17,9 +17,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
 
-        public JumpSystem(HeroData heroData)
+        public JumpSystem(PersonData personData)
         {
-            m_heroData = heroData;
+            m_personData = personData;
         }
 
         public void Init(IEcsSystems systems)
@@ -42,7 +42,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var jumper in m_jumperFilter)
             {
-                m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity = new Vector2(m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity.x, m_heroData.JumpForce);
+                m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity = new Vector2(m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity.x, m_personData.JumpForce);
                 m_groundCheckPool.Get(jumper).GroundSensor.Disable(0.2f);
             }
         }

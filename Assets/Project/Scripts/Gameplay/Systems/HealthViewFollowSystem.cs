@@ -44,7 +44,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var personViewWithHealthEntity in m_personViewWithHealthFilter)
             {
                 ref HealthComponent healthComponent = ref m_healthPool.Get(personViewWithHealthEntity);
-                if (healthViewEntity == healthComponent.ViewEntityIndex)
+                if (healthViewEntity == healthComponent.HealthViewEntityIndex)
                 {
                     ref TransformComponent transformComponent = ref m_transformPool.Get(healthViewEntity);
                     ref PersonViewRefComponent personViewComponent = ref m_personViewPool.Get(personViewWithHealthEntity);

@@ -2,6 +2,7 @@ using Application.ContainerMediator;
 using Application.StateMachine.Interfaces;
 using Application.StateMachine.States;
 using AssetProvider;
+using Project.Scripts.Application;
 // using Gameplay.Services.VibrationService;
 using VContainer;
 using VContainer.Unity;

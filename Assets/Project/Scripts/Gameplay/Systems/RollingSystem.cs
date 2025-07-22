@@ -7,7 +7,7 @@ namespace Project.Scripts.Gameplay.Systems
 {
     public class RollingSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private readonly HeroData m_heroData;
+        private readonly PersonData m_personData;
 
         private EcsWorld m_world;
 
@@ -20,9 +20,9 @@ namespace Project.Scripts.Gameplay.Systems
         private float m_rollDuration = .643f;
         private float m_rollCurrentTime;
         
-        public RollingSystem(HeroData heroData)
+        public RollingSystem(PersonData personData)
         {
-            m_heroData = heroData;
+            m_personData = personData;
         }
 
         public void Init(IEcsSystems systems)
@@ -51,7 +51,7 @@ namespace Project.Scripts.Gameplay.Systems
                     var facingDirection = m_spriteRendererPool.Get(roller).SpriteRenderer.flipX ? -1 : 1;
                     
                     m_rigidbody2dPool.Get(roller).Rigidbody.linearVelocity = new Vector2(
-                        facingDirection * m_heroData.RollForce, m_rigidbody2dPool.Get(roller).Rigidbody.linearVelocity.y);
+                        facingDirection * m_personData.RollForce, m_rigidbody2dPool.Get(roller).Rigidbody.linearVelocity.y);
                 }
             }
         }

@@ -1,5 +1,6 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -17,10 +18,12 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<HealthComponent> m_healthPool;
         private EcsPool<HealthViewRefComponent> m_healthViewPool;
 
+        private readonly PersonData m_personData;
         private readonly HealthView m_healthViewPrefab;
 
-        public CreateHealthViewSystem(HealthView healthViewPrefab)
+        public CreateHealthViewSystem(PersonData personData, HealthView healthViewPrefab)
         {
+            m_personData = personData;
             m_healthViewPrefab = healthViewPrefab;
         }
         
@@ -54,7 +57,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var canvasEntity in m_canvasFilter)
             {
                 ref HealthComponent healthComponent = ref m_healthPool.Get(readyToHealthViewEntity);
-                if(healthComponent.ViewEntityIndex != 0)
+                if(healthComponent.HealthViewEntityIndex != 0)
                     continue;
                 
                 var newEntity = m_world.NewEntity();
@@ -63,11 +66,13 @@ namespace Project.Scripts.Gameplay.Systems
                     
                 var healthView = Object.Instantiate(m_healthViewPrefab, spawnPoint).GetComponent<HealthView>();
                 healthView.transform.localPosition = Vector3.zero;
+                healthView.HealthBar.maxValue = m_personData.FullHealth;
                 
                 AttacheHealthViewComponent(newEntity, healthView);
                 AttachTransformComponent(newEntity, healthView.transform);
                 
-                healthComponent.ViewEntityIndex = newEntity;
+                healthComponent.HealthViewEntityIndex = newEntity;
+                
             }
         }
 

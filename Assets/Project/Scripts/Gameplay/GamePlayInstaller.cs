@@ -13,7 +13,7 @@ namespace Gameplay
   public class GamePlayInstaller : IInstaller
   {
     private const string CanvasAddress = "Canvas";
-    private const string HeroDataAddress = "Hero Data";
+    private const string PersonDataAddress = "Person Data";
     private const string SensorsDataAddress = "Sensors Data";
     private const string CameraDataAddress = "Camera Data";
     private const string AnimationDataAddress = "Field Animation Data";
@@ -27,7 +27,7 @@ namespace Gameplay
 
     private Canvas _canvasPrefab;
     
-    private HeroData _heroData;
+    private PersonData m_personData;
     private SensorsData _sensorsData;
     private CameraData _cameraData;
     private FieldAnimationData _fieldAnimationData;
@@ -48,7 +48,7 @@ namespace Gameplay
     {
       _canvasPrefab = (await _assetProvider.Load<GameObject>(CanvasAddress)).GetComponentInChildren<Canvas>();
       
-      _heroData = await _assetProvider.Load<HeroData>(HeroDataAddress);
+      m_personData = await _assetProvider.Load<PersonData>(PersonDataAddress);
       _sensorsData = await _assetProvider.Load<SensorsData>(SensorsDataAddress);
       _cameraData = await _assetProvider.Load<CameraData>(CameraDataAddress);
       _fieldAnimationData = await _assetProvider.Load<FieldAnimationData>(AnimationDataAddress);
@@ -66,7 +66,7 @@ namespace Gameplay
     {
       builder.RegisterInstance(_canvasPrefab);
       
-      builder.RegisterInstance(_heroData);
+      builder.RegisterInstance(m_personData);
       builder.RegisterInstance(_sensorsData);
       builder.RegisterInstance(_cameraData);
       builder.RegisterInstance(_fieldAnimationData);
@@ -84,7 +84,7 @@ namespace Gameplay
     {
       _assetProvider.Release(CanvasAddress);
       
-      _assetProvider.Release(HeroDataAddress);
+      _assetProvider.Release(PersonDataAddress);
       _assetProvider.Release(SensorsDataAddress);
       _assetProvider.Release(CameraDataAddress);
       _assetProvider.Release(AnimationDataAddress);

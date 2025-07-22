@@ -3,7 +3,7 @@ using Application.StateMachine.States;
 using UnityEngine;
 using VContainer;
 
-namespace Application
+namespace Project.Scripts.Application
 {
   public sealed class Bootstrapper : MonoBehaviour
   {
