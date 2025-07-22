@@ -2,6 +2,6 @@
 {
     public struct HitHealthCommandComponent
     {
-        public int Damage;
+        public int DecreaseHealth;
     }
 }

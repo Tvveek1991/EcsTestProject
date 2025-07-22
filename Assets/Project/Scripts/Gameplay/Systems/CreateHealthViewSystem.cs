@@ -72,7 +72,6 @@ namespace Project.Scripts.Gameplay.Systems
                 AttachTransformComponent(newEntity, healthView.transform);
                 
                 healthComponent.HealthViewEntityIndex = newEntity;
-                
             }
         }
 
