@@ -8,6 +8,7 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private EcsWorld m_world;
         
+        private EcsFilter m_hitFilter;
         private EcsFilter m_inputFilter;
         private EcsFilter m_readyToJumpFilter;
         private EcsFilter m_blockFilter;
@@ -25,7 +26,8 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
-        
+        private EcsPool<HurtCommandComponent> m_hurtCommandPool;
+
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
@@ -50,6 +52,9 @@ namespace Project.Scripts.Gameplay.Systems
             m_readyRollingFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
             
+            m_hitFilter = m_world.Filter<PlayerComponent>().Inc<HealthComponent>()
+                .Exc<HurtCommandComponent>().End();
+            
             m_runPool = m_world.GetPool<RunComponent>();
             m_jumpPool = m_world.GetPool<JumpComponent>();
             m_blockPool = m_world.GetPool<BlockComponent>();
@@ -57,6 +62,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_attackPool = m_world.GetPool<AttackComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
+            m_hurtCommandPool = m_world.GetPool<HurtCommandComponent>();
         }
 
         public void Run(IEcsSystems systems)
@@ -69,8 +75,20 @@ namespace Project.Scripts.Gameplay.Systems
             AttachAttackComponent();
             CheckAttack();
             AttachRollerComponent();
+            
+            AttachHurtComponent();
         }
 
+        private void AttachHurtComponent()
+        {
+            foreach (var input in m_inputFilter)
+            foreach (var hitEntity in m_hitFilter)
+            {
+                if (m_inputPool.Get(input).IsHurt) 
+                    m_hurtCommandPool.Add(hitEntity).HitValue = 25;
+            }
+        }
+        
         private void AttachJumpComponent()
         {
             foreach (var input in m_inputFilter)

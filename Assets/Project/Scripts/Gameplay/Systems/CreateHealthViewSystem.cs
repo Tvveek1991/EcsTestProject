@@ -18,12 +18,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<HealthComponent> m_healthPool;
         private EcsPool<HealthViewRefComponent> m_healthViewPool;
 
-        private readonly PersonData m_personData;
         private readonly HealthView m_healthViewPrefab;
 
-        public CreateHealthViewSystem(PersonData personData, HealthView healthViewPrefab)
+        public CreateHealthViewSystem(HealthView healthViewPrefab)
         {
-            m_personData = personData;
             m_healthViewPrefab = healthViewPrefab;
         }
         
@@ -65,9 +63,8 @@ namespace Project.Scripts.Gameplay.Systems
                 var spawnPoint = m_canvasPool.Get(canvasEntity).Canvas.transform;
                     
                 var healthView = Object.Instantiate(m_healthViewPrefab, spawnPoint).GetComponent<HealthView>();
-                healthView.transform.localPosition = Vector3.zero;
-                healthView.HealthBar.maxValue = m_personData.FullHealth;
-                
+                SetViewOptions(healthView, healthComponent);
+
                 AttacheHealthViewComponent(newEntity, healthView);
                 AttachTransformComponent(newEntity, healthView.transform);
                 
@@ -85,6 +82,13 @@ namespace Project.Scripts.Gameplay.Systems
         {
             ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(entity);
             transformComponent.ObjectTransform = attachedTransform;
+        }
+
+        private void SetViewOptions(HealthView healthView, HealthComponent healthComponent)
+        {
+            healthView.CanvasGroup.alpha = 0;
+            healthView.transform.localPosition = Vector3.zero;
+            healthView.HealthBar.maxValue = healthComponent.Health;
         }
     }
 }

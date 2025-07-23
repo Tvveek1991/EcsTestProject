@@ -6,72 +6,71 @@ namespace Project.Scripts.Gameplay.Systems
 {
     public class HealthViewChangeSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private const float FADE_DURATION = .25f;
-        private const float SLIDER_CHANGE_DURATION = .5f;
+        private const float FADE_DURATION = .15f;
+        private const float SLIDER_CHANGE_DURATION = .25f;
 
         private EcsWorld m_world;
-        
+
         private EcsFilter m_hitHealthViewFilter;
         private EcsFilter m_healHealthViewFilter;
-        
+
+        private EcsPool<HealthComponent> m_healthPool;
         private EcsPool<HealthViewRefComponent> m_healthViewPool;
-        private EcsPool<HitHealthCommandComponent> m_hitHealthCommandPool;
-        private EcsPool<HealHealthCommandComponent> m_healHealthCommandPool;
-        
+        private EcsPool<HurtCommandComponent> m_hurtCommandPool;
+        private EcsPool<HealCommandComponent> m_healCommandPool;
+
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
-            
-            m_hitHealthViewFilter = m_world.Filter<HealthViewRefComponent>().Inc<HitHealthCommandComponent>().End();
-            m_healHealthViewFilter = m_world.Filter<HealthViewRefComponent>().Inc<HealHealthCommandComponent>().End();
-            
+
+            m_hitHealthViewFilter = m_world.Filter<HealthComponent>().Inc<HurtCommandComponent>().End();
+            m_healHealthViewFilter = m_world.Filter<HealthComponent>().Inc<HealCommandComponent>().End();
+
+            m_healthPool = m_world.GetPool<HealthComponent>();
             m_healthViewPool = m_world.GetPool<HealthViewRefComponent>();
-            m_hitHealthCommandPool = m_world.GetPool<HitHealthCommandComponent>();
-            m_healHealthCommandPool = m_world.GetPool<HealHealthCommandComponent>();
-        }
-        
-        public void Run(IEcsSystems systems)
-        {
-            CheckHeal();
-            CheckHit();
+            m_hurtCommandPool = m_world.GetPool<HurtCommandComponent>();
+            m_healCommandPool = m_world.GetPool<HealCommandComponent>();
         }
 
-        private void CheckHeal()
+        public void Run(IEcsSystems systems)
+        {
+            ShowHeal();
+            ShowHurt();
+        }
+
+        private void ShowHeal()
         {
             foreach (var entity in m_healHealthViewFilter)
             {
-                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(entity);
-                ref HealHealthCommandComponent addHealthCommandComponent = ref m_healHealthCommandPool.Get(entity);
+                ref HealthComponent healthComponent = ref m_healthPool.Get(entity);
+                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(healthComponent.HealthViewEntityIndex);
 
                 var healthView = healthViewRefComponent.HealthView;
-
-                int addHealth = addHealthCommandComponent.AddHealth;
-                float targetHealth = healthViewRefComponent.HealthView.HealthBar.value + addHealth;
-                healthView.HealthBar.DOValue(targetHealth, SLIDER_CHANGE_DURATION)
+                healthView.HealthBar.DOValue(healthComponent.Health, SLIDER_CHANGE_DURATION)
                     .OnComplete(() =>
                     {
-                        if(healthView.HealthBar.value >= healthView.HealthBar.maxValue)
+                        if (healthView.HealthBar.value >= healthView.HealthBar.maxValue)
                             healthView.CanvasGroup.DOFade(0f, FADE_DURATION);
                     });
-                
-                m_healHealthCommandPool.Del(entity);
+
+                m_healCommandPool.Del(entity);
             }
         }
 
-        private void CheckHit()
+        private void ShowHurt()
         {
             foreach (var entity in m_hitHealthViewFilter)
             {
-                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(entity);
-                ref HitHealthCommandComponent hitHealthCommandComponent = ref m_hitHealthCommandPool.Get(entity);
+                ref HealthComponent healthComponent = ref m_healthPool.Get(entity);
+                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(healthComponent.HealthViewEntityIndex);
 
-                healthViewRefComponent.HealthView.CanvasGroup.DOFade(1f, FADE_DURATION);
+                var healthView = healthViewRefComponent.HealthView;
+                if (healthView.CanvasGroup.alpha <= 0)
+                    healthView.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-                int hitDamage = hitHealthCommandComponent.DecreaseHealth;
-                float targetHealth = healthViewRefComponent.HealthView.HealthBar.value - hitDamage;
-                healthViewRefComponent.HealthView.HealthBar.DOValue(targetHealth, SLIDER_CHANGE_DURATION);
-                
-                m_hitHealthCommandPool.Del(entity);
+                healthView.HealthBar.DOValue(healthComponent.Health, SLIDER_CHANGE_DURATION);
+
+                m_hurtCommandPool.Del(entity);
             }
         }
     }

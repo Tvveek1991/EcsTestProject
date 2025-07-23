@@ -23,8 +23,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsWorld m_world;
 
-        private EcsFilter m_inputFilter;
-        private EcsFilter m_personFilter;
+        private EcsFilter m_hurtCommandFilter;
+        private EcsFilter m_deadFilter;
         private EcsFilter m_blockFilter;
         private EcsFilter m_outOfBlockFilter;
         private EcsFilter m_attackFilter;
@@ -37,14 +37,13 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_groundCheckFilter;
 
         private EcsPool<JumpComponent> m_jumpPool;
-        private EcsPool<InputComponent> m_inputPool;
         private EcsPool<BlockComponent> m_blockPool;
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<AnimatorComponent> m_animatorPool;
-        private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
         private EcsPool<WallCheckComponent> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
+        private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -56,9 +55,9 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void SetFilters()
         {
-            m_inputFilter = m_world.Filter<InputComponent>().End();
-
-            m_personFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().End();
+            m_deadFilter = m_world.Filter<AnimatorComponent>().Inc<DeadCommandComponent>().End();
+            m_hurtCommandFilter = m_world.Filter<AnimatorComponent>().Inc<HurtCommandComponent>()
+                .Exc<DeadCommandComponent>().End();
 
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
@@ -66,18 +65,20 @@ namespace Project.Scripts.Gameplay.Systems
             m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
 
             m_runFilter = m_world.Filter<AnimatorComponent>().Inc<RunComponent>().End();
-            m_outOfRunFilter = m_world.Filter<AnimatorComponent>().Exc<RunComponent>().End();
+            m_outOfRunFilter = m_world.Filter<AnimatorComponent>()
+                .Exc<RunComponent>().End();
             m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
             m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
-            m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<AttackComponent>().Exc<RollingComponent>().End();
-            
+            m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<AttackComponent>()
+                .Exc<RollingComponent>().End();
+
             m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<BlockComponent>().End();
-            m_outOfBlockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Exc<BlockComponent>().End();
+            m_outOfBlockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>()
+                .Exc<BlockComponent>().End();
         }
 
         private void SetPools()
         {
-            m_inputPool = m_world.GetPool<InputComponent>();
             m_blockPool = m_world.GetPool<BlockComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
             m_rollingPool = m_world.GetPool<RollingComponent>();
@@ -97,20 +98,9 @@ namespace Project.Scripts.Gameplay.Systems
             CheckBlock();
             CheckAttack();
             CheckSliding();
-            CheckSimpleAnimation();
-        }
 
-        private void CheckSimpleAnimation()
-        {
-            //ToDo Вычистить со временем
-            foreach (var input in m_inputFilter)
-            foreach (var index in m_personFilter)
-            {
-                if (m_inputPool.Get(input).IsDead)
-                    m_animatorPool.Get(index).AnimatorController.SetTrigger(m_death);
-                else if (m_inputPool.Get(input).IsHurt)
-                    m_animatorPool.Get(index).AnimatorController.SetTrigger(m_hurt);
-            }
+            CheckHurtAnimation();
+            CheckDeadAnimation();
         }
 
         private void RefreshAirSpeedY()
@@ -157,7 +147,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var roller in m_rollingFilter)
             {
                 if (!m_rollingPool.Get(roller).IsAnimate) continue;
-                
+
                 m_rollingPool.Get(roller).IsAnimate = false;
                 m_animatorPool.Get(roller).AnimatorController.SetTrigger(m_roll);
             }
@@ -168,12 +158,12 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var index in m_blockFilter)
             {
                 if (!m_blockPool.Get(index).IsAnimate) continue;
-                
+
                 m_blockPool.Get(index).IsAnimate = false;
                 m_animatorPool.Get(index).AnimatorController.SetTrigger(m_block);
                 m_animatorPool.Get(index).AnimatorController.SetBool(m_idleBlock, true);
             }
-            
+
             foreach (var index in m_outOfBlockFilter)
             {
                 m_animatorPool.Get(index).AnimatorController.SetBool(m_idleBlock, false);
@@ -185,7 +175,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var personIndex in m_attackFilter)
             {
                 if (!m_attackPool.Get(personIndex).IsAnimate) continue;
-                
+
                 m_animatorPool.Get(personIndex).AnimatorController.SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personIndex).CurrentAttackIndex}");
                 m_attackPool.Get(personIndex).IsAnimate = false;
             }
@@ -197,6 +187,22 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 if (m_wallCheckPool.Get(wallIndex).WallSensors != null)
                     m_animatorPool.Get(wallIndex).AnimatorController.SetBool(m_wallSliding, m_wallCheckPool.Get(wallIndex).WallSensors.Any(item => item.IsConnected));
+            }
+        }
+        
+        private void CheckHurtAnimation()
+        {
+            foreach (var index in m_hurtCommandFilter)
+            {
+                m_animatorPool.Get(index).AnimatorController.SetTrigger(m_hurt);
+            }
+        }
+
+        private void CheckDeadAnimation()
+        {
+            foreach (var index in m_deadFilter)
+            {
+                m_animatorPool.Get(index).AnimatorController.SetTrigger(m_death);
             }
         }
     }
