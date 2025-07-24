@@ -24,7 +24,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_hurtCommandFilter;
-        private EcsFilter m_deadFilter;
+        private EcsFilter m_deadCommandFilter;
         private EcsFilter m_blockFilter;
         private EcsFilter m_outOfBlockFilter;
         private EcsFilter m_attackFilter;
@@ -55,9 +55,9 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void SetFilters()
         {
-            m_deadFilter = m_world.Filter<AnimatorComponent>().Inc<DeadCommandComponent>().End();
+            m_deadCommandFilter = m_world.Filter<AnimatorComponent>().Inc<DeadCommandComponent>().End();
             m_hurtCommandFilter = m_world.Filter<AnimatorComponent>().Inc<HurtCommandComponent>()
-                .Exc<DeadCommandComponent>().End();
+                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
 
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
@@ -200,7 +200,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CheckDeadAnimation()
         {
-            foreach (var index in m_deadFilter)
+            foreach (var index in m_deadCommandFilter)
             {
                 m_animatorPool.Get(index).AnimatorController.SetTrigger(m_death);
             }

@@ -8,8 +8,10 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private EcsWorld m_world;
         
-        private EcsFilter m_hitFilter;
+        private EcsFilter m_deadFilter;
+        private EcsFilter m_deadCommandFilter;
         private EcsFilter m_inputFilter;
+        private EcsFilter m_hitFilter;
         private EcsFilter m_readyToJumpFilter;
         private EcsFilter m_blockFilter;
         private EcsFilter m_readyToBlockFilter;
@@ -19,10 +21,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_readyToRunFilter;
         private EcsFilter m_readyRollingFilter;
 
+        private EcsPool<InputComponent> m_inputPool;
         private EcsPool<RunComponent> m_runPool;
         private EcsPool<JumpComponent> m_jumpPool;
         private EcsPool<BlockComponent> m_blockPool;
-        private EcsPool<InputComponent> m_inputPool;
         private EcsPool<AttackComponent> m_attackPool;
         private EcsPool<RollingComponent> m_rollingPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
@@ -31,9 +33,12 @@ namespace Project.Scripts.Gameplay.Systems
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
+
+            m_deadFilter = m_world.Filter<DeadComponent>().End();
+            m_deadCommandFilter = m_world.Filter<DeadCommandComponent>().End();
             
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            
+
             m_readyToJumpFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
                 .Exc<BlockComponent>().Exc<RollingComponent>().Exc<JumpComponent>().End();
             
@@ -67,6 +72,9 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
+            if(CheckDeadComponent())
+                return;
+            
             AttachJumpComponent();
             AttachBlockComponent();
             CheckUnblock();
@@ -78,6 +86,9 @@ namespace Project.Scripts.Gameplay.Systems
             
             AttachHurtComponent();
         }
+
+        private bool CheckDeadComponent() => 
+            m_deadFilter.GetEntitiesCount() > 0 || m_deadCommandFilter.GetEntitiesCount() > 0;
 
         private void AttachHurtComponent()
         {

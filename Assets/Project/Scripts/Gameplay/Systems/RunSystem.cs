@@ -31,7 +31,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_runFilter = m_world.Filter<RunComponent>().Inc<Rigidbody2dComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
+            m_runFilter = m_world.Filter<RunComponent>().Inc<Rigidbody2dComponent>()
+                .Exc<RollingComponent>().Exc<BlockComponent>().End();
 
             m_runPool = m_world.GetPool<RunComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();

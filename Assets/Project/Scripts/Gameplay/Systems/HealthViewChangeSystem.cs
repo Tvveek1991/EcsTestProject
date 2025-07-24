@@ -68,7 +68,12 @@ namespace Project.Scripts.Gameplay.Systems
                 if (healthView.CanvasGroup.alpha <= 0)
                     healthView.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-                healthView.HealthBar.DOValue(healthComponent.Health, SLIDER_CHANGE_DURATION);
+                healthView.HealthBar.DOValue(healthComponent.Health, SLIDER_CHANGE_DURATION)
+                    .OnComplete(() =>
+                    {
+                        if (healthView.HealthBar.value <= 0)
+                            healthView.CanvasGroup.DOFade(0f, FADE_DURATION);
+                    });
 
                 m_hurtCommandPool.Del(entity);
             }
