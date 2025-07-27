@@ -5,15 +5,13 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay
 {
-    public sealed class CreateGameLevelViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
+    public sealed class CreateGameLevelViewSystem : IEcsInitSystem, IEcsDestroySystem
     {
         private const string GameLevelParentName = "Level";
         
         private readonly GameLevelView m_gameLevelViewPrefab;
         
-        private EcsWorld _world;
-        
-        private EcsFilter m_gameLevelViewRefFilter;
+        private EcsWorld m_world;
         
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
         
@@ -26,17 +24,10 @@ namespace Project.Scripts.Gameplay
         
         public void Init(IEcsSystems systems)
         {
-            _world = systems.GetWorld();
+            m_world = systems.GetWorld();
 
-            m_gameLevelViewRefFilter = _world.Filter<GameLevelViewRefComponent>().End();
-            m_gameLevelViewRefsPool = _world.GetPool<GameLevelViewRefComponent>();
-        }
-        
-        public void Run(IEcsSystems systems)
-        {
-            if(m_gameLevelViewRefFilter.GetEntitiesCount() > 0)
-                return;
-            
+            m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
+
             CreateGameLevelView();
         }
 
@@ -44,7 +35,7 @@ namespace Project.Scripts.Gameplay
         {
             m_parentObject = new GameObject(GameLevelParentName);
             
-            var gameLevelEntityIndex = _world.NewEntity();
+            var gameLevelEntityIndex = m_world.NewEntity();
 
             var levelView = Object.Instantiate(m_gameLevelViewPrefab, m_parentObject.transform).GetComponent<GameLevelView>();
                 
