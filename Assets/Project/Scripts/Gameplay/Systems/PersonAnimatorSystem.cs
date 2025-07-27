@@ -59,8 +59,10 @@ namespace Project.Scripts.Gameplay.Systems
             m_hurtCommandFilter = m_world.Filter<AnimatorComponent>().Inc<HurtCommandComponent>()
                 .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
 
-            m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
-            m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
+            m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>()
+                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
+            m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>()
+                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
 
             m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
 

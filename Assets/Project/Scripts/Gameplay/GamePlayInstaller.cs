@@ -22,6 +22,7 @@ namespace Gameplay
     private const string PersonViewAddress = "PersonView";
     private const string GameLevelViewAddress = "GameLevelView";
     private const string HealthViewAddress = "HealthView";
+    private const string FinishViewAddress = "FinishView";
     
     private const string CameraAddress = "Camera";
 
@@ -36,6 +37,7 @@ namespace Gameplay
     private PersonView m_personViewPrefab;
     private GameLevelView m_gameLevelViewPrefab;
     private HealthView m_healthViewPrefab;
+    private FinishView m_finishViewPrefab;
 
     private Camera _camera;
 
@@ -54,6 +56,7 @@ namespace Gameplay
       _fieldAnimationData = await _assetProvider.Load<FieldAnimationData>(AnimationDataAddress);
 
       m_personViewPrefab = (await _assetProvider.Load<GameObject>(PersonViewAddress)).GetComponentInChildren<PersonView>();
+      m_finishViewPrefab = (await _assetProvider.Load<GameObject>(FinishViewAddress)).GetComponentInChildren<FinishView>();
       m_healthViewPrefab = (await _assetProvider.Load<GameObject>(HealthViewAddress)).GetComponentInChildren<HealthView>();
       m_gameLevelViewPrefab = (await _assetProvider.Load<GameObject>(GameLevelViewAddress)).GetComponentInChildren<GameLevelView>();
 
@@ -72,6 +75,7 @@ namespace Gameplay
       builder.RegisterInstance(_fieldAnimationData);
       
       builder.RegisterInstance(m_personViewPrefab);
+      builder.RegisterInstance(m_finishViewPrefab);
       builder.RegisterInstance(m_healthViewPrefab);
       builder.RegisterInstance(m_gameLevelViewPrefab);
         
@@ -90,6 +94,7 @@ namespace Gameplay
       _assetProvider.Release(AnimationDataAddress);
 
       _assetProvider.Release(PersonViewAddress);
+      _assetProvider.Release(FinishViewAddress);
       _assetProvider.Release(HealthViewAddress);
       _assetProvider.Release(GameLevelViewAddress);
       

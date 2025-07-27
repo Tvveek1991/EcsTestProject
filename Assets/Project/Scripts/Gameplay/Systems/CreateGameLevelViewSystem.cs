@@ -5,13 +5,15 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay
 {
-    public sealed class CreateGameLevelViewSystem : IEcsInitSystem, IEcsDestroySystem
+    public sealed class CreateGameLevelViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
     {
         private const string GameLevelParentName = "Level";
         
         private readonly GameLevelView m_gameLevelViewPrefab;
         
         private EcsWorld _world;
+        
+        private EcsFilter m_gameLevelViewRefFilter;
         
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
         
@@ -26,8 +28,15 @@ namespace Project.Scripts.Gameplay
         {
             _world = systems.GetWorld();
 
+            m_gameLevelViewRefFilter = _world.Filter<GameLevelViewRefComponent>().End();
             m_gameLevelViewRefsPool = _world.GetPool<GameLevelViewRefComponent>();
-
+        }
+        
+        public void Run(IEcsSystems systems)
+        {
+            if(m_gameLevelViewRefFilter.GetEntitiesCount() > 0)
+                return;
+            
             CreateGameLevelView();
         }
 

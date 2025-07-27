@@ -29,7 +29,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_rollingFilter = m_world.Filter<RollingComponent>().Inc<Rigidbody2dComponent>().Inc<SpriteRendererComponent>().End();
+            m_rollingFilter = m_world.Filter<RollingComponent>().Inc<Rigidbody2dComponent>().Inc<SpriteRendererComponent>()
+                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
 
             m_rollingPool = m_world.GetPool<RollingComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();

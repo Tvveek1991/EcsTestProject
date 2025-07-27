@@ -17,7 +17,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_blockFilter = m_world.Filter<BlockComponent>().End();
+            m_blockFilter = m_world.Filter<BlockComponent>()
+                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
 
             m_blockPool = m_world.GetPool<BlockComponent>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();

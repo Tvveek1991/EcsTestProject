@@ -8,8 +8,6 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private EcsWorld m_world;
         
-        private EcsFilter m_deadFilter;
-        private EcsFilter m_deadCommandFilter;
         private EcsFilter m_inputFilter;
         private EcsFilter m_hitFilter;
         private EcsFilter m_readyToJumpFilter;
@@ -34,9 +32,6 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_deadFilter = m_world.Filter<DeadComponent>().End();
-            m_deadCommandFilter = m_world.Filter<DeadCommandComponent>().End();
-            
             m_inputFilter = m_world.Filter<InputComponent>().End();
 
             m_readyToJumpFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
@@ -72,7 +67,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
-            if(CheckDeadComponent())
+            if(!CheckInput())
                 return;
             
             AttachJumpComponent();
@@ -87,8 +82,13 @@ namespace Project.Scripts.Gameplay.Systems
             AttachHurtComponent();
         }
 
-        private bool CheckDeadComponent() => 
-            m_deadFilter.GetEntitiesCount() > 0 || m_deadCommandFilter.GetEntitiesCount() > 0;
+        private bool CheckInput()
+        {
+            foreach (var inputEntity in m_inputFilter)
+                return m_inputPool.Get(inputEntity).IsEnabled;
+
+            return true;
+        }
 
         private void AttachHurtComponent()
         {

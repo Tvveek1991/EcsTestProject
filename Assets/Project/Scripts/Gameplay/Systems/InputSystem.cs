@@ -45,7 +45,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void CreateInputComponent()
         {
             var entity = m_world.NewEntity();
-            m_inputPool.Add(entity);
+            m_inputPool.Add(entity).IsEnabled = true;
         }
     }
 }

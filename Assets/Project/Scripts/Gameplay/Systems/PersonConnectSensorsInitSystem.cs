@@ -18,13 +18,11 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
         private EcsPool<TransformComponent> m_transformPool;
 
-        private readonly PersonData m_personData;
         private readonly SensorsData m_sensorsData;
         private readonly Sensor m_connectSensorPrefab;
 
-        public PersonConnectSensorsInitSystem(PersonData personData, SensorsData sensorsData, Sensor connectSensorPrefab)
+        public PersonConnectSensorsInitSystem(SensorsData sensorsData, Sensor connectSensorPrefab)
         {
-            m_personData = personData;
             m_sensorsData = sensorsData;
             m_connectSensorPrefab = connectSensorPrefab;
         }

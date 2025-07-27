@@ -22,7 +22,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_runFilter = m_world.Filter<RunComponent>().Inc<SpriteRendererComponent>()
-                .Exc<RollingComponent>().Exc<BlockComponent>().End();
+                .Exc<RollingComponent>().Exc<BlockComponent>().Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
 

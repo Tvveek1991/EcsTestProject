@@ -2,6 +2,8 @@ namespace Project.Scripts.Gameplay.Components
 {
     public struct InputComponent
     {
+        public bool IsEnabled;
+        
         public bool IsJumpPressed;
         public bool IsRollPressed;
         public bool IsMoveLeftPressed;
