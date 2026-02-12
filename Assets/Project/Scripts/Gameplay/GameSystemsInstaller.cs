@@ -16,11 +16,16 @@ namespace Gameplay
 
       builder.Register<IEcsSystem, CreateGameLevelViewSystem>(Lifetime.Scoped);
       
+      builder.Register<IEcsSystem, CoinsCountSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CoinsViewInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CoinsCounterViewSystem>(Lifetime.Scoped);
+
       builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);
+
       builder.Register<IEcsSystem, EnemyInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CreateHealthViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, HealthViewFollowSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, CameraResizeInitSystem>(Lifetime.Scoped);

@@ -60,6 +60,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef2d4585f513b474a806628f614fa9ca
+    m_Address: CoinsCounterView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f3f7fb48c13768a4f90455d46cf12387
     m_Address: Canvas
     m_ReadOnly: 0

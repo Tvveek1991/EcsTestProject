@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CreateHealthViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
+    public class HealthViewInitSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
     {
         private EcsWorld m_world;
         
@@ -20,7 +20,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private readonly HealthView m_healthViewPrefab;
 
-        public CreateHealthViewSystem(HealthView healthViewPrefab)
+        public HealthViewInitSystem(HealthView healthViewPrefab)
         {
             m_healthViewPrefab = healthViewPrefab;
         }

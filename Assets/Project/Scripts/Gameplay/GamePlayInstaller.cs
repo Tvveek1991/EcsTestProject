@@ -23,6 +23,7 @@ namespace Gameplay
     private const string GameLevelViewAddress = "GameLevelView";
     private const string HealthViewAddress = "HealthView";
     private const string FinishViewAddress = "FinishView";
+    private const string CoinsCounterViewAddress = "CoinsCounterView";
     
     private const string CameraAddress = "Camera";
 
@@ -38,6 +39,7 @@ namespace Gameplay
     private GameLevelView m_gameLevelViewPrefab;
     private HealthView m_healthViewPrefab;
     private FinishView m_finishViewPrefab;
+    private CoinsCounterView m_coinsCounterViewPrefab;
 
     private Camera _camera;
 
@@ -59,6 +61,7 @@ namespace Gameplay
       m_finishViewPrefab = (await _assetProvider.Load<GameObject>(FinishViewAddress)).GetComponentInChildren<FinishView>();
       m_healthViewPrefab = (await _assetProvider.Load<GameObject>(HealthViewAddress)).GetComponentInChildren<HealthView>();
       m_gameLevelViewPrefab = (await _assetProvider.Load<GameObject>(GameLevelViewAddress)).GetComponentInChildren<GameLevelView>();
+      m_coinsCounterViewPrefab = (await _assetProvider.Load<GameObject>(CoinsCounterViewAddress)).GetComponentInChildren<CoinsCounterView>();
 
       m_connectSensorPrefab = (await _assetProvider.Load<GameObject>(ConnectSensorAddress)).GetComponentInChildren<Sensor>();
 
@@ -78,6 +81,7 @@ namespace Gameplay
       builder.RegisterInstance(m_finishViewPrefab);
       builder.RegisterInstance(m_healthViewPrefab);
       builder.RegisterInstance(m_gameLevelViewPrefab);
+      builder.RegisterInstance(m_coinsCounterViewPrefab);
         
       builder.RegisterInstance(m_connectSensorPrefab);
 
@@ -97,6 +101,7 @@ namespace Gameplay
       _assetProvider.Release(FinishViewAddress);
       _assetProvider.Release(HealthViewAddress);
       _assetProvider.Release(GameLevelViewAddress);
+      _assetProvider.Release(CoinsCounterViewAddress);
       
       _assetProvider.Release(ConnectSensorAddress);
 
