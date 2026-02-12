@@ -1,4 +1,6 @@
-﻿using DG.Tweening;
+﻿using System;
+using System.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Sensors
@@ -31,9 +33,11 @@ namespace Project.Scripts.Gameplay.Sensors
             m_disconnectTween?.Kill();
         }
 
-        private void OnTriggerExit2D(Collider2D other)
+        private async void OnTriggerExit2D(Collider2D other)
         {
-            m_disconnectTween = DOVirtual.DelayedCall(DISABLE_DELAY, () => m_isConnected = false);
+            await Task.Delay(TimeSpan.FromSeconds(DISABLE_DELAY));
+            
+            m_isConnected = false;
         }
 
         public void SubtractTimer()

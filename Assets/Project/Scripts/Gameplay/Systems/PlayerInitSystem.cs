@@ -12,9 +12,11 @@ namespace Project.Scripts.Gameplay.Systems
         private readonly PersonView m_personViewPrefab;
         
         private EcsWorld m_world;
-        
+
+        private EcsFilter m_playerTransformFilter;
         private EcsFilter m_gameLevelViewRefsFilter;
-        
+
+        private EcsPool<TransformComponent> m_transformPool;
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
         
         private GameObject m_parentObject;
@@ -28,10 +30,13 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
+            m_playerTransformFilter = m_world.Filter<PlayerComponent>().Inc<TransformComponent>().End();
             m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
+            m_transformPool = m_world.GetPool<TransformComponent>();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             CreateHeroView();
+            SetSpawnPosition();
         }
 
         public void Destroy(IEcsSystems systems) => 
@@ -41,12 +46,15 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_parentObject = new GameObject(PlayerParentName);
             
-            var gameLevelEntityIndex = m_world.NewEntity();
+            var playerEntity = m_world.NewEntity();
 
             var heroView = Object.Instantiate(m_personViewPrefab, m_parentObject.transform).GetComponent<PersonView>();
 
-            SetSpawnPosition(heroView);
+            AttachComponents(playerEntity, heroView);
+        }
 
+        private void AttachComponents(int playerEntity, PersonView heroView)
+        {
             AttachPlayerComponent();
             AttachPersonComponent();
             AttachAnimatorComponent();
@@ -59,60 +67,61 @@ namespace Project.Scripts.Gameplay.Systems
 
             void AttachPlayerComponent()
             {
-                m_world.GetPool<PlayerComponent>().Add(gameLevelEntityIndex);
+                m_world.GetPool<PlayerComponent>().Add(playerEntity);
             }
-            
+
             void AttachPersonComponent()
             {
-                m_world.GetPool<PersonComponent>().Add(gameLevelEntityIndex);
+                m_world.GetPool<PersonComponent>().Add(playerEntity);
             }
-            
+
             void AttachAnimatorComponent()
             {
-                ref AnimatorComponent animatorComponent = ref m_world.GetPool<AnimatorComponent>().Add(gameLevelEntityIndex);
+                ref AnimatorComponent animatorComponent = ref m_world.GetPool<AnimatorComponent>().Add(playerEntity);
                 animatorComponent.AnimatorController = heroView.GetComponent<Animator>();
             }
 
             void AttachTransformComponent()
             {
-                ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(gameLevelEntityIndex);
+                ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(playerEntity);
                 transformComponent.ObjectTransform = heroView.transform;
             }
 
             void AttachRigidbody2dComponent()
             {
-                ref Rigidbody2dComponent rigidbody2dComponent = ref m_world.GetPool<Rigidbody2dComponent>().Add(gameLevelEntityIndex);
+                ref Rigidbody2dComponent rigidbody2dComponent = ref m_world.GetPool<Rigidbody2dComponent>().Add(playerEntity);
                 rigidbody2dComponent.Rigidbody = heroView.GetComponent<Rigidbody2D>();
             }
-            
+
             void AttachSpriteRendererComponent()
             {
-                ref SpriteRendererComponent spriteRendererComponent = ref m_world.GetPool<SpriteRendererComponent>().Add(gameLevelEntityIndex);
+                ref SpriteRendererComponent spriteRendererComponent = ref m_world.GetPool<SpriteRendererComponent>().Add(playerEntity);
                 spriteRendererComponent.SpriteRenderer = heroView.GetComponent<SpriteRenderer>();
             }
 
             void AttachViewToHeroViewReferenceComponent()
             {
-                ref PersonViewRefComponent cellViewRef = ref m_world.GetPool<PersonViewRefComponent>().Add(gameLevelEntityIndex);
+                ref PersonViewRefComponent cellViewRef = ref m_world.GetPool<PersonViewRefComponent>().Add(playerEntity);
                 cellViewRef.PersonView = heroView;
             }
-            
+
             void AttachGroundCheckComponent()
             {
-                m_world.GetPool<GroundCheckComponent>().Add(gameLevelEntityIndex);
+                m_world.GetPool<GroundCheckComponent>().Add(playerEntity);
             }
-            
+
             void AttachWallCheckComponent()
             {
-                m_world.GetPool<WallCheckComponent>().Add(gameLevelEntityIndex);
+                m_world.GetPool<WallCheckComponent>().Add(playerEntity);
             }
         }
 
-        private void SetSpawnPosition(PersonView personView)
+        private void SetSpawnPosition()
         {
-            foreach (var item in m_gameLevelViewRefsFilter)
+            foreach (var gameLevel in m_gameLevelViewRefsFilter)
+            foreach (var player in m_playerTransformFilter)
             {
-                personView.SetPosition(m_gameLevelViewRefsPool.Get(item).GameLevelView.GetHeroSpawnPoint());
+                m_transformPool.Get(player).ObjectTransform.position = m_gameLevelViewRefsPool.Get(gameLevel).GameLevelView.GetHeroSpawnPoint();
             }
         }
     }

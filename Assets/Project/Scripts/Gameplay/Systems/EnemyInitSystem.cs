@@ -14,8 +14,10 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsWorld m_world;
 
+        private EcsFilter m_enemyTransformFilter;
         private EcsFilter m_gameLevelViewRefsFilter;
 
+        private EcsPool<TransformComponent> m_transformPool;
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
 
         private GameObject m_parentObject;
@@ -31,10 +33,15 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
+            m_enemyTransformFilter = m_world.Filter<EnemyComponent>().Inc<TransformComponent>().End();
+            
+            m_transformPool = m_world.GetPool<TransformComponent>();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             FindSpawnPoints();
             CreateEnemyViews();
+            
+            SetEnemyStartPosition();
         }
 
         public void Destroy(IEcsSystems systems) =>
@@ -44,11 +51,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_parentObject = new GameObject(EnemiesParentName);
 
-            foreach (var spawnPoint in m_enemySpawnPoints)
+            for (int i = 0; i < m_enemySpawnPoints.Count; i++)
             {
                 var gameLevelEntityIndex = m_world.NewEntity();
                 var enemyView = Object.Instantiate(m_personViewPrefab, m_parentObject.transform).GetComponent<PersonView>();
-                enemyView.SetPosition(spawnPoint.position);
                 
                 AttachComponents(gameLevelEntityIndex, enemyView);
             }
@@ -123,6 +129,18 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref GameLevelViewRefComponent gameLevelViewRefComponent = ref m_gameLevelViewRefsPool.Get(item);
                 m_enemySpawnPoints = gameLevelViewRefComponent.GameLevelView.GetEnemySpawnPoints();
+            }
+        }
+        
+        private void SetEnemyStartPosition()
+        {
+            var listSpawnPoints = m_enemySpawnPoints;
+            foreach (var enemy in m_enemyTransformFilter)
+            {
+                if (listSpawnPoints.Count <= 0) continue;
+                
+                m_transformPool.Get(enemy).ObjectTransform.position = listSpawnPoints[0].position;
+                listSpawnPoints.RemoveAt(0);
             }
         }
     }

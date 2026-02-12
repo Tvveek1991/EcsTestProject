@@ -54,12 +54,16 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var canvasEntity in m_canvasFilter)
             {
                 var newEntity = m_world.NewEntity();
-                
                 var spawnPoint = m_canvasPool.Get(canvasEntity).Canvas.transform;
-                    
                 var view = Object.Instantiate(m_coinsCounterViewPrefab, spawnPoint).GetComponent<CoinsCounterView>();
 
-                AttacheCoinsCounterViewComponent(newEntity, view);
+                AttachCoinsCounterViewComponent(newEntity, view);
+            }
+            
+            void AttachCoinsCounterViewComponent(int newEntity, CoinsCounterView coinsCounterView)
+            {
+                ref CoinsCounterViewRefComponent view = ref m_coinsCounterViewPool.Add(newEntity);
+                view.CoinsCounterView = coinsCounterView;
             }
         }
         
@@ -71,12 +75,6 @@ namespace Project.Scripts.Gameplay.Systems
                 var newValue = m_coinsCounterPool.Get(coinsCounterEntity).Count;
                 m_coinsCounterViewPool.Get(coinsCounterViewRefEntity).CoinsCounterView.SetCount(newValue);
             }
-        }
-        
-        private void AttacheCoinsCounterViewComponent(int newEntity, CoinsCounterView coinsCounterView)
-        {
-            ref CoinsCounterViewRefComponent view = ref m_coinsCounterViewPool.Add(newEntity);
-            view.CoinsCounterView = coinsCounterView;
         }
     }
 }

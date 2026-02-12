@@ -55,6 +55,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d06364477f97ba24198d90e8c8bf5e79
+    m_Address: CoinView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d0fbf817379191b4588195d25ca4c7eb
     m_Address: PersonView
     m_ReadOnly: 0
