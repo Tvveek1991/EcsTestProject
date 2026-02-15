@@ -18,6 +18,8 @@ namespace Gameplay
       
       builder.Register<IEcsSystem, CoinsCountSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CoinsViewInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CoinsViewCheckSystem>(Lifetime.Scoped);
+      // builder.Register<IEcsSystem, CoinsViewAnimationSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CoinsCounterViewSystem>(Lifetime.Scoped);
 
       builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);

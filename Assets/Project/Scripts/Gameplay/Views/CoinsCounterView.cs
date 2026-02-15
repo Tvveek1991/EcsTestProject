@@ -7,10 +7,6 @@ namespace Project.Scripts.Gameplay.Views
   {
     [SerializeField] private TextMeshProUGUI m_scoreText;
 
-    private void Awake() => 
-      SetCount(0);
-
-    public void SetCount(int score) => 
-      m_scoreText.text = $": {score}";
+    public TextMeshProUGUI ScoreText => m_scoreText;
   }
 }

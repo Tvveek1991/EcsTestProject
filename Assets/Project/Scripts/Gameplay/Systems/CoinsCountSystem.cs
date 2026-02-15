@@ -32,7 +32,8 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var coinsCounterChange in m_coinsCounterChangeFilter)
             {
                 m_coinsCounterPool.Get(coinsCounterEntity).Count += m_coinsCounterChangePool.Get(coinsCounterChange).CorrectionValue;
-                m_coinsCounterChangePool.Del(coinsCounterChange);
+                
+                m_world.DelEntity(coinsCounterChange);
             }
         }
 

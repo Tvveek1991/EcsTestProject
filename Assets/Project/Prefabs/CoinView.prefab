@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 1802158885309639779}
   - component: {fileID: 7872082332185137667}
   - component: {fileID: 5078118030487501246}
+  - component: {fileID: -639596101924226397}
+  - component: {fileID: 3320715811837606705}
   m_Layer: 0
   m_Name: CoinView
   m_TagString: Untagged
@@ -104,3 +106,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec69510962a44344ba0d85119c8ff0f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Gameplay::Project.Scripts.Gameplay.Views.CoinView
+  m_sensor: {fileID: -639596101924226397}
+--- !u!114 &-639596101924226397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6476826743757714969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f2a8bdc7f41b704693ad497097f30dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Gameplay::Project.Scripts.Gameplay.Sensors.Sensor
+--- !u!58 &3320715811837606705
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6476826743757714969}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 1.24
