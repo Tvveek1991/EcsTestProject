@@ -52,8 +52,6 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 var gameLevelEntityIndex = m_world.NewEntity();
                 var coinView = Object.Instantiate(m_coinViewPrefab, m_parentObject.transform).GetComponent<CoinView>();
-                
-                coinView.gameObject.AddComponent<CircleCollider2D>();
 
                 AttachComponents(gameLevelEntityIndex, coinView);
             }

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4723396608593739986}
   - component: {fileID: 977927386352824993}
   - component: {fileID: 3334520575318695871}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ConnectSensor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81,4 +81,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f2a8bdc7f41b704693ad497097f30dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DisableTimer: 0

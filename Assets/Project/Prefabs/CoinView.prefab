@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7872082332185137667}
   - component: {fileID: 5078118030487501246}
   - component: {fileID: -639596101924226397}
-  - component: {fileID: 3320715811837606705}
+  - component: {fileID: 1871642644403190079}
   m_Layer: 0
   m_Name: CoinView
   m_TagString: Untagged
@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f2a8bdc7f41b704693ad497097f30dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Gameplay::Project.Scripts.Gameplay.Sensors.Sensor
---- !u!58 &3320715811837606705
+--- !u!58 &1871642644403190079
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,7 +145,7 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_ContactCaptureLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
