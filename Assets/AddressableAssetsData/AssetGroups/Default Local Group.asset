@@ -35,6 +35,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 55650a93fa628f94595ef3852504eed5
+    m_Address: BoxView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6b4d4612c0aee5543aef93fbe33d65bd
     m_Address: Sensors Data
     m_ReadOnly: 0

@@ -1,6 +1,6 @@
 ﻿namespace Project.Scripts.Gameplay.Components
 {
-    public struct EnemyComponent
+    public struct ObjectComponent
     {
         
     }

@@ -2649,7 +2649,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6647643137151942411}
   m_Layer: 0
-  m_Name: EnemySpawnPoints
+  m_Name: BoxSpawnPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4208,7 +4208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_heroSpawnPoint: {fileID: 6005037050122092413}
-  m_enemySpawnPoints:
+  m_boxSpawnPoints:
   - {fileID: 2694670115497160325}
   - {fileID: 4459008098129069756}
   - {fileID: 7165619133024465670}
@@ -27089,7 +27089,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4459008098129069756}
   m_Layer: 0
-  m_Name: EnemySpawnPoints (1)
+  m_Name: BoxSpawnPoints (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29200,7 +29200,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2694670115497160325}
   m_Layer: 0
-  m_Name: EnemySpawnPoints
+  m_Name: BoxSpawnPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29748,7 +29748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7165619133024465670}
   m_Layer: 0
-  m_Name: EnemySpawnPoints (2)
+  m_Name: BoxSpawnPoints (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

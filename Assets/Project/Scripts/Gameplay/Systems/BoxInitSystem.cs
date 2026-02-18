@@ -6,26 +6,26 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class EnemyInitSystem : IEcsInitSystem, IEcsDestroySystem
+    public class BoxInitSystem : IEcsInitSystem, IEcsDestroySystem
     {
-        private const string EnemiesParentName = "Enemies";
+        private const string BoxParentName = "Boxes";
 
-        private readonly PersonView m_personViewPrefab;
+        private readonly ObjectView m_objectViewPrefab;
 
         private EcsWorld m_world;
 
-        private EcsFilter m_enemyTransformFilter;
+        private EcsFilter m_boxTransformFilter;
         private EcsFilter m_gameLevelViewRefsFilter;
 
         private EcsPool<TransformComponent> m_transformPool;
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
 
         private GameObject m_parentObject;
-        private List<Transform> m_enemySpawnPoints;
+        private List<Transform> m_boxSpawnPoints;
 
-        public EnemyInitSystem(PersonView personViewPrefab)
+        public BoxInitSystem(ObjectView objectViewPrefab)
         {
-            m_personViewPrefab = personViewPrefab;
+            m_objectViewPrefab = objectViewPrefab;
         }
 
         public void Init(IEcsSystems systems)
@@ -33,83 +33,80 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
-            m_enemyTransformFilter = m_world.Filter<EnemyComponent>().Inc<TransformComponent>().End();
+            m_boxTransformFilter = m_world.Filter<ObjectComponent>().Inc<TransformComponent>().End();
             
             m_transformPool = m_world.GetPool<TransformComponent>();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             FindSpawnPoints();
-            CreateEnemyViews();
+            CreateBoxViews();
             
-            SetEnemyStartPosition();
+            SetBoxStartPosition();
         }
 
         public void Destroy(IEcsSystems systems) =>
             Object.Destroy(m_parentObject);
 
-        private void CreateEnemyViews()
+        private void CreateBoxViews()
         {
-            m_parentObject = new GameObject(EnemiesParentName);
+            m_parentObject = new GameObject(BoxParentName);
 
-            for (int i = 0; i < m_enemySpawnPoints.Count; i++)
+            for (int i = 0; i < m_boxSpawnPoints.Count; i++)
             {
                 var gameLevelEntityIndex = m_world.NewEntity();
-                var enemyView = Object.Instantiate(m_personViewPrefab, m_parentObject.transform).GetComponent<PersonView>();
+                var boxView = Object.Instantiate(m_objectViewPrefab, m_parentObject.transform).GetComponent<ObjectView>();
                 
-                AttachComponents(gameLevelEntityIndex, enemyView);
+                AttachComponents(gameLevelEntityIndex, boxView);
             }
         }
 
-        private void AttachComponents(int gameLevelEntityIndex, PersonView enemyView)
+        private void AttachComponents(int gameLevelEntityIndex, ObjectView objectView)
         {
-            AttachEnemyComponent();
-            AttachPersonComponent();
-            AttachAnimatorComponent();
+            
+
+            AttachObjectComponent();
+            // AttachPersonComponent();
+            // AttachAnimatorComponent();
             AttachTransformComponent();
-            AttachWallCheckComponent();
-            AttachGroundCheckComponent();
+            // AttachWallCheckComponent();
+            // AttachGroundCheckComponent();
             AttachRigidbody2dComponent();
             AttachSpriteRendererComponent();
             AttachViewToHeroViewReferenceComponent();
 
-            void AttachEnemyComponent()
+            void AttachObjectComponent()
             {
-                m_world.GetPool<EnemyComponent>().Add(gameLevelEntityIndex);
-            }
-
-            void AttachPersonComponent()
-            {
-                m_world.GetPool<PersonComponent>().Add(gameLevelEntityIndex);
+                m_world.GetPool<ObjectComponent>().Add(gameLevelEntityIndex);
             }
 
             void AttachAnimatorComponent()
             {
                 ref AnimatorComponent animatorComponent = ref m_world.GetPool<AnimatorComponent>().Add(gameLevelEntityIndex);
-                animatorComponent.AnimatorController = enemyView.GetComponent<Animator>();
+                animatorComponent.AnimatorController = objectView.GetComponent<Animator>();
             }
 
             void AttachTransformComponent()
             {
                 ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(gameLevelEntityIndex);
-                transformComponent.ObjectTransform = enemyView.transform;
+                transformComponent.ObjectTransform = objectView.transform;
             }
 
             void AttachRigidbody2dComponent()
             {
                 ref Rigidbody2dComponent rigidbody2dComponent = ref m_world.GetPool<Rigidbody2dComponent>().Add(gameLevelEntityIndex);
-                rigidbody2dComponent.Rigidbody = enemyView.GetComponent<Rigidbody2D>();
+                rigidbody2dComponent.Rigidbody = objectView.GetComponent<Rigidbody2D>();
             }
 
             void AttachSpriteRendererComponent()
             {
                 ref SpriteRendererComponent spriteRendererComponent = ref m_world.GetPool<SpriteRendererComponent>().Add(gameLevelEntityIndex);
-                spriteRendererComponent.SpriteRenderer = enemyView.GetComponent<SpriteRenderer>();
+                spriteRendererComponent.SpriteRenderer = objectView.GetComponent<SpriteRenderer>();
             }
 
             void AttachViewToHeroViewReferenceComponent()
             {
-                ref PersonViewRefComponent cellViewRef = ref m_world.GetPool<PersonViewRefComponent>().Add(gameLevelEntityIndex);
-                cellViewRef.PersonView = enemyView;
+                ref ObjectViewRefComponent cellViewRef = ref m_world.GetPool<ObjectViewRefComponent>().Add(gameLevelEntityIndex);
+                cellViewRef.ObjectView = objectView;
             }
 
             void AttachGroundCheckComponent()
@@ -128,18 +125,18 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var item in m_gameLevelViewRefsFilter)
             {
                 ref GameLevelViewRefComponent gameLevelViewRefComponent = ref m_gameLevelViewRefsPool.Get(item);
-                m_enemySpawnPoints = gameLevelViewRefComponent.GameLevelView.GetEnemySpawnPoints();
+                m_boxSpawnPoints = gameLevelViewRefComponent.GameLevelView.GetBoxSpawnPoints();
             }
         }
         
-        private void SetEnemyStartPosition()
+        private void SetBoxStartPosition()
         {
-            var listSpawnPoints = m_enemySpawnPoints;
-            foreach (var enemy in m_enemyTransformFilter)
+            var listSpawnPoints = m_boxSpawnPoints;
+            foreach (var box in m_boxTransformFilter)
             {
                 if (listSpawnPoints.Count <= 0) continue;
                 
-                m_transformPool.Get(enemy).ObjectTransform.position = listSpawnPoints[0].position;
+                m_transformPool.Get(box).ObjectTransform.position = listSpawnPoints[0].position;
                 listSpawnPoints.RemoveAt(0);
             }
         }

@@ -24,7 +24,7 @@ namespace Gameplay
 
       builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);
 
-      builder.Register<IEcsSystem, EnemyInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, BoxInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);
