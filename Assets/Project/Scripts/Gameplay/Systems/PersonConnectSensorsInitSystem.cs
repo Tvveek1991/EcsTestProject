@@ -46,7 +46,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var item in m_groundCheckFilter)
             {
-                m_groundCheckPool.Get(item).GroundSensor.SubtractTimer();
+                m_groundCheckPool.Get(item).GroundSensors.ForEach(sensor => sensor.SubtractTimer());
             }
         }
 
@@ -54,9 +54,13 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var item in m_groundCheckFilter)
             {
-                var groundSensor = Object.Instantiate(m_connectSensorPrefab, m_transformPool.Get(item).ObjectTransform).GetComponent<Sensor>();
-                groundSensor.transform.localPosition = m_sensorsData.GroundSensorPosition;
-                m_groundCheckPool.Get(item).GroundSensor = groundSensor;
+                m_groundCheckPool.Get(item).GroundSensors = new List<Sensor>();
+                foreach (var sensorPosition in m_sensorsData.GroundSensorPosition)
+                {
+                    var groundSensor = Object.Instantiate(m_connectSensorPrefab, m_transformPool.Get(item).ObjectTransform).GetComponent<Sensor>();
+                    groundSensor.transform.localPosition = sensorPosition;
+                    m_groundCheckPool.Get(item).GroundSensors.Add(groundSensor);
+                }
             }
         }
 

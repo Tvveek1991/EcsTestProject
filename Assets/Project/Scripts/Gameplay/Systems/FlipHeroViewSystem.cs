@@ -67,7 +67,7 @@ namespace Project.Scripts.Gameplay.Systems
                 return;
 
             if (!m_wallCheckPool.Get(wallIndex).WallSensors.Any(item => item.IsConnected) ||
-                m_groundCheckPool.Get(groundIndex).GroundSensor.IsConnected)
+                m_groundCheckPool.Get(groundIndex).GroundSensors.Any(item => item.IsConnected))
                 return;
 
             var connectedSensor = m_wallCheckPool.Get(wallIndex).WallSensors.FirstOrDefault(item => item.IsConnected);

@@ -118,10 +118,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var index in m_groundCheckFilter)
             {
-                if (m_groundCheckPool.Get(index).GroundSensor.IsConnected)
+                if (m_groundCheckPool.Get(index).GroundSensors.Any(item => item.IsConnected))
                     m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, true);
 
-                if (!m_groundCheckPool.Get(index).GroundSensor.IsConnected)
+                if (!m_groundCheckPool.Get(index).GroundSensors.Any(item => item.IsConnected))
                     m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, false);
             }
         }

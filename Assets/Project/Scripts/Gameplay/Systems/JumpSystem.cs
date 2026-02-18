@@ -42,7 +42,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var jumper in m_jumperFilter)
             {
                 m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity = new Vector2(m_rigidbody2dPool.Get(jumper).Rigidbody.linearVelocity.x, m_personData.JumpForce);
-                m_groundCheckPool.Get(jumper).GroundSensor.Disable(0.2f);
+                m_groundCheckPool.Get(jumper).GroundSensors.ForEach(item => item.Disable(.2f));
             }
         }
     }

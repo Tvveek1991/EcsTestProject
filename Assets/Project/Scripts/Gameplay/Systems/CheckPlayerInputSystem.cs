@@ -1,4 +1,5 @@
-﻿using Leopotam.EcsLite;
+﻿using System.Linq;
+using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using UnityEngine;
 
@@ -105,7 +106,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var readyToJumpEntity in m_readyToJumpFilter)
             {
-                if (m_inputPool.Get(input).IsJumpPressed && m_groundCheckPool.Get(readyToJumpEntity).GroundSensor.IsConnected) 
+                if (m_inputPool.Get(input).IsJumpPressed && m_groundCheckPool.Get(readyToJumpEntity).GroundSensors.Any(item => item.IsConnected)) 
                     m_jumpPool.Add(readyToJumpEntity);
             }
         }
@@ -115,7 +116,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var readyToBlockEntity in m_readyToBlockFilter)
             {
-                if (m_inputPool.Get(input).IsBlock && m_groundCheckPool.Get(readyToBlockEntity).GroundSensor.IsConnected)
+                if (m_inputPool.Get(input).IsBlock && m_groundCheckPool.Get(readyToBlockEntity).GroundSensors.Any(item => item.IsConnected))
                     m_blockPool.Add(readyToBlockEntity).IsAnimate = true;
             }
         }
@@ -192,7 +193,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var input in m_inputFilter)
             foreach (var withoutRollIndex in m_readyRollingFilter)
             {
-                if (m_inputPool.Get(input).IsRollPressed && m_groundCheckPool.Get(withoutRollIndex).GroundSensor.IsConnected)
+                if (m_inputPool.Get(input).IsRollPressed && m_groundCheckPool.Get(withoutRollIndex).GroundSensors.Any(item => item.IsConnected))
                 {
                     m_rollingPool.Add(withoutRollIndex).IsAnimate = true;
                 }
