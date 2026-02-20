@@ -50,8 +50,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var runIndex in m_runFilter)
             {
-                if (m_wallCheckPool.Get(runIndex).WallSensors != null)
-                    if (m_wallCheckPool.Get(runIndex).WallSensors.Any(item => item.IsConnected) && m_groundCheckPool.Get(runIndex).GroundSensors.Any(item => !item.IsConnected))
+                if (m_wallCheckPool.Get(runIndex).WallSensors != null && m_groundCheckPool.Get(runIndex).GroundSensors != null)
+                    if (m_wallCheckPool.Get(runIndex).WallSensors.Any(item => item.IsConnected) && m_groundCheckPool.Get(runIndex).GroundSensors.All(item => !item.IsConnected))
                         continue;
 
                 int direction = m_runPool.Get(runIndex).Direction;
