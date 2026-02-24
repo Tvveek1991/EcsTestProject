@@ -48,6 +48,8 @@ namespace Project.Scripts.Gameplay.Systems
                         sequence.Kill();
                         sequence = null;
                     
+                        // m_transformPool.Del(coinView);
+                        // m_transformPool.Del(coinView);
                         m_world.DelEntity(coinView);
                         
                         Object.Destroy(coinTransform.gameObject);

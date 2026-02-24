@@ -18,7 +18,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_gameLevelViewRefsFilter;
 
         private EcsPool<TransformComponent> m_transformPool;
-        private EcsPool<CoinViewRefComponent> m_coinViewRefPool;
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
 
         private GameObject m_parentObject;
@@ -35,7 +34,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
             
             m_transformPool = m_world.GetPool<TransformComponent>();
-            m_coinViewRefPool = m_world.GetPool<CoinViewRefComponent>();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             FindSpawnPoints();

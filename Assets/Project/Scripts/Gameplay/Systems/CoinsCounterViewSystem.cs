@@ -13,13 +13,17 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_canvasFilter;
         private EcsFilter m_coinsCounterFilter;
+        private EcsFilter m_coinViewRefFilter;
         private EcsFilter m_coinsCounterViewRefFilter;
 
         private EcsPool<CanvasComponent> m_canvasPool;
+        private EcsPool<CoinViewRefComponent> m_coinViewRefPool;
         private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
         private EcsPool<CoinsCounterViewRefComponent> m_coinsCounterViewPool;
 
         private GameObject m_parentObject;
+
+        private int m_coinsTotalCount;
         
         public CoinsCounterViewSystem(CoinsCounterView coinsCounterViewPrefab)
         {
@@ -31,16 +35,20 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
             
             m_canvasFilter = m_world.Filter<CanvasComponent>().End();
+            m_coinViewRefFilter = m_world.Filter<CoinViewRefComponent>().End();
             m_coinsCounterFilter = m_world.Filter<CoinsCounterComponent>().End();
             m_coinsCounterViewRefFilter = m_world.Filter<CoinsCounterViewRefComponent>().End();
             
             m_canvasPool = m_world.GetPool<CanvasComponent>();
             m_coinsCounterPool = m_world.GetPool<CoinsCounterComponent>();
+            m_coinViewRefPool = m_world.GetPool<CoinViewRefComponent>();
             m_coinsCounterViewPool = m_world.GetPool<CoinsCounterViewRefComponent>();
+            
+            m_coinsTotalCount = m_coinViewRefFilter.GetEntitiesCount();
             
             CreateCoinsCounterView();
         }
-        
+
         public void Run(IEcsSystems systems)
         {
             RefreshCoinsCounterView();
@@ -48,7 +56,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Destroy(IEcsSystems systems) =>
             Object.Destroy(m_parentObject);
-        
+
         private void CreateCoinsCounterView()
         {
             foreach (var canvasEntity in m_canvasFilter)
@@ -75,11 +83,10 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 var newValue = m_coinsCounterPool.Get(coinsCounterEntity).Count;
                 SetCount(coinsCounterViewRefEntity, newValue);
-                
             }
         }
 
         private void SetCount(int entity, int score) => 
-            m_coinsCounterViewPool.Get(entity).CoinsCounterView.ScoreText.text = $": {score}";
+            m_coinsCounterViewPool.Get(entity).CoinsCounterView.ScoreText.text = $"{score}/{m_coinsTotalCount}";
     }
 }
