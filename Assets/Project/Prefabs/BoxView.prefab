@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 1822275762428179595}
   - component: {fileID: 8769897211714110727}
   - component: {fileID: 8452156809753513830}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BoxView
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -157,7 +157,7 @@ Rigidbody2D:
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 5
 --- !u!61 &8452156809753513830
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -213,7 +213,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7540054490317538932}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Spawn point
   m_TagString: Untagged
   m_Icon: {fileID: 0}

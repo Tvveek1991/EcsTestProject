@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Data
 {
-    [CreateAssetMenu(menuName = "Hero/Create Hero Data", fileName = "Hero Data")]
+    [CreateAssetMenu(menuName = "Hero/Create Person Data", fileName = "Person Data")]
     public class PersonData : ScriptableObject
     {
         public int FullHealth = 100;

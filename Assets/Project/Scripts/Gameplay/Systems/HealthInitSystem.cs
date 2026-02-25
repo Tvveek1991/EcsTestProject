@@ -11,8 +11,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_personFilter;
+        private EcsFilter m_objectsFilter;
         
         private EcsPool<HealthComponent> m_addHealthPool;
+        private EcsPool<ObjectComponent> m_objectsPool;
 
         public HealthInitSystem(PersonData personData)
         {
@@ -24,6 +26,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
             
             m_personFilter = m_world.Filter<PersonComponent>().Exc<HealthComponent>().End();
+            m_objectsFilter = m_world.Filter<ObjectComponent>().Exc<HealthComponent>().End();
             
             m_addHealthPool = m_world.GetPool<HealthComponent>();
         }
@@ -37,6 +40,9 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var person in m_personFilter) 
                 m_addHealthPool.Add(person).Health = m_personData.FullHealth;
+            
+            foreach (var objectEntity in m_objectsFilter) 
+                m_addHealthPool.Add(objectEntity).Health = m_personData.FullHealth;
         }
     }
 }

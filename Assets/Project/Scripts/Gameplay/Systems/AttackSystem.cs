@@ -11,9 +11,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_attackFilter;
-        private EcsFilter m_readyToAttackFilter;
 
         private EcsPool<AttackComponent> m_attackPool;
+        private EcsPool<AttackCheckComponent> m_attackCheckPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -23,6 +23,7 @@ namespace Project.Scripts.Gameplay.Systems
                 .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
 
             m_attackPool = m_world.GetPool<AttackComponent>();
+            m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
         }
 
         public void Run(IEcsSystems systems)
@@ -32,14 +33,16 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CheckToStartAttack()
         {
-            foreach (var index in m_attackFilter)
+            foreach (var entity in m_attackFilter)
             {
-                ref AttackComponent attackComponent = ref m_attackPool.Get(index);
+                ref AttackComponent attackComponent = ref m_attackPool.Get(entity);
                 attackComponent.TimeSinceAttack += Time.deltaTime;
 
                 if (attackComponent.IsAnimate && attackComponent.TimeSinceAttack > 0.25f)
                 {
                     attackComponent.CurrentAttackIndex++;
+
+                    m_attackCheckPool.Add(entity);
 
                     if (attackComponent.CurrentAttackIndex > 3)
                         attackComponent.CurrentAttackIndex = 1;
@@ -50,8 +53,8 @@ namespace Project.Scripts.Gameplay.Systems
                     attackComponent.TimeSinceAttack = 0.0f;
                 }
                 
-                if(m_attackPool.Get(index).TimeSinceAttack > TIME_TO_REMOVE_COMPONENT)
-                    m_attackPool.Del(index);
+                if(m_attackPool.Get(entity).TimeSinceAttack > TIME_TO_REMOVE_COMPONENT)
+                    m_attackPool.Del(entity);
             }
         }
     }

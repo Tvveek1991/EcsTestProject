@@ -62,14 +62,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void AttachComponents(int gameLevelEntityIndex, ObjectView objectView)
         {
-            
-
             AttachObjectComponent();
-            // AttachPersonComponent();
-            // AttachAnimatorComponent();
             AttachTransformComponent();
-            // AttachWallCheckComponent();
-            // AttachGroundCheckComponent();
             AttachRigidbody2dComponent();
             AttachSpriteRendererComponent();
             AttachViewToHeroViewReferenceComponent();
@@ -77,12 +71,6 @@ namespace Project.Scripts.Gameplay.Systems
             void AttachObjectComponent()
             {
                 m_world.GetPool<ObjectComponent>().Add(gameLevelEntityIndex);
-            }
-
-            void AttachAnimatorComponent()
-            {
-                ref AnimatorComponent animatorComponent = ref m_world.GetPool<AnimatorComponent>().Add(gameLevelEntityIndex);
-                animatorComponent.AnimatorController = objectView.GetComponent<Animator>();
             }
 
             void AttachTransformComponent()
@@ -107,16 +95,6 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref ObjectViewRefComponent cellViewRef = ref m_world.GetPool<ObjectViewRefComponent>().Add(gameLevelEntityIndex);
                 cellViewRef.ObjectView = objectView;
-            }
-
-            void AttachGroundCheckComponent()
-            {
-                m_world.GetPool<GroundCheckComponent>().Add(gameLevelEntityIndex);
-            }
-
-            void AttachWallCheckComponent()
-            {
-                m_world.GetPool<WallCheckComponent>().Add(gameLevelEntityIndex);
             }
         }
 
