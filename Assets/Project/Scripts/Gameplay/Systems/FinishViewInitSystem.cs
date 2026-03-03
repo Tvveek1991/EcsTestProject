@@ -3,6 +3,7 @@ using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Project.Scripts.Gameplay.Systems
 {
@@ -64,7 +65,9 @@ namespace Project.Scripts.Gameplay.Systems
                 var newEntityIndex = m_world.NewEntity();
                 var spawnPoint = m_canvasPool.Get(canvasEntity).Canvas.transform;
 
-                m_finishView = Object.Instantiate(m_finishViewPrefab, spawnPoint).GetComponent<FinishView>();
+                m_finishView = Object.Instantiate(m_finishViewPrefab, spawnPoint);
+
+                AddListeners();
 
                 AttachViewToGameLevelViewReference();
 
@@ -76,6 +79,15 @@ namespace Project.Scripts.Gameplay.Systems
                     cellViewRef.FinishView = m_finishView;
                 }
             }
+        }
+
+        private void AddListeners()
+        {
+            m_finishView.RestartButton.onClick.AddListener(() =>
+            {
+                m_world.Destroy();
+                SceneManager.LoadSceneAsync("Main");
+            });
         }
 
         private void ShowView()
