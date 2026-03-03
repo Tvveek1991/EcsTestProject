@@ -45,6 +45,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8db397016237e3e4090d8cad9041d3c8
+    m_Address: DestroyedParticles
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9c432f73631b1514eaf3b07f58de3329
     m_Address: FinishView
     m_ReadOnly: 0

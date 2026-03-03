@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5751874661492228648}
   - component: {fileID: 5492010315526711400}
-  - component: {fileID: 8914189871134186729}
   - component: {fileID: 1822275762428179595}
   - component: {fileID: 8769897211714110727}
   - component: {fileID: 8452156809753513830}
@@ -35,6 +34,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7540054490317538932}
+  - {fileID: 4572471064100120308}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5492010315526711400
@@ -50,28 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Gameplay::Project.Scripts.Gameplay.Views.BoxView
   m_healthSpawnPoint: {fileID: 7540054490317538932}
---- !u!95 &8914189871134186729
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 409093429677270191}
-  m_Enabled: 0
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3c2a5b7097b0fe44394328c0bdb9252e, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_destroyParticlesSpawnPoint: {fileID: 4572471064100120308}
 --- !u!212 &1822275762428179595
 SpriteRenderer:
   serializedVersion: 2
@@ -204,6 +183,37 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2, y: 1.31}
   m_EdgeRadius: 0
+--- !u!1 &2258991716353267987
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4572471064100120308}
+  m_Layer: 7
+  m_Name: Particles spawn point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4572471064100120308
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2258991716353267987}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.3, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5751874661492228648}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7788129455207098739
 GameObject:
   m_ObjectHideFlags: 0

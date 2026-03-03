@@ -27,6 +27,8 @@ namespace Gameplay
     private const string BoxViewAddress = "BoxView";
     private const string CoinsCounterViewAddress = "CoinsCounterView";
     
+    private const string DestroyedParticlesAddress = "DestroyedParticles";
+    
     private const string CameraAddress = "Camera";
 
     private Canvas _canvasPrefab;
@@ -44,6 +46,8 @@ namespace Gameplay
     private CoinView m_coinViewPrefab;
     private ObjectView m_objectViewPrefab;
     private CoinsCounterView m_coinsCounterViewPrefab;
+    
+    private GameObject m_destroyedParticles;
 
     private Camera _camera;
 
@@ -70,6 +74,11 @@ namespace Gameplay
       m_coinsCounterViewPrefab = (await _assetProvider.Load<GameObject>(CoinsCounterViewAddress)).GetComponentInChildren<CoinsCounterView>();
 
       m_connectSensorPrefab = (await _assetProvider.Load<GameObject>(ConnectSensorAddress)).GetComponentInChildren<Sensor>();
+      
+      
+      m_connectSensorPrefab = (await _assetProvider.Load<GameObject>(ConnectSensorAddress)).GetComponentInChildren<Sensor>();
+
+      m_destroyedParticles = await _assetProvider.Load<GameObject>(DestroyedParticlesAddress);
 
       _camera = (Object.Instantiate(await _assetProvider.Load<GameObject>(CameraAddress))).GetComponentInChildren<Camera>();
     }
@@ -82,6 +91,8 @@ namespace Gameplay
       builder.RegisterInstance(_sensorsData);
       builder.RegisterInstance(_cameraData);
       builder.RegisterInstance(_fieldAnimationData);
+
+      builder.RegisterInstance(m_destroyedParticles);
       
       builder.RegisterInstance(m_personViewPrefab);
       builder.RegisterInstance(m_finishViewPrefab);
@@ -92,7 +103,7 @@ namespace Gameplay
       builder.RegisterInstance(m_coinsCounterViewPrefab);
         
       builder.RegisterInstance(m_connectSensorPrefab);
-
+      
       builder.RegisterInstance(_camera);
     }
 
@@ -104,6 +115,8 @@ namespace Gameplay
       _assetProvider.Release(SensorsDataAddress);
       _assetProvider.Release(CameraDataAddress);
       _assetProvider.Release(AnimationDataAddress);
+      
+      _assetProvider.Release(DestroyedParticlesAddress);
 
       _assetProvider.Release(PersonViewAddress);
       _assetProvider.Release(FinishViewAddress);

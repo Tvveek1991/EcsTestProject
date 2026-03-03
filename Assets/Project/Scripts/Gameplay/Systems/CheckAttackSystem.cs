@@ -13,7 +13,6 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_hitFilter;
         private EcsFilter m_attackedPersonFilter;
-        // private EcsFilter m_attackCheckFilter;
 
         private EcsPool<HurtCommandComponent> m_hurtCommandPool;
         private EcsPool<AttackCheckComponent> m_attackCheckPool;
@@ -65,7 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
                         {
                             m_hurtCommandPool.Add(hitObject).HitValue = 10;
                             
-                            Debug.Log("Объект обнаружен: " + hit.collider.gameObject.name);
+                            // Debug.Log("Объект обнаружен: " + hit.collider.gameObject.name);
                             
                             break;
                         }

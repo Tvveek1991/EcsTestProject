@@ -51,6 +51,8 @@ namespace Gameplay
       builder.Register<IEcsSystem, HealthChangeSystem>(Lifetime.Scoped); 
       builder.Register<IEcsSystem, HealthViewChangeSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CheckDeathSystem>(Lifetime.Scoped);
+
+      builder.Register<IEcsSystem, CheckDestroyedParticlesSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
       

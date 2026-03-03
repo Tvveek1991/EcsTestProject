@@ -55,7 +55,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void SetFilters()
         {
-            m_deadCommandFilter = m_world.Filter<AnimatorComponent>().Inc<DeadCommandComponent>().End();
+            m_deadCommandFilter = m_world.Filter<PersonComponent>().Inc<AnimatorComponent>().Inc<DeadCommandComponent>().End();
             m_hurtCommandFilter = m_world.Filter<AnimatorComponent>().Inc<HurtCommandComponent>()
                 .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
 

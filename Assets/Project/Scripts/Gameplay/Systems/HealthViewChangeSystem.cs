@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
@@ -63,6 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref HealthComponent healthComponent = ref m_healthPool.Get(entity);
                 ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(healthComponent.HealthViewEntityIndex);
+                int healthViewEntity = healthComponent.HealthViewEntityIndex;
 
                 var healthView = healthViewRefComponent.HealthView;
                 if (healthView.CanvasGroup.alpha <= 0)
@@ -72,7 +74,11 @@ namespace Project.Scripts.Gameplay.Systems
                     .OnComplete(() =>
                     {
                         if (healthView.HealthBar.value <= 0)
-                            healthView.CanvasGroup.DOFade(0f, FADE_DURATION);
+                        {
+                            // healthView.CanvasGroup.DOFade(0f, FADE_DURATION);
+                            m_world.DelEntity(healthViewEntity);
+                            Object.Destroy(healthView.gameObject);
+                        }
                     });
 
                 m_hurtCommandPool.Del(entity);
