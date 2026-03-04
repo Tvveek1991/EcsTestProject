@@ -29,7 +29,7 @@ namespace Application.StateMachine.ApplicationDependenciesInstaller
       
       builder.Register<ApplicationState>(Lifetime.Singleton);
       builder.Register<StartupState>(Lifetime.Singleton);
-      builder.Register<EmptyState>(Lifetime.Singleton);
+      builder.Register<RestartGameState>(Lifetime.Singleton);
     }
   }
 }

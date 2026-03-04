@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CoinsCounterViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
+    public class CoinsCounterViewSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly CoinsCounterView m_coinsCounterViewPrefab;
         
@@ -19,8 +19,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<CanvasComponent> m_canvasPool;
         private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
         private EcsPool<CoinsCounterViewRefComponent> m_coinsCounterViewPool;
-
-        private GameObject m_parentObject;
 
         private int m_coinsTotalCount;
         
@@ -51,9 +49,6 @@ namespace Project.Scripts.Gameplay.Systems
         {
             RefreshCoinsCounterView();
         }
-
-        public void Destroy(IEcsSystems systems) =>
-            Object.Destroy(m_parentObject);
 
         private void CreateCoinsCounterView()
         {
