@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
@@ -5,8 +6,10 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CoinsViewAnimationSystem : IEcsInitSystem, IEcsRunSystem
+    public class CoinsViewAnimationSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
     {
+        private readonly List<Sequence> m_sequences = new();
+        
         private EcsWorld m_world;
 
         private EcsFilter m_animatedCoinViewFilter;
@@ -44,17 +47,26 @@ namespace Project.Scripts.Gameplay.Systems
                         m_coinsCounterChangePool.Add(entity).CorrectionValue = 1;
 
                         coinTransform.DOKill();
+
+                        m_sequences.Remove(sequence);
                         
                         sequence.Kill();
                         sequence = null;
-                    
-                        // m_transformPool.Del(coinView);
-                        // m_transformPool.Del(coinView);
+                        
                         m_world.DelEntity(coinView);
                         
                         Object.Destroy(coinTransform.gameObject);
                     });
+                m_sequences.Add(sequence);
             }
+        }
+
+        public void Destroy(IEcsSystems systems)
+        {
+            m_sequences.ForEach(item =>
+            {
+                item?.Kill();
+            });
         }
     }
 }

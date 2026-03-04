@@ -109,6 +109,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_finishView.RestartButton.onClick.AddListener(() =>
             {
+                DOTween.KillAll();
                 m_world.Destroy();
                 SceneManager.LoadSceneAsync("Main");
             });

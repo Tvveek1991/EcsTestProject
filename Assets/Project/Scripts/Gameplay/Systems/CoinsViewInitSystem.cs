@@ -41,6 +41,9 @@ namespace Project.Scripts.Gameplay.Systems
 
             SetCoinViewsStartPosition();
         }
+        
+        public void Destroy(IEcsSystems systems) => 
+            Object.Destroy(m_parentObject);
 
         private void CreateCoinViews()
         {
@@ -93,8 +96,5 @@ namespace Project.Scripts.Gameplay.Systems
                 listSpawnPoints.RemoveAt(0);
             }
         }
-
-        public void Destroy(IEcsSystems systems) => 
-            Object.Destroy(m_parentObject);
     }
 }
