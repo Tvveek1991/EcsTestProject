@@ -56,9 +56,9 @@ namespace Gameplay
       
       builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
       
-      builder.Register<IEcsSystem, DisableInputSystem>(Lifetime.Scoped);
-      
       builder.Register<IEcsSystem, FinishViewInitSystem>(Lifetime.Scoped);
+      
+      builder.Register<IEcsSystem, EndGameSystem>(Lifetime.Scoped);
     }
   }
 }

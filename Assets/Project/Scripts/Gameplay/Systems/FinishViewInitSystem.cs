@@ -116,7 +116,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void ShowView(bool isWin)
         {
-            m_finishView.CanvasGroup.alpha = 0;
+            m_finishView.CanvasGroup.alpha = 1;
             m_finishView.CanvasGroup.DOFade(1f, FADE_DURATION);
 
             m_finishView.Title.text = isWin ? "You win" : "You died";

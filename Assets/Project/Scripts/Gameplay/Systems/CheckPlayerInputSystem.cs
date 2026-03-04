@@ -55,7 +55,7 @@ namespace Project.Scripts.Gameplay.Systems
             
             m_hitFilter = m_world.Filter<PlayerComponent>().Inc<HealthComponent>()
                 .Exc<HurtCommandComponent>().End();
-            
+
             m_runPool = m_world.GetPool<RunComponent>();
             m_jumpPool = m_world.GetPool<JumpComponent>();
             m_blockPool = m_world.GetPool<BlockComponent>();

@@ -3,12 +3,12 @@ using Project.Scripts.Gameplay.Components;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class DisableInputSystem : IEcsInitSystem, IEcsRunSystem
+    public class EndGameSystem: IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld m_world;
 
-        private EcsFilter m_deadFilter;
         private EcsFilter m_inputFilter;
+        private EcsFilter m_endGameFilter;
         
         private EcsPool<InputComponent> m_inputPool;
         
@@ -17,17 +17,19 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
             
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_deadFilter = m_world.Filter<PlayerComponent>().Inc<DeadCommandComponent>().End();
-
+            m_endGameFilter = m_world.Filter<EndGameComponent>().End();
+            
             m_inputPool = m_world.GetPool<InputComponent>();
         }
 
         public void Run(IEcsSystems systems)
         {
-            foreach (var input in m_inputFilter)
+            foreach (var inputEntity in m_inputFilter)
             {
-                if(m_inputPool.Get(input).IsEnabled && m_deadFilter.GetEntitiesCount() > 0)
-                    m_inputPool.Get(input).IsEnabled = false;
+                if (!m_inputPool.Get(inputEntity).IsEnabled || m_endGameFilter.GetEntitiesCount() == 0)
+                    return;
+                
+                m_inputPool.Get(inputEntity).IsEnabled = false;
             }
         }
     }

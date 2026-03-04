@@ -75,7 +75,6 @@ namespace Project.Scripts.Gameplay.Systems
                     {
                         if (healthView.HealthBar.value <= 0)
                         {
-                            // healthView.CanvasGroup.DOFade(0f, FADE_DURATION);
                             m_world.DelEntity(healthViewEntity);
                             Object.Destroy(healthView.gameObject);
                         }

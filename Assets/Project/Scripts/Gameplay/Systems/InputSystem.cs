@@ -9,7 +9,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
     
         private EcsFilter m_inputFilter;
-        private EcsFilter m_endGameFilter;
         
         private EcsPool<InputComponent> m_inputPool;
         
@@ -18,8 +17,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_inputFilter = m_world.Filter<InputComponent>().End();
-            m_endGameFilter = m_world.Filter<EndGameComponent>().End();
-            
             m_inputPool = m_world.GetPool<InputComponent>();
 
             CreateInputComponent();
@@ -27,9 +24,6 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
-            if(m_endGameFilter.GetEntitiesCount() > 0)
-                return;
-            
             foreach (var i in m_inputFilter)
             {
                 ref var input = ref m_inputPool.Get(i);
