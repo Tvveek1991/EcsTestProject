@@ -17,7 +17,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_coinsCounterViewRefFilter;
 
         private EcsPool<CanvasComponent> m_canvasPool;
-        private EcsPool<CoinViewRefComponent> m_coinViewRefPool;
         private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
         private EcsPool<CoinsCounterViewRefComponent> m_coinsCounterViewPool;
 
@@ -41,7 +40,6 @@ namespace Project.Scripts.Gameplay.Systems
             
             m_canvasPool = m_world.GetPool<CanvasComponent>();
             m_coinsCounterPool = m_world.GetPool<CoinsCounterComponent>();
-            m_coinViewRefPool = m_world.GetPool<CoinViewRefComponent>();
             m_coinsCounterViewPool = m_world.GetPool<CoinsCounterViewRefComponent>();
             
             m_coinsTotalCount = m_coinViewRefFilter.GetEntitiesCount();

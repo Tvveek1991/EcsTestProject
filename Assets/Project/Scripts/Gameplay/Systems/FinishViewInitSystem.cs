@@ -17,12 +17,17 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_canvasFilter;
         private EcsFilter m_deadPlayerFilter;
+        private EcsFilter m_coinViewRefFilter;
+        private EcsFilter m_coinsCounterFilter;
         private EcsFilter m_finishViewRefFilter;
 
         private EcsPool<CanvasComponent> m_canvasPool;
+        private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
         private EcsPool<FinishViewRefComponent> m_finishViewRefPool;
 
         private FinishView m_finishView;
+        
+        private int m_coinsTotalCount;
 
         public FinishViewInitSystem(FinishView finishViewPrefab)
         {
@@ -34,11 +39,16 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_canvasFilter = m_world.Filter<CanvasComponent>().End();
+            m_coinViewRefFilter = m_world.Filter<CoinViewRefComponent>().End();
+            m_coinsCounterFilter = m_world.Filter<CoinsCounterComponent>().End();
             m_finishViewRefFilter = m_world.Filter<FinishViewRefComponent>().End();
             m_deadPlayerFilter = m_world.Filter<PlayerComponent>().Inc<DeadComponent>().End();
 
             m_canvasPool = m_world.GetPool<CanvasComponent>();
+            m_coinsCounterPool = m_world.GetPool<CoinsCounterComponent>();
             m_finishViewRefPool = m_world.GetPool<FinishViewRefComponent>();
+
+            m_coinsTotalCount = m_coinViewRefFilter.GetEntitiesCount();
         }
 
         public void Run(IEcsSystems systems)
@@ -54,8 +64,17 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void TryCreateView()
         {
-            if(m_deadPlayerFilter.GetEntitiesCount() == 0)
+            if(m_coinsCounterFilter.GetEntitiesCount() == 0)
                 return;
+
+            int currentCount = m_coinsCounterPool.Get(m_coinsCounterFilter.GetRawEntities()[0]).Count;
+
+            bool isEndGame = currentCount >= m_coinsTotalCount || m_deadPlayerFilter.GetEntitiesCount() != 0;
+            
+            if(!isEndGame)
+                return;
+            
+            bool isWin = currentCount >= m_coinsTotalCount;
             
             foreach (var canvasEntity in m_canvasFilter)
             {
@@ -71,7 +90,7 @@ namespace Project.Scripts.Gameplay.Systems
 
                 AttachViewToGameLevelViewReference();
 
-                ShowView();
+                ShowView(isWin);
 
                 void AttachViewToGameLevelViewReference()
                 {
@@ -90,12 +109,13 @@ namespace Project.Scripts.Gameplay.Systems
             });
         }
 
-        private void ShowView()
+        private void ShowView(bool isWin)
         {
             m_finishView.CanvasGroup.alpha = 0;
             m_finishView.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-            m_finishView.Title.text = "You died";
+            m_finishView.Title.text = isWin ? "You win" : "You died";
+            m_finishView.ButtonText.text = isWin ? "Start new game" : "Restart";
         }
     }
 }
