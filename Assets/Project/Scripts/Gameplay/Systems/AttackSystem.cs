@@ -19,8 +19,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_attackFilter = m_world.Filter<PersonComponent>().Inc<AttackComponent>()
-                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
+            m_attackFilter = m_world.Filter<PersonComponent>().Inc<AttackComponent>().End();
 
             m_attackPool = m_world.GetPool<AttackComponent>();
             m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();

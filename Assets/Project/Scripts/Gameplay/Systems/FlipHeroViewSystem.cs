@@ -23,9 +23,9 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_noRunFilter = m_world.Filter<SpriteRendererComponent>()
-                .Exc<ObjectComponent>().Exc<RunComponent>().Exc<RollingComponent>().Exc<BlockComponent>().Exc<DeadComponent>().End();
+                .Exc<ObjectComponent>().Exc<RunComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
             m_runFilter = m_world.Filter<RunComponent>().Inc<SpriteRendererComponent>()
-                .Exc<RollingComponent>().Exc<BlockComponent>().Exc<DeadComponent>().End();
+                .Exc<RollingComponent>().Exc<BlockComponent>().End();
             m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
             m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
 
