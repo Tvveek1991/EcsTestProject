@@ -16,14 +16,15 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_canvasFilter;
+        private EcsFilter m_endGameFilter;
         private EcsFilter m_deadPlayerFilter;
         private EcsFilter m_coinViewRefFilter;
         private EcsFilter m_coinsCounterFilter;
-        private EcsFilter m_finishViewRefFilter;
 
         private EcsPool<CanvasComponent> m_canvasPool;
         private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
         private EcsPool<FinishViewRefComponent> m_finishViewRefPool;
+        private EcsPool<EndGameComponent> m_endGamePool;
 
         private FinishView m_finishView;
         
@@ -39,12 +40,13 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_canvasFilter = m_world.Filter<CanvasComponent>().End();
+            m_endGameFilter = m_world.Filter<EndGameComponent>().End();
             m_coinViewRefFilter = m_world.Filter<CoinViewRefComponent>().End();
             m_coinsCounterFilter = m_world.Filter<CoinsCounterComponent>().End();
-            m_finishViewRefFilter = m_world.Filter<FinishViewRefComponent>().End();
             m_deadPlayerFilter = m_world.Filter<PlayerComponent>().Inc<DeadComponent>().End();
 
             m_canvasPool = m_world.GetPool<CanvasComponent>();
+            m_endGamePool = m_world.GetPool<EndGameComponent>();
             m_coinsCounterPool = m_world.GetPool<CoinsCounterComponent>();
             m_finishViewRefPool = m_world.GetPool<FinishViewRefComponent>();
 
@@ -78,8 +80,11 @@ namespace Project.Scripts.Gameplay.Systems
             
             foreach (var canvasEntity in m_canvasFilter)
             {
-                if (m_finishViewRefFilter.GetEntitiesCount() > 0)
+                if (m_endGameFilter.GetEntitiesCount() > 0)
                     return;
+                
+                var endGameEntity = m_world.NewEntity();
+                m_endGamePool.Add(endGameEntity);
 
                 var newEntityIndex = m_world.NewEntity();
                 var spawnPoint = m_canvasPool.Get(canvasEntity).Canvas.transform;

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Sensors Data
   m_EditorClassIdentifier: 
   GroundSensorPosition:
-  - {x: -0.3, y: 0.1}
-  - {x: 0.3, y: 0.1}
+  - {x: -0.15, y: 0.1}
+  - {x: 0.15, y: 0.1}
   WallSensorsPosition:
-  - {x: 0.375, y: 0.15}
-  - {x: 0.375, y: 1.15}
-  - {x: -0.378, y: 0.15}
-  - {x: -0.378, y: 1.15}
+  - {x: 0.3, y: 0.3}
+  - {x: 0.3, y: 1.15}
+  - {x: -0.3, y: 0.3}
+  - {x: -0.3, y: 1.15}
