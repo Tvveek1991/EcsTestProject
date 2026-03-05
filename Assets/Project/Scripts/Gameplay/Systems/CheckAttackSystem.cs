@@ -14,6 +14,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_hitFilter;
         private EcsFilter m_attackedPersonFilter;
 
+        private EcsPool<HealthComponent> m_healthPool;
         private EcsPool<HurtCommandComponent> m_hurtCommandPool;
         private EcsPool<AttackCheckComponent> m_attackCheckPool;
         private EcsPool<ObjectViewRefComponent> m_objectViewRefPool;
@@ -24,15 +25,16 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_attackedPersonFilter = m_world.Filter<PersonViewRefComponent>().Inc<AttackCheckComponent>().Inc<SpriteRendererComponent>().End();
             m_hitFilter = m_world.Filter<ObjectViewRefComponent>().Inc<HealthComponent>()
                 .Exc<HurtCommandComponent>().End();
+            m_attackedPersonFilter = m_world.Filter<PersonViewRefComponent>().Inc<AttackCheckComponent>().Inc<SpriteRendererComponent>().End();
 
             m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
             
             m_hurtCommandPool = m_world.GetPool<HurtCommandComponent>();
             m_objectViewRefPool = m_world.GetPool<ObjectViewRefComponent>();
             
+            m_healthPool = m_world.GetPool<HealthComponent>();
             m_spriteRendererPool = m_world.GetPool<SpriteRendererComponent>();
             m_personViewRefComponentPool = m_world.GetPool<PersonViewRefComponent>();
         }
@@ -62,6 +64,9 @@ namespace Project.Scripts.Gameplay.Systems
                     {
                         if (m_objectViewRefPool.Get(hitObject).ObjectView.gameObject == hit.collider.gameObject)
                         {
+                            if(m_healthPool.Get(hitObject).Health <= 0)
+                                return;
+                            
                             m_hurtCommandPool.Add(hitObject).HitValue = 10;
                             
                             // Debug.Log("Объект обнаружен: " + hit.collider.gameObject.name);
