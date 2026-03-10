@@ -10,22 +10,22 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_healthFilter;
         private EcsFilter m_afterDeadFilter;
 
-        private EcsPool<DeadComponent> m_deadPool;
-        private EcsPool<HealthComponent> m_healthPool;
-        private EcsPool<DeadCommandComponent> m_deadCommandPool;
+        private EcsPool<Dead> m_deadPool;
+        private EcsPool<Health> m_healthPool;
+        private EcsPool<DeadCommand> m_deadCommandPool;
         
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_healthFilter = m_world.Filter<HealthComponent>()
-                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
-            m_afterDeadFilter = m_world.Filter<HealthComponent>().Inc<DeadCommandComponent>()
-                .Exc<DeadComponent>().End();
+            m_healthFilter = m_world.Filter<Health>()
+                .Exc<DeadCommand>().Exc<Dead>().End();
+            m_afterDeadFilter = m_world.Filter<Health>().Inc<DeadCommand>()
+                .Exc<Dead>().End();
 
-            m_deadPool = m_world.GetPool<DeadComponent>();
-            m_healthPool = m_world.GetPool<HealthComponent>();
-            m_deadCommandPool = m_world.GetPool<DeadCommandComponent>();
+            m_deadPool = m_world.GetPool<Dead>();
+            m_healthPool = m_world.GetPool<Health>();
+            m_deadCommandPool = m_world.GetPool<DeadCommand>();
         }
 
         public void Run(IEcsSystems systems)
@@ -47,9 +47,9 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var healthEntity in m_healthFilter)
             {
-                ref HealthComponent healthComponent = ref m_healthPool.Get(healthEntity);
+                ref Health health = ref m_healthPool.Get(healthEntity);
 
-                if (healthComponent.Health <= 0)
+                if (health.Count <= 0)
                     m_deadCommandPool.Add(healthEntity);
             }
         }

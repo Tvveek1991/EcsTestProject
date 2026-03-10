@@ -1,5 +1,5 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct PlayerComponent
+    public struct Player
     { }
 }

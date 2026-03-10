@@ -16,7 +16,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_playerTransformFilter;
         private EcsFilter m_gameLevelViewRefsFilter;
 
-        private EcsPool<TransformComponent> m_transformPool;
+        private EcsPool<TransformKeeper> m_transformPool;
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
         
         private GameObject m_parentObject;
@@ -30,9 +30,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
-            m_playerTransformFilter = m_world.Filter<PlayerComponent>().Inc<TransformComponent>().End();
-            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
-            m_transformPool = m_world.GetPool<TransformComponent>();
+            m_playerTransformFilter = m_world.Filter<Player>().Inc<TransformKeeper>().End(1);
+            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End(1);
+            
+            m_transformPool = m_world.GetPool<TransformKeeper>();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             CreateHeroView();
@@ -67,41 +68,41 @@ namespace Project.Scripts.Gameplay.Systems
 
             void AttachPlayerComponent()
             {
-                m_world.GetPool<PlayerComponent>().Add(playerEntity);
+                m_world.GetPool<Player>().Add(playerEntity);
             }
 
             void AttachPersonComponent()
             {
-                m_world.GetPool<PersonComponent>().Add(playerEntity);
+                m_world.GetPool<Person>().Add(playerEntity);
             }
 
             void AttachAnimatorComponent()
             {
-                ref AnimatorComponent animatorComponent = ref m_world.GetPool<AnimatorComponent>().Add(playerEntity);
-                animatorComponent.AnimatorController = heroView.GetComponent<Animator>();
+                ref AnimatorKeeper animatorKeeper = ref m_world.GetPool<AnimatorKeeper>().Add(playerEntity);
+                animatorKeeper.AnimatorController = heroView.GetComponent<Animator>();
             }
 
             void AttachTransformComponent()
             {
-                ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(playerEntity);
-                transformComponent.ObjectTransform = heroView.transform;
+                ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(playerEntity);
+                transformKeeper.ObjectTransform = heroView.transform;
             }
 
             void AttachRigidbody2dComponent()
             {
-                ref Rigidbody2dComponent rigidbody2dComponent = ref m_world.GetPool<Rigidbody2dComponent>().Add(playerEntity);
-                rigidbody2dComponent.Rigidbody = heroView.GetComponent<Rigidbody2D>();
+                ref Rigidbody2d rigidbody2d = ref m_world.GetPool<Rigidbody2d>().Add(playerEntity);
+                rigidbody2d.Rigidbody = heroView.GetComponent<Rigidbody2D>();
             }
 
             void AttachSpriteRendererComponent()
             {
-                ref SpriteRendererComponent spriteRendererComponent = ref m_world.GetPool<SpriteRendererComponent>().Add(playerEntity);
-                spriteRendererComponent.SpriteRenderer = heroView.GetComponent<SpriteRenderer>();
+                ref SpriteRendererKeeper spriteRendererKeeper = ref m_world.GetPool<SpriteRendererKeeper>().Add(playerEntity);
+                spriteRendererKeeper.SpriteRenderer = heroView.GetComponent<SpriteRenderer>();
             }
 
             void AttachViewToHeroViewReferenceComponent()
             {
-                ref PersonViewRefComponent cellViewRef = ref m_world.GetPool<PersonViewRefComponent>().Add(playerEntity);
+                ref PersonViewRef cellViewRef = ref m_world.GetPool<PersonViewRef>().Add(playerEntity);
                 cellViewRef.PersonView = heroView;
             }
 
@@ -112,7 +113,7 @@ namespace Project.Scripts.Gameplay.Systems
 
             void AttachWallCheckComponent()
             {
-                m_world.GetPool<WallCheckComponent>().Add(playerEntity);
+                m_world.GetPool<WallCheck>().Add(playerEntity);
             }
         }
 

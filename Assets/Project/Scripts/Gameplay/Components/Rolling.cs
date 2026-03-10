@@ -1,6 +1,6 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct RollingComponent
+    public struct Rolling
     {
         public bool IsAnimate;
     }

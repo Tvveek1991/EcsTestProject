@@ -14,9 +14,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_wallCheckFilter;
         private EcsFilter m_groundCheckFilter;
 
-        private EcsPool<WallCheckComponent> m_wallCheckPool;
+        private EcsPool<WallCheck> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
-        private EcsPool<TransformComponent> m_transformPool;
+        private EcsPool<TransformKeeper> m_transformPool;
 
         private readonly SensorsData m_sensorsData;
         private readonly Sensor m_connectSensorPrefab;
@@ -31,11 +31,11 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_wallCheckFilter = m_world.Filter<WallCheckComponent>().Inc<TransformComponent>().End();
-            m_groundCheckFilter = m_world.Filter<GroundCheckComponent>().Inc<TransformComponent>().End();
+            m_wallCheckFilter = m_world.Filter<WallCheck>().Inc<TransformKeeper>().End();
+            m_groundCheckFilter = m_world.Filter<GroundCheckComponent>().Inc<TransformKeeper>().End();
 
-            m_transformPool = m_world.GetPool<TransformComponent>();
-            m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
+            m_transformPool = m_world.GetPool<TransformKeeper>();
+            m_wallCheckPool = m_world.GetPool<WallCheck>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
 
             CreateGroundCheckSensor();

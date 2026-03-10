@@ -14,7 +14,7 @@ namespace Project.Scripts.Gameplay.Systems
         
         private EcsFilter m_playerFilter;
         
-        private EcsPool<TransformComponent> m_transformPool;
+        private EcsPool<TransformKeeper> m_transformPool;
         
         private Vector3 m_offset;
         
@@ -28,8 +28,9 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_playerFilter = m_world.Filter<PlayerComponent>().Inc<TransformComponent>().End();
-            m_transformPool = m_world.GetPool<TransformComponent>();
+            m_playerFilter = m_world.Filter<Player>().Inc<TransformKeeper>().End(1);
+            
+            m_transformPool = m_world.GetPool<TransformKeeper>();
         }
 
         public void Run(IEcsSystems systems)

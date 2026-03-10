@@ -36,14 +36,14 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_wallCheckFilter;
         private EcsFilter m_groundCheckFilter;
 
-        private EcsPool<JumpComponent> m_jumpPool;
-        private EcsPool<BlockComponent> m_blockPool;
+        private EcsPool<Jump> m_jumpPool;
+        private EcsPool<Block> m_blockPool;
         private EcsPool<AttackComponent> m_attackPool;
-        private EcsPool<RollingComponent> m_rollingPool;
-        private EcsPool<AnimatorComponent> m_animatorPool;
-        private EcsPool<WallCheckComponent> m_wallCheckPool;
+        private EcsPool<Rolling> m_rollingPool;
+        private EcsPool<AnimatorKeeper> m_animatorPool;
+        private EcsPool<WallCheck> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
-        private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
+        private EcsPool<Rigidbody2d> m_rigidbody2dPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -55,38 +55,38 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void SetFilters()
         {
-            m_deadCommandFilter = m_world.Filter<PersonComponent>().Inc<AnimatorComponent>().Inc<DeadCommandComponent>().End();
-            m_hurtCommandFilter = m_world.Filter<AnimatorComponent>().Inc<HurtCommandComponent>()
-                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
+            m_deadCommandFilter = m_world.Filter<Person>().Inc<AnimatorKeeper>().Inc<DeadCommand>().End();
+            m_hurtCommandFilter = m_world.Filter<AnimatorKeeper>().Inc<HurtCommand>()
+                .Exc<DeadCommand>().Exc<Dead>().End();
 
-            m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>()
-                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
-            m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>()
-                .Exc<DeadCommandComponent>().Exc<DeadComponent>().End();
+            m_wallCheckFilter = m_world.Filter<AnimatorKeeper>().Inc<WallCheck>()
+                .Exc<DeadCommand>().Exc<Dead>().End();
+            m_groundCheckFilter = m_world.Filter<AnimatorKeeper>().Inc<GroundCheckComponent>()
+                .Exc<DeadCommand>().Exc<Dead>().End();
 
-            m_airSpeedYFilter = m_world.Filter<AnimatorComponent>().Inc<Rigidbody2dComponent>().End();
+            m_airSpeedYFilter = m_world.Filter<AnimatorKeeper>().Inc<Rigidbody2d>().End();
 
-            m_runFilter = m_world.Filter<AnimatorComponent>().Inc<RunComponent>().End();
-            m_outOfRunFilter = m_world.Filter<AnimatorComponent>()
-                .Exc<RunComponent>().End();
-            m_jumperFilter = m_world.Filter<AnimatorComponent>().Inc<JumpComponent>().End();
-            m_rollingFilter = m_world.Filter<AnimatorComponent>().Inc<RollingComponent>().End();
-            m_attackFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<AttackComponent>()
-                .Exc<RollingComponent>().End();
+            m_runFilter = m_world.Filter<AnimatorKeeper>().Inc<Run>().End();
+            m_outOfRunFilter = m_world.Filter<AnimatorKeeper>()
+                .Exc<Run>().End();
+            m_jumperFilter = m_world.Filter<AnimatorKeeper>().Inc<Jump>().End();
+            m_rollingFilter = m_world.Filter<AnimatorKeeper>().Inc<Rolling>().End();
+            m_attackFilter = m_world.Filter<AnimatorKeeper>().Inc<Person>().Inc<AttackComponent>()
+                .Exc<Rolling>().End();
 
-            m_blockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>().Inc<BlockComponent>().End();
-            m_outOfBlockFilter = m_world.Filter<AnimatorComponent>().Inc<PersonComponent>()
-                .Exc<BlockComponent>().End();
+            m_blockFilter = m_world.Filter<AnimatorKeeper>().Inc<Person>().Inc<Block>().End();
+            m_outOfBlockFilter = m_world.Filter<AnimatorKeeper>().Inc<Person>()
+                .Exc<Block>().End();
         }
 
         private void SetPools()
         {
-            m_blockPool = m_world.GetPool<BlockComponent>();
+            m_blockPool = m_world.GetPool<Block>();
             m_attackPool = m_world.GetPool<AttackComponent>();
-            m_rollingPool = m_world.GetPool<RollingComponent>();
-            m_animatorPool = m_world.GetPool<AnimatorComponent>();
-            m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
-            m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
+            m_rollingPool = m_world.GetPool<Rolling>();
+            m_animatorPool = m_world.GetPool<AnimatorKeeper>();
+            m_rigidbody2dPool = m_world.GetPool<Rigidbody2d>();
+            m_wallCheckPool = m_world.GetPool<WallCheck>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
 

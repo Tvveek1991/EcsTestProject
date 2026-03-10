@@ -13,8 +13,8 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_canvasFilter;
         private EcsFilter m_tutorialViewRefFilter;
         
-        private EcsPool<CanvasComponent> m_canvasPool;
-        private EcsPool<TutorialViewRefComponent> m_tutorialViewPool;
+        private EcsPool<CanvasKeeper> m_canvasPool;
+        private EcsPool<TutorialViewRef> m_tutorialViewPool;
         
         public TutorialViewSystem(TextMeshProUGUI tutorialPrefab)
         {
@@ -25,11 +25,11 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_canvasFilter = m_world.Filter<CanvasComponent>().End();
-            m_tutorialViewRefFilter = m_world.Filter<TutorialViewRefComponent>().End();
+            m_canvasFilter = m_world.Filter<CanvasKeeper>().End(1);
+            m_tutorialViewRefFilter = m_world.Filter<TutorialViewRef>().End(1);
 
-            m_canvasPool = m_world.GetPool<CanvasComponent>();
-            m_tutorialViewPool = m_world.GetPool<TutorialViewRefComponent>();
+            m_canvasPool = m_world.GetPool<CanvasKeeper>();
+            m_tutorialViewPool = m_world.GetPool<TutorialViewRef>();
 
             CreateTutorialView();
         }
@@ -55,7 +55,7 @@ namespace Project.Scripts.Gameplay.Systems
             
             void AttachTutorialViewComponent(int newEntity, GameObject view)
             {
-                ref TutorialViewRefComponent component = ref m_tutorialViewPool.Add(newEntity);
+                ref TutorialViewRef component = ref m_tutorialViewPool.Add(newEntity);
                 component.TutorialView = view;
             }
             

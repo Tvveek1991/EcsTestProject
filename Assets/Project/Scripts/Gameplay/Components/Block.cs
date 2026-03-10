@@ -1,7 +1,7 @@
 ﻿namespace Project.Scripts.Gameplay.Components
 {
-    public struct DeadCommandComponent
+    public struct Block
     {
-        
+        public bool IsAnimate;
     }
 }

@@ -2,8 +2,8 @@ using Project.Scripts.Gameplay.Views;
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct CoinsCounterViewRefComponent
+    public struct PersonViewRef
     {
-        public CoinsCounterView CoinsCounterView;
+        public PersonView PersonView;
     }
 }

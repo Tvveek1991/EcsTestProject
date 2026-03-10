@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct Rigidbody2dComponent
+    public struct TransformKeeper
     {
-        public Rigidbody2D Rigidbody;
+        public Transform ObjectTransform;
     }
 }

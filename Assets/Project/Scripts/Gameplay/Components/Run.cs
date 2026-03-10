@@ -1,6 +1,7 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct CoinViewFlyAwayAnimationComponent
+    public struct Run
     {
+        public int Direction;
     }
 }

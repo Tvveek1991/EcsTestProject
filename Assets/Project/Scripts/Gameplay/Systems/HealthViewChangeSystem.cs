@@ -15,22 +15,22 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_hitHealthViewFilter;
         private EcsFilter m_healHealthViewFilter;
 
-        private EcsPool<HealthComponent> m_healthPool;
+        private EcsPool<Health> m_healthPool;
         private EcsPool<HealthViewRefComponent> m_healthViewPool;
-        private EcsPool<HurtCommandComponent> m_hurtCommandPool;
-        private EcsPool<HealCommandComponent> m_healCommandPool;
+        private EcsPool<HurtCommand> m_hurtCommandPool;
+        private EcsPool<HealCommand> m_healCommandPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_hitHealthViewFilter = m_world.Filter<HealthComponent>().Inc<HurtCommandComponent>().End();
-            m_healHealthViewFilter = m_world.Filter<HealthComponent>().Inc<HealCommandComponent>().End();
+            m_hitHealthViewFilter = m_world.Filter<Health>().Inc<HurtCommand>().End();
+            m_healHealthViewFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
 
-            m_healthPool = m_world.GetPool<HealthComponent>();
+            m_healthPool = m_world.GetPool<Health>();
             m_healthViewPool = m_world.GetPool<HealthViewRefComponent>();
-            m_hurtCommandPool = m_world.GetPool<HurtCommandComponent>();
-            m_healCommandPool = m_world.GetPool<HealCommandComponent>();
+            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
+            m_healCommandPool = m_world.GetPool<HealCommand>();
         }
 
         public void Run(IEcsSystems systems)
@@ -43,11 +43,11 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var entity in m_healHealthViewFilter)
             {
-                ref HealthComponent healthComponent = ref m_healthPool.Get(entity);
-                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(healthComponent.HealthViewEntityIndex);
+                ref Health health = ref m_healthPool.Get(entity);
+                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
 
                 var healthView = healthViewRefComponent.HealthView;
-                healthView.HealthBar.DOValue(healthComponent.Health, SLIDER_CHANGE_DURATION)
+                healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
                     .OnComplete(() =>
                     {
                         if (healthView.HealthBar.value >= healthView.HealthBar.maxValue)
@@ -62,15 +62,15 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var entity in m_hitHealthViewFilter)
             {
-                ref HealthComponent healthComponent = ref m_healthPool.Get(entity);
-                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(healthComponent.HealthViewEntityIndex);
-                int healthViewEntity = healthComponent.HealthViewEntityIndex;
+                ref Health health = ref m_healthPool.Get(entity);
+                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
+                int healthViewEntity = health.ViewEntityIndex;
 
                 var healthView = healthViewRefComponent.HealthView;
                 if (healthView.CanvasGroup.alpha <= 0)
                     healthView.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-                healthView.HealthBar.DOValue(healthComponent.Health, SLIDER_CHANGE_DURATION)
+                healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
                     .OnComplete(() =>
                     {
                         if (healthView.HealthBar.value <= 0)

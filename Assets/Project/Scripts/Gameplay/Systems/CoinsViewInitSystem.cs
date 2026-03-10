@@ -17,7 +17,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_coinViewRefFilter;
         private EcsFilter m_gameLevelViewRefsFilter;
 
-        private EcsPool<TransformComponent> m_transformPool;
+        private EcsPool<TransformKeeper> m_transformPool;
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
 
         private GameObject m_parentObject;
@@ -30,10 +30,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_coinViewRefFilter = m_world.Filter<CoinViewRefComponent>().Inc<TransformComponent>().End();
-            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
+            m_coinViewRefFilter = m_world.Filter<CoinViewRef>().Inc<TransformKeeper>().End();
+            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End(1);
             
-            m_transformPool = m_world.GetPool<TransformComponent>();
+            m_transformPool = m_world.GetPool<TransformKeeper>();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             FindSpawnPoints();
@@ -65,14 +65,14 @@ namespace Project.Scripts.Gameplay.Systems
 
             void AttachCoinViewRefComponent()
             {
-                ref CoinViewRefComponent cellViewRef = ref m_world.GetPool<CoinViewRefComponent>().Add(entityIndex);
+                ref CoinViewRef cellViewRef = ref m_world.GetPool<CoinViewRef>().Add(entityIndex);
                 cellViewRef.CoinView = coinView;
             }
 
             void AttachTransformComponent()
             {
-                ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(entityIndex);
-                transformComponent.ObjectTransform = coinView.transform;
+                ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(entityIndex);
+                transformKeeper.ObjectTransform = coinView.transform;
             }
         }
 

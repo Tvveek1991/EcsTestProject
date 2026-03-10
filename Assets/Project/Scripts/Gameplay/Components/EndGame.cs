@@ -1,6 +1,6 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct EndGameComponent
+    public struct EndGame
     {
     }
 }

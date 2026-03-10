@@ -13,8 +13,8 @@ namespace Project.Scripts.Gameplay.Systems
         
         private EcsFilter m_filter;
 
-        private EcsPool<TransformComponent> m_transformPool;
-        private EcsPool<ObjectViewRefComponent> m_objectViewRefPool;
+        private EcsPool<TransformKeeper> m_transformPool;
+        private EcsPool<ObjectViewRef> m_objectViewRefPool;
 
         public CheckDestroyedParticlesSystem(GameObject destroyedParticles)
         {
@@ -25,10 +25,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_filter = m_world.Filter<DeadCommandComponent>().Inc<TransformComponent>().Inc<ObjectViewRefComponent>().End();
+            m_filter = m_world.Filter<DeadCommand>().Inc<TransformKeeper>().Inc<ObjectViewRef>().End();
 
-            m_transformPool = m_world.GetPool<TransformComponent>();
-            m_objectViewRefPool = m_world.GetPool<ObjectViewRefComponent>();
+            m_transformPool = m_world.GetPool<TransformKeeper>();
+            m_objectViewRefPool = m_world.GetPool<ObjectViewRef>();
         }
 
         public void Run(IEcsSystems systems)

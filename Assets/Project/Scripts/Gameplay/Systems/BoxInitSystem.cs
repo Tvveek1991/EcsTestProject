@@ -17,7 +17,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_boxTransformFilter;
         private EcsFilter m_gameLevelViewRefsFilter;
 
-        private EcsPool<TransformComponent> m_transformPool;
+        private EcsPool<TransformKeeper> m_transformPool;
         private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
 
         private GameObject m_parentObject;
@@ -32,10 +32,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End();
-            m_boxTransformFilter = m_world.Filter<ObjectComponent>().Inc<TransformComponent>().End();
+            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End(1);
+            m_boxTransformFilter = m_world.Filter<PlayableObject>().Inc<TransformKeeper>().End();
             
-            m_transformPool = m_world.GetPool<TransformComponent>();
+            m_transformPool = m_world.GetPool<TransformKeeper>();
             m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             FindSpawnPoints();
@@ -70,30 +70,30 @@ namespace Project.Scripts.Gameplay.Systems
 
             void AttachObjectComponent()
             {
-                m_world.GetPool<ObjectComponent>().Add(gameLevelEntityIndex);
+                m_world.GetPool<PlayableObject>().Add(gameLevelEntityIndex);
             }
 
             void AttachTransformComponent()
             {
-                ref TransformComponent transformComponent = ref m_world.GetPool<TransformComponent>().Add(gameLevelEntityIndex);
-                transformComponent.ObjectTransform = objectView.transform;
+                ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(gameLevelEntityIndex);
+                transformKeeper.ObjectTransform = objectView.transform;
             }
 
             void AttachRigidbody2dComponent()
             {
-                ref Rigidbody2dComponent rigidbody2dComponent = ref m_world.GetPool<Rigidbody2dComponent>().Add(gameLevelEntityIndex);
-                rigidbody2dComponent.Rigidbody = objectView.GetComponent<Rigidbody2D>();
+                ref Rigidbody2d rigidbody2d = ref m_world.GetPool<Rigidbody2d>().Add(gameLevelEntityIndex);
+                rigidbody2d.Rigidbody = objectView.GetComponent<Rigidbody2D>();
             }
 
             void AttachSpriteRendererComponent()
             {
-                ref SpriteRendererComponent spriteRendererComponent = ref m_world.GetPool<SpriteRendererComponent>().Add(gameLevelEntityIndex);
-                spriteRendererComponent.SpriteRenderer = objectView.GetComponent<SpriteRenderer>();
+                ref SpriteRendererKeeper spriteRendererKeeper = ref m_world.GetPool<SpriteRendererKeeper>().Add(gameLevelEntityIndex);
+                spriteRendererKeeper.SpriteRenderer = objectView.GetComponent<SpriteRenderer>();
             }
 
             void AttachViewToHeroViewReferenceComponent()
             {
-                ref ObjectViewRefComponent cellViewRef = ref m_world.GetPool<ObjectViewRefComponent>().Add(gameLevelEntityIndex);
+                ref ObjectViewRef cellViewRef = ref m_world.GetPool<ObjectViewRef>().Add(gameLevelEntityIndex);
                 cellViewRef.ObjectView = objectView;
             }
         }

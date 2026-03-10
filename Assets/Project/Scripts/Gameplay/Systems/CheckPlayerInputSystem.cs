@@ -21,49 +21,49 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_readyRollingFilter;
 
         private EcsPool<InputComponent> m_inputPool;
-        private EcsPool<RunComponent> m_runPool;
-        private EcsPool<JumpComponent> m_jumpPool;
-        private EcsPool<BlockComponent> m_blockPool;
+        private EcsPool<Run> m_runPool;
+        private EcsPool<Jump> m_jumpPool;
+        private EcsPool<Block> m_blockPool;
         private EcsPool<AttackComponent> m_attackPool;
-        private EcsPool<RollingComponent> m_rollingPool;
+        private EcsPool<Rolling> m_rollingPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
-        private EcsPool<HurtCommandComponent> m_hurtCommandPool;
+        private EcsPool<HurtCommand> m_hurtCommandPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_inputFilter = m_world.Filter<InputComponent>().End();
+            m_inputFilter = m_world.Filter<InputComponent>().End(1);
 
-            m_readyToJumpFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
-                .Exc<BlockComponent>().Exc<RollingComponent>().Exc<JumpComponent>().End();
+            m_readyToJumpFilter = m_world.Filter<Player>().Inc<GroundCheckComponent>()
+                .Exc<Block>().Exc<Rolling>().Exc<Jump>().End(1);
             
-            m_blockFilter = m_world.Filter<BlockComponent>().End();
-            m_readyToBlockFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
-                .Exc<BlockComponent>().Exc<RollingComponent>().End();
+            m_blockFilter = m_world.Filter<Block>().End();
+            m_readyToBlockFilter = m_world.Filter<Player>().Inc<GroundCheckComponent>()
+                .Exc<Block>().Exc<Rolling>().End(1);
             
-            m_runFilter = m_world.Filter<RunComponent>().End();
-            m_readyToRunFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>().Inc<WallCheckComponent>()
-                .Exc<RollingComponent>().Exc<BlockComponent>().End();
+            m_runFilter = m_world.Filter<Run>().End();
+            m_readyToRunFilter = m_world.Filter<Player>().Inc<GroundCheckComponent>().Inc<WallCheck>()
+                .Exc<Rolling>().Exc<Block>().End(1);
             
             m_attackFilter = m_world.Filter<AttackComponent>().End();
-            m_readyToAttackFilter = m_world.Filter<PlayerComponent>()
-                .Exc<AttackComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
+            m_readyToAttackFilter = m_world.Filter<Player>()
+                .Exc<AttackComponent>().Exc<Rolling>().Exc<Block>().End(1);
             
-            m_readyRollingFilter = m_world.Filter<PlayerComponent>().Inc<GroundCheckComponent>()
-                .Exc<BlockComponent>().Exc<JumpComponent>().Exc<RollingComponent>().End();
+            m_readyRollingFilter = m_world.Filter<Player>().Inc<GroundCheckComponent>()
+                .Exc<Block>().Exc<Jump>().Exc<Rolling>().End(1);
             
-            m_hitFilter = m_world.Filter<PlayerComponent>().Inc<HealthComponent>()
-                .Exc<HurtCommandComponent>().End();
+            m_hitFilter = m_world.Filter<Player>().Inc<Health>()
+                .Exc<HurtCommand>().End(1);
 
-            m_runPool = m_world.GetPool<RunComponent>();
-            m_jumpPool = m_world.GetPool<JumpComponent>();
-            m_blockPool = m_world.GetPool<BlockComponent>();
+            m_runPool = m_world.GetPool<Run>();
+            m_jumpPool = m_world.GetPool<Jump>();
+            m_blockPool = m_world.GetPool<Block>();
             m_inputPool = m_world.GetPool<InputComponent>();
             m_attackPool = m_world.GetPool<AttackComponent>();
-            m_rollingPool = m_world.GetPool<RollingComponent>();
+            m_rollingPool = m_world.GetPool<Rolling>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
-            m_hurtCommandPool = m_world.GetPool<HurtCommandComponent>();
+            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
         }
 
         public void Run(IEcsSystems systems)

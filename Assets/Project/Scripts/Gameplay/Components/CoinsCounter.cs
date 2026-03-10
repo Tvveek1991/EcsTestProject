@@ -1,6 +1,6 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct CoinsCounterComponent
+    public struct CoinsCounter
     {
         public int Count;
     }

@@ -10,7 +10,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsWorld m_world;
 
-        private EcsPool<CanvasComponent> m_canvasPool;
+        private EcsPool<CanvasKeeper> m_canvasPool;
 
         public CanvasInitSystem(Canvas canvasPrefab)
         {
@@ -21,7 +21,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_canvasPool = m_world.GetPool<CanvasComponent>();
+            m_canvasPool = m_world.GetPool<CanvasKeeper>();
 
             CreateCanvas();
         }
@@ -36,7 +36,7 @@ namespace Project.Scripts.Gameplay.Systems
 
             void AttachCanvasReference()
             {
-                ref CanvasComponent canvasRef = ref m_canvasPool.Add(canvasEntityIndex);
+                ref CanvasKeeper canvasRef = ref m_canvasPool.Add(canvasEntityIndex);
                 canvasRef.Canvas = canvas;
             }
         }

@@ -15,9 +15,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_runFilter;
         private EcsFilter m_runWithBlockFilter;
 
-        private EcsPool<RunComponent> m_runPool;
-        private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
-        private EcsPool<WallCheckComponent> m_wallCheckPool;
+        private EcsPool<Run> m_runPool;
+        private EcsPool<Rigidbody2d> m_rigidbody2dPool;
+        private EcsPool<WallCheck> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
 
         private float m_delayToIdle;
@@ -31,12 +31,12 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_runFilter = m_world.Filter<RunComponent>().Inc<Rigidbody2dComponent>()
-                .Exc<RollingComponent>().Exc<BlockComponent>().Exc<DeadComponent>().End();
+            m_runFilter = m_world.Filter<Run>().Inc<Rigidbody2d>()
+                .Exc<Rolling>().Exc<Block>().Exc<Dead>().End();
 
-            m_runPool = m_world.GetPool<RunComponent>();
-            m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
-            m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
+            m_runPool = m_world.GetPool<Run>();
+            m_rigidbody2dPool = m_world.GetPool<Rigidbody2d>();
+            m_wallCheckPool = m_world.GetPool<WallCheck>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
 

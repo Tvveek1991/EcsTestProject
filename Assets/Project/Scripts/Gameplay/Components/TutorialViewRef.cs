@@ -2,7 +2,7 @@
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct TutorialViewRefComponent
+    public struct TutorialViewRef
     {
         public GameObject TutorialView;
     }

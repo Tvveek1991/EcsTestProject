@@ -10,18 +10,18 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_coinsCounterFilter;
         private EcsFilter m_coinsCounterChangeFilter;
 
-        private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
-        private EcsPool<CoinsCounterChangeComponent> m_coinsCounterChangePool;
+        private EcsPool<CoinsCounter> m_coinsCounterPool;
+        private EcsPool<CoinsCounterChange> m_coinsCounterChangePool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
             
-            m_coinsCounterFilter = m_world.Filter<CoinsCounterComponent>().End();
-            m_coinsCounterChangeFilter = m_world.Filter<CoinsCounterChangeComponent>().End();
+            m_coinsCounterFilter = m_world.Filter<CoinsCounter>().End(1);
+            m_coinsCounterChangeFilter = m_world.Filter<CoinsCounterChange>().End();
             
-            m_coinsCounterPool = m_world.GetPool<CoinsCounterComponent>();
-            m_coinsCounterChangePool = m_world.GetPool<CoinsCounterChangeComponent>();
+            m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
+            m_coinsCounterChangePool = m_world.GetPool<CoinsCounterChange>();
 
             CreateCoinsCounterComponent();
         }

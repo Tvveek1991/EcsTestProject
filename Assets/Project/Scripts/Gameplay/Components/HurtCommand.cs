@@ -1,7 +1,7 @@
 ﻿namespace Project.Scripts.Gameplay.Components
 {
-    public struct ObjectComponent
+    public struct HurtCommand
     {
-        
+        public int HitValue;
     }
 }

@@ -16,9 +16,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_coinViewRefFilter;
         private EcsFilter m_coinsCounterViewRefFilter;
 
-        private EcsPool<CanvasComponent> m_canvasPool;
-        private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
-        private EcsPool<CoinsCounterViewRefComponent> m_coinsCounterViewPool;
+        private EcsPool<CanvasKeeper> m_canvasPool;
+        private EcsPool<CoinsCounter> m_coinsCounterPool;
+        private EcsPool<CoinsCounterViewRef> m_coinsCounterViewPool;
 
         private int m_coinsTotalCount;
         
@@ -31,14 +31,14 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
-            m_canvasFilter = m_world.Filter<CanvasComponent>().End();
-            m_coinViewRefFilter = m_world.Filter<CoinViewRefComponent>().End();
-            m_coinsCounterFilter = m_world.Filter<CoinsCounterComponent>().End();
-            m_coinsCounterViewRefFilter = m_world.Filter<CoinsCounterViewRefComponent>().End();
+            m_canvasFilter = m_world.Filter<CanvasKeeper>().End(1);
+            m_coinViewRefFilter = m_world.Filter<CoinViewRef>().End();
+            m_coinsCounterFilter = m_world.Filter<CoinsCounter>().End(1);
+            m_coinsCounterViewRefFilter = m_world.Filter<CoinsCounterViewRef>().End(1);
             
-            m_canvasPool = m_world.GetPool<CanvasComponent>();
-            m_coinsCounterPool = m_world.GetPool<CoinsCounterComponent>();
-            m_coinsCounterViewPool = m_world.GetPool<CoinsCounterViewRefComponent>();
+            m_canvasPool = m_world.GetPool<CanvasKeeper>();
+            m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
+            m_coinsCounterViewPool = m_world.GetPool<CoinsCounterViewRef>();
             
             m_coinsTotalCount = m_coinViewRefFilter.GetEntitiesCount();
             
@@ -64,7 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
             
             void AttachCoinsCounterViewComponent(int newEntity, CoinsCounterView coinsCounterView)
             {
-                ref CoinsCounterViewRefComponent view = ref m_coinsCounterViewPool.Add(newEntity);
+                ref CoinsCounterViewRef view = ref m_coinsCounterViewPool.Add(newEntity);
                 view.CoinsCounterView = coinsCounterView;
             }
         }

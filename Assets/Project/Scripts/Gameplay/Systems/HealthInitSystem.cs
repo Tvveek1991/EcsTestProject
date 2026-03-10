@@ -13,8 +13,8 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_personFilter;
         private EcsFilter m_objectsFilter;
         
-        private EcsPool<HealthComponent> m_addHealthPool;
-        private EcsPool<ObjectComponent> m_objectsPool;
+        private EcsPool<Health> m_addHealthPool;
+        private EcsPool<PlayableObject> m_objectsPool;
 
         public HealthInitSystem(PersonData personData)
         {
@@ -25,10 +25,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
-            m_personFilter = m_world.Filter<PersonComponent>().Exc<HealthComponent>().End();
-            m_objectsFilter = m_world.Filter<ObjectComponent>().Exc<HealthComponent>().End();
+            m_personFilter = m_world.Filter<Person>().Exc<Health>().End();
+            m_objectsFilter = m_world.Filter<PlayableObject>().Exc<Health>().End();
             
-            m_addHealthPool = m_world.GetPool<HealthComponent>();
+            m_addHealthPool = m_world.GetPool<Health>();
         }
 
         public void Run(IEcsSystems systems)
@@ -39,10 +39,10 @@ namespace Project.Scripts.Gameplay.Systems
         private void TryAttacheHealthComponent()
         {
             foreach (var person in m_personFilter) 
-                m_addHealthPool.Add(person).Health = m_personData.FullHealth;
+                m_addHealthPool.Add(person).Count = m_personData.FullHealth;
             
             foreach (var objectEntity in m_objectsFilter) 
-                m_addHealthPool.Add(objectEntity).Health = m_personData.FullHealth;
+                m_addHealthPool.Add(objectEntity).Count = m_personData.FullHealth;
         }
     }
 }

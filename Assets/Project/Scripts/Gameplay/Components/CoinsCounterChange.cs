@@ -1,6 +1,6 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct CoinsCounterChangeComponent
+    public struct CoinsCounterChange
     {
         public int CorrectionValue;
     }

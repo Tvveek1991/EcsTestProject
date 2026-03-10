@@ -14,29 +14,29 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_hitFilter;
         private EcsFilter m_attackedPersonFilter;
 
-        private EcsPool<HealthComponent> m_healthPool;
-        private EcsPool<HurtCommandComponent> m_hurtCommandPool;
+        private EcsPool<Health> m_healthPool;
+        private EcsPool<HurtCommand> m_hurtCommandPool;
         private EcsPool<AttackCheckComponent> m_attackCheckPool;
-        private EcsPool<ObjectViewRefComponent> m_objectViewRefPool;
-        private EcsPool<SpriteRendererComponent> m_spriteRendererPool;
-        private EcsPool<PersonViewRefComponent> m_personViewRefComponentPool;
+        private EcsPool<ObjectViewRef> m_objectViewRefPool;
+        private EcsPool<SpriteRendererKeeper> m_spriteRendererPool;
+        private EcsPool<PersonViewRef> m_personViewRefComponentPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_hitFilter = m_world.Filter<ObjectViewRefComponent>().Inc<HealthComponent>()
-                .Exc<HurtCommandComponent>().End();
-            m_attackedPersonFilter = m_world.Filter<PersonViewRefComponent>().Inc<AttackCheckComponent>().Inc<SpriteRendererComponent>().End();
+            m_hitFilter = m_world.Filter<ObjectViewRef>().Inc<Health>()
+                .Exc<HurtCommand>().End();
+            m_attackedPersonFilter = m_world.Filter<PersonViewRef>().Inc<AttackCheckComponent>().Inc<SpriteRendererKeeper>().End();
 
             m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
             
-            m_hurtCommandPool = m_world.GetPool<HurtCommandComponent>();
-            m_objectViewRefPool = m_world.GetPool<ObjectViewRefComponent>();
+            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
+            m_objectViewRefPool = m_world.GetPool<ObjectViewRef>();
             
-            m_healthPool = m_world.GetPool<HealthComponent>();
-            m_spriteRendererPool = m_world.GetPool<SpriteRendererComponent>();
-            m_personViewRefComponentPool = m_world.GetPool<PersonViewRefComponent>();
+            m_healthPool = m_world.GetPool<Health>();
+            m_spriteRendererPool = m_world.GetPool<SpriteRendererKeeper>();
+            m_personViewRefComponentPool = m_world.GetPool<PersonViewRef>();
         }
 
         public void Run(IEcsSystems systems)
@@ -64,7 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
                     {
                         if (m_objectViewRefPool.Get(hitObject).ObjectView.gameObject == hit.collider.gameObject)
                         {
-                            if(m_healthPool.Get(hitObject).Health <= 0)
+                            if(m_healthPool.Get(hitObject).Count <= 0)
                                 return;
                             
                             m_hurtCommandPool.Add(hitObject).HitValue = 10;

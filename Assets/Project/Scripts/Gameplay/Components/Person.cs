@@ -1,6 +1,5 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct JumpComponent
-    {
-    }
+    public struct Person { }
+    
 }

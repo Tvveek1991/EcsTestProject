@@ -9,15 +9,15 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_jumperFilter;
         
-        private EcsPool<JumpComponent> m_jumpPool;
+        private EcsPool<Jump> m_jumpPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
             
-            m_jumperFilter = m_world.Filter<JumpComponent>().End();
+            m_jumperFilter = m_world.Filter<Jump>().End();
 
-            m_jumpPool = m_world.GetPool<JumpComponent>();
+            m_jumpPool = m_world.GetPool<Jump>();
         }
 
         public void Run(IEcsSystems systems)

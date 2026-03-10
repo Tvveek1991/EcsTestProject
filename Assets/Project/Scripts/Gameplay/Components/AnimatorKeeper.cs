@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct TransformComponent
+    public struct AnimatorKeeper
     {
-        public Transform ObjectTransform;
+        public Animator AnimatorController;
     }
 }

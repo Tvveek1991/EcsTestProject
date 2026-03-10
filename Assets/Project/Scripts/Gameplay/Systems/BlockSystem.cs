@@ -10,17 +10,17 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_blockFilter;
 
-        private EcsPool<BlockComponent> m_blockPool;
-        private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
+        private EcsPool<Block> m_blockPool;
+        private EcsPool<Rigidbody2d> m_rigidbody2dPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_blockFilter = m_world.Filter<BlockComponent>().End();
+            m_blockFilter = m_world.Filter<Block>().End();
 
-            m_blockPool = m_world.GetPool<BlockComponent>();
-            m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
+            m_blockPool = m_world.GetPool<Block>();
+            m_rigidbody2dPool = m_world.GetPool<Rigidbody2d>();
         }
 
         public void Run(IEcsSystems systems)

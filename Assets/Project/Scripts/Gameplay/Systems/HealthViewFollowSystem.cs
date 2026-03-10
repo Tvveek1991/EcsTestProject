@@ -13,10 +13,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_personViewWithHealthFilter;
         private EcsFilter m_objectViewWithHealthFilter;
 
-        private EcsPool<HealthComponent> m_healthPool;
-        private EcsPool<TransformComponent> m_transformPool;
-        private EcsPool<PersonViewRefComponent> m_personViewPool;
-        private EcsPool<ObjectViewRefComponent> m_objectViewPool;
+        private EcsPool<Health> m_healthPool;
+        private EcsPool<TransformKeeper> m_transformPool;
+        private EcsPool<PersonViewRef> m_personViewPool;
+        private EcsPool<ObjectViewRef> m_objectViewPool;
 
         public HealthViewFollowSystem(Camera camera)
         {
@@ -27,14 +27,14 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_healthViewFilter = m_world.Filter<HealthViewRefComponent>().Inc<TransformComponent>().End();
-            m_personViewWithHealthFilter = m_world.Filter<PersonViewRefComponent>().Inc<HealthComponent>().End();
-            m_objectViewWithHealthFilter = m_world.Filter<ObjectViewRefComponent>().Inc<HealthComponent>().End();
+            m_healthViewFilter = m_world.Filter<HealthViewRefComponent>().Inc<TransformKeeper>().End();
+            m_personViewWithHealthFilter = m_world.Filter<PersonViewRef>().Inc<Health>().End();
+            m_objectViewWithHealthFilter = m_world.Filter<ObjectViewRef>().Inc<Health>().End();
 
-            m_healthPool = m_world.GetPool<HealthComponent>();
-            m_transformPool = m_world.GetPool<TransformComponent>();
-            m_personViewPool = m_world.GetPool<PersonViewRefComponent>();
-            m_objectViewPool = m_world.GetPool<ObjectViewRefComponent>();
+            m_healthPool = m_world.GetPool<Health>();
+            m_transformPool = m_world.GetPool<TransformKeeper>();
+            m_personViewPool = m_world.GetPool<PersonViewRef>();
+            m_objectViewPool = m_world.GetPool<ObjectViewRef>();
         }
         
         public void Run(IEcsSystems systems)
@@ -48,14 +48,14 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var healthViewEntity in m_healthViewFilter)
             foreach (var personViewWithHealthEntity in m_personViewWithHealthFilter)
             {
-                ref HealthComponent healthComponent = ref m_healthPool.Get(personViewWithHealthEntity);
-                if (healthViewEntity == healthComponent.HealthViewEntityIndex)
+                ref Health health = ref m_healthPool.Get(personViewWithHealthEntity);
+                if (healthViewEntity == health.ViewEntityIndex)
                 {
-                    ref TransformComponent transformComponent = ref m_transformPool.Get(healthViewEntity);
-                    ref PersonViewRefComponent personViewComponent = ref m_personViewPool.Get(personViewWithHealthEntity);
+                    ref TransformKeeper transformKeeper = ref m_transformPool.Get(healthViewEntity);
+                    ref PersonViewRef personView = ref m_personViewPool.Get(personViewWithHealthEntity);
 
-                    Vector3 screenPosition = m_camera.WorldToScreenPoint(personViewComponent.PersonView.GetHealthFollowPoint().position);
-                    transformComponent.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
+                    Vector3 screenPosition = m_camera.WorldToScreenPoint(personView.PersonView.GetHealthFollowPoint().position);
+                    transformKeeper.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
                 }
             }
         }
@@ -65,14 +65,14 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var healthViewEntity in m_healthViewFilter)
             foreach (var objectViewWithHealthEntity in m_objectViewWithHealthFilter)
             {
-                ref HealthComponent healthComponent = ref m_healthPool.Get(objectViewWithHealthEntity);
-                if (healthViewEntity == healthComponent.HealthViewEntityIndex)
+                ref Health health = ref m_healthPool.Get(objectViewWithHealthEntity);
+                if (healthViewEntity == health.ViewEntityIndex)
                 {
-                    ref TransformComponent transformComponent = ref m_transformPool.Get(healthViewEntity);
-                    ref ObjectViewRefComponent objectViewComponent = ref m_objectViewPool.Get(objectViewWithHealthEntity);
+                    ref TransformKeeper transformKeeper = ref m_transformPool.Get(healthViewEntity);
+                    ref ObjectViewRef objectView = ref m_objectViewPool.Get(objectViewWithHealthEntity);
 
-                    Vector3 screenPosition = m_camera.WorldToScreenPoint(objectViewComponent.ObjectView.GetHealthFollowPoint().position);
-                    transformComponent.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
+                    Vector3 screenPosition = m_camera.WorldToScreenPoint(objectView.ObjectView.GetHealthFollowPoint().position);
+                    transformKeeper.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
                 }
             }
         }

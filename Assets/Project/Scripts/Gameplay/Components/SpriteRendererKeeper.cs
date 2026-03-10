@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct SpriteRendererComponent
+    public struct SpriteRendererKeeper
     {
         public SpriteRenderer SpriteRenderer;
     }

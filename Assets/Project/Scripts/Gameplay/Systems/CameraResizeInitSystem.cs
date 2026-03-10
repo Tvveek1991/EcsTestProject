@@ -26,7 +26,7 @@ namespace Project.Scripts.Gameplay
         {
             _world = systems.GetWorld();
 
-            m_gameLevelFilter = _world.Filter<GameLevelViewRefComponent>().End();
+            m_gameLevelFilter = _world.Filter<GameLevelViewRefComponent>().End(1);
             
             m_gameLevelViewRefPool = _world.GetPool<GameLevelViewRefComponent>();
 

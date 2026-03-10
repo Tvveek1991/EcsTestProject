@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct AnimatorComponent
+    public struct Rigidbody2d
     {
-        public Animator AnimatorController;
+        public Rigidbody2D Rigidbody;
     }
 }

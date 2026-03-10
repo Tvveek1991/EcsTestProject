@@ -2,7 +2,7 @@
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct CanvasComponent
+    public struct CanvasKeeper
     {
         public Canvas Canvas;
     }

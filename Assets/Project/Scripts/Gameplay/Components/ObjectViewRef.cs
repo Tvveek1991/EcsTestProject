@@ -2,7 +2,7 @@ using Project.Scripts.Gameplay.Views;
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct ObjectViewRefComponent
+    public struct ObjectViewRef
     {
         public ObjectView ObjectView;
     }

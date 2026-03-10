@@ -1,7 +1,7 @@
 ﻿namespace Project.Scripts.Gameplay.Components
 {
-    public struct DeadComponent
+    public struct HealCommand
     {
-        
+        public int AddHealth;
     }
 }

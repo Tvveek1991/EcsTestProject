@@ -21,10 +21,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_coinViewRefFilter;
         private EcsFilter m_coinsCounterFilter;
 
-        private EcsPool<CanvasComponent> m_canvasPool;
-        private EcsPool<CoinsCounterComponent> m_coinsCounterPool;
+        private EcsPool<CanvasKeeper> m_canvasPool;
+        private EcsPool<CoinsCounter> m_coinsCounterPool;
         private EcsPool<FinishViewRefComponent> m_finishViewRefPool;
-        private EcsPool<EndGameComponent> m_endGamePool;
+        private EcsPool<EndGame> m_endGamePool;
 
         private FinishView m_finishView;
         
@@ -39,15 +39,15 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_canvasFilter = m_world.Filter<CanvasComponent>().End();
-            m_endGameFilter = m_world.Filter<EndGameComponent>().End();
-            m_coinViewRefFilter = m_world.Filter<CoinViewRefComponent>().End();
-            m_coinsCounterFilter = m_world.Filter<CoinsCounterComponent>().End();
-            m_deadPlayerFilter = m_world.Filter<PlayerComponent>().Inc<DeadComponent>().End();
+            m_canvasFilter = m_world.Filter<CanvasKeeper>().End(1);
+            m_endGameFilter = m_world.Filter<EndGame>().End(1);
+            m_coinViewRefFilter = m_world.Filter<CoinViewRef>().End();
+            m_coinsCounterFilter = m_world.Filter<CoinsCounter>().End(1);
+            m_deadPlayerFilter = m_world.Filter<Player>().Inc<Dead>().End(1);
 
-            m_canvasPool = m_world.GetPool<CanvasComponent>();
-            m_endGamePool = m_world.GetPool<EndGameComponent>();
-            m_coinsCounterPool = m_world.GetPool<CoinsCounterComponent>();
+            m_canvasPool = m_world.GetPool<CanvasKeeper>();
+            m_endGamePool = m_world.GetPool<EndGame>();
+            m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
             m_finishViewRefPool = m_world.GetPool<FinishViewRefComponent>();
 
             m_coinsTotalCount = m_coinViewRefFilter.GetEntitiesCount();

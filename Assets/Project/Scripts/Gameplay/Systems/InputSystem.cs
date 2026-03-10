@@ -16,7 +16,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_inputFilter = m_world.Filter<InputComponent>().End();
+            m_inputFilter = m_world.Filter<InputComponent>().End(1);
+            
             m_inputPool = m_world.GetPool<InputComponent>();
 
             CreateInputComponent();

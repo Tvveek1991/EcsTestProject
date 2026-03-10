@@ -13,26 +13,26 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_wallCheckFilter;
         private EcsFilter m_groundCheckFilter;
 
-        private EcsPool<RunComponent> m_runPool;
-        private EcsPool<WallCheckComponent> m_wallCheckPool;
+        private EcsPool<Run> m_runPool;
+        private EcsPool<WallCheck> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
-        private EcsPool<SpriteRendererComponent> m_spriteRendererPool;
+        private EcsPool<SpriteRendererKeeper> m_spriteRendererPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_noRunFilter = m_world.Filter<SpriteRendererComponent>()
-                .Exc<ObjectComponent>().Exc<RunComponent>().Exc<RollingComponent>().Exc<BlockComponent>().End();
-            m_runFilter = m_world.Filter<RunComponent>().Inc<SpriteRendererComponent>()
-                .Exc<RollingComponent>().Exc<BlockComponent>().End();
-            m_wallCheckFilter = m_world.Filter<AnimatorComponent>().Inc<WallCheckComponent>().End();
-            m_groundCheckFilter = m_world.Filter<AnimatorComponent>().Inc<GroundCheckComponent>().End();
+            m_noRunFilter = m_world.Filter<SpriteRendererKeeper>()
+                .Exc<PlayableObject>().Exc<Run>().Exc<Rolling>().Exc<Block>().End();
+            m_runFilter = m_world.Filter<Run>().Inc<SpriteRendererKeeper>()
+                .Exc<Rolling>().Exc<Block>().End();
+            m_wallCheckFilter = m_world.Filter<AnimatorKeeper>().Inc<WallCheck>().End();
+            m_groundCheckFilter = m_world.Filter<AnimatorKeeper>().Inc<GroundCheckComponent>().End();
 
-            m_runPool = m_world.GetPool<RunComponent>();
-            m_wallCheckPool = m_world.GetPool<WallCheckComponent>();
+            m_runPool = m_world.GetPool<Run>();
+            m_wallCheckPool = m_world.GetPool<WallCheck>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
-            m_spriteRendererPool = m_world.GetPool<SpriteRendererComponent>();
+            m_spriteRendererPool = m_world.GetPool<SpriteRendererKeeper>();
         }
 
         public void Run(IEcsSystems systems)

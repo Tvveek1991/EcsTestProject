@@ -13,7 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_jumperFilter;
 
-        private EcsPool<Rigidbody2dComponent> m_rigidbody2dPool;
+        private EcsPool<Rigidbody2d> m_rigidbody2dPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
 
         public JumpSystem(PersonData personData)
@@ -25,9 +25,9 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_jumperFilter = m_world.Filter<JumpComponent>().Inc<Rigidbody2dComponent>().Inc<GroundCheckComponent>().End();
+            m_jumperFilter = m_world.Filter<Jump>().Inc<Rigidbody2d>().Inc<GroundCheckComponent>().End();
 
-            m_rigidbody2dPool = m_world.GetPool<Rigidbody2dComponent>();
+            m_rigidbody2dPool = m_world.GetPool<Rigidbody2d>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
 

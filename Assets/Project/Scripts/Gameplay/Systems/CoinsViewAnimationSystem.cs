@@ -14,19 +14,19 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_animatedCoinViewFilter;
         
-        private EcsPool<TransformComponent> m_transformPool;
-        private EcsPool<CoinsCounterChangeComponent> m_coinsCounterChangePool;
-        private EcsPool<CoinViewFlyAwayAnimationComponent> m_coinViewFlyAwayAnimationPool;
+        private EcsPool<TransformKeeper> m_transformPool;
+        private EcsPool<CoinsCounterChange> m_coinsCounterChangePool;
+        private EcsPool<CoinViewFlyAwayAnimation> m_coinViewFlyAwayAnimationPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
         
-            m_animatedCoinViewFilter = m_world.Filter<CoinViewRefComponent>().Inc<CoinViewFlyAwayAnimationComponent>().Inc<TransformComponent>().End();
+            m_animatedCoinViewFilter = m_world.Filter<CoinViewRef>().Inc<CoinViewFlyAwayAnimation>().Inc<TransformKeeper>().End();
 
-            m_transformPool = m_world.GetPool<TransformComponent>();
-            m_coinsCounterChangePool = m_world.GetPool<CoinsCounterChangeComponent>();
-            m_coinViewFlyAwayAnimationPool = m_world.GetPool<CoinViewFlyAwayAnimationComponent>();
+            m_transformPool = m_world.GetPool<TransformKeeper>();
+            m_coinsCounterChangePool = m_world.GetPool<CoinsCounterChange>();
+            m_coinViewFlyAwayAnimationPool = m_world.GetPool<CoinViewFlyAwayAnimation>();
         }
 
         public void Run(IEcsSystems systems)
