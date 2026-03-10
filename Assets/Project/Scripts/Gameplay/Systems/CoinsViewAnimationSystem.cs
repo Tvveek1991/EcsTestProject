@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CoinsViewAnimationSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
+    public class CoinsViewAnimationSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem, IEcsPostRunSystem
     {
         private readonly List<Sequence> m_sequences = new();
         
@@ -16,7 +16,6 @@ namespace Project.Scripts.Gameplay.Systems
         
         private EcsPool<TransformKeeper> m_transformPool;
         private EcsPool<CoinsCounterChange> m_coinsCounterChangePool;
-        private EcsPool<CoinViewFlyAwayAnimation> m_coinViewFlyAwayAnimationPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -26,7 +25,6 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_transformPool = m_world.GetPool<TransformKeeper>();
             m_coinsCounterChangePool = m_world.GetPool<CoinsCounterChange>();
-            m_coinViewFlyAwayAnimationPool = m_world.GetPool<CoinViewFlyAwayAnimation>();
         }
 
         public void Run(IEcsSystems systems)
@@ -34,9 +32,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var coinView in m_animatedCoinViewFilter)
             {
                 var coinTransform = m_transformPool.Get(coinView).ObjectTransform;
-                
-                m_coinViewFlyAwayAnimationPool.Del(coinView);
-                
+
                 var sequence = DOTween.Sequence();
                 sequence
                     .Append(coinTransform.DOScale(0, .5f))
@@ -52,15 +48,21 @@ namespace Project.Scripts.Gameplay.Systems
                         
                         sequence.Kill();
                         sequence = null;
-                        
-                        m_world.DelEntity(coinView);
-                        
+
                         Object.Destroy(coinTransform.gameObject);
                     });
                 m_sequences.Add(sequence);
             }
         }
 
+        public void PostRun(IEcsSystems systems)
+        {
+            foreach (var coinView in m_animatedCoinViewFilter)
+            {
+                m_world.DelEntity(coinView);
+            }
+        }
+        
         public void Destroy(IEcsSystems systems)
         {
             m_sequences.ForEach(item =>

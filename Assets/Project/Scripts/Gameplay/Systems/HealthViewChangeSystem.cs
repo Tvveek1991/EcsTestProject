@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class HealthViewChangeSystem : IEcsInitSystem, IEcsRunSystem
+    public class HealthViewChangeSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
         private const float FADE_DURATION = .15f;
         private const float SLIDER_CHANGE_DURATION = .25f;
 
         private EcsWorld m_world;
 
-        private EcsFilter m_hitHealthViewFilter;
-        private EcsFilter m_healHealthViewFilter;
+        private EcsFilter m_hitHealthFilter;
+        private EcsFilter m_healHealthFilter;
 
         private EcsPool<Health> m_healthPool;
         private EcsPool<HealthViewRefComponent> m_healthViewPool;
@@ -24,8 +24,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_hitHealthViewFilter = m_world.Filter<Health>().Inc<HurtCommand>().End();
-            m_healHealthViewFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
+            m_hitHealthFilter = m_world.Filter<Health>().Inc<HurtCommand>().End();
+            m_healHealthFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
 
             m_healthPool = m_world.GetPool<Health>();
             m_healthViewPool = m_world.GetPool<HealthViewRefComponent>();
@@ -38,10 +38,31 @@ namespace Project.Scripts.Gameplay.Systems
             ShowHeal();
             ShowHurt();
         }
+        
+        public void PostRun(IEcsSystems systems)
+        {
+            foreach (var entity in m_healHealthFilter)
+            {
+                m_healCommandPool.Del(entity);
+            }
+            
+            foreach (var entity in m_hitHealthFilter)
+            {
+                Health health = m_healthPool.Get(entity);
+                int viewEntity = health.ViewEntityIndex;
+                
+                if (health.Count <= 0)
+                {
+                    m_world.DelEntity(viewEntity);
+                }
+                
+                m_hurtCommandPool.Del(entity);
+            }
+        }
 
         private void ShowHeal()
         {
-            foreach (var entity in m_healHealthViewFilter)
+            foreach (var entity in m_healHealthFilter)
             {
                 ref Health health = ref m_healthPool.Get(entity);
                 ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
@@ -53,34 +74,25 @@ namespace Project.Scripts.Gameplay.Systems
                         if (healthView.HealthBar.value >= healthView.HealthBar.maxValue)
                             healthView.CanvasGroup.DOFade(0f, FADE_DURATION);
                     });
-
-                m_healCommandPool.Del(entity);
             }
         }
 
         private void ShowHurt()
         {
-            foreach (var entity in m_hitHealthViewFilter)
+            foreach (var entity in m_hitHealthFilter)
             {
-                ref Health health = ref m_healthPool.Get(entity);
+                Health health = m_healthPool.Get(entity);
                 ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
-                int healthViewEntity = health.ViewEntityIndex;
 
                 var healthView = healthViewRefComponent.HealthView;
                 if (healthView.CanvasGroup.alpha <= 0)
                     healthView.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-                healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
-                    .OnComplete(() =>
-                    {
-                        if (healthView.HealthBar.value <= 0)
-                        {
-                            m_world.DelEntity(healthViewEntity);
-                            Object.Destroy(healthView.gameObject);
-                        }
-                    });
-
-                m_hurtCommandPool.Del(entity);
+                healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION).OnComplete(() =>
+                {
+                    if (health.Count <= 0)
+                        Object.Destroy(healthView.gameObject);
+                });
             }
         }
     }

@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CheckDestroyedParticlesSystem : IEcsInitSystem, IEcsRunSystem
+    public class CheckDestroyedParticlesSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
         private readonly GameObject m_destroyedParticlesPrefab;
 
         private EcsWorld m_world;
-        
+
         private EcsFilter m_filter;
 
         private EcsPool<TransformKeeper> m_transformPool;
@@ -19,8 +19,8 @@ namespace Project.Scripts.Gameplay.Systems
         public CheckDestroyedParticlesSystem(GameObject destroyedParticles)
         {
             m_destroyedParticlesPrefab = destroyedParticles;
-        } 
-        
+        }
+
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
@@ -43,10 +43,17 @@ namespace Project.Scripts.Gameplay.Systems
                     .OnComplete(() =>
                     {
                         objectTransform.DOKill();
-                        m_world.DelEntity(entity);
                         Object.Destroy(particles.gameObject);
                         Object.Destroy(objectTransform.gameObject);
                     });
+            }
+        }
+
+        public void PostRun(IEcsSystems systems)
+        {
+            foreach (var entity in m_filter)
+            {
+                m_world.DelEntity(entity);
             }
         }
     }
