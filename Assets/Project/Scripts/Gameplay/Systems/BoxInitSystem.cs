@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -11,20 +12,20 @@ namespace Project.Scripts.Gameplay.Systems
         private const string BoxParentName = "Boxes";
 
         private readonly ObjectView m_objectViewPrefab;
+        private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
 
         private EcsFilter m_boxTransformFilter;
-        private EcsFilter m_gameLevelViewRefsFilter;
 
         private EcsPool<TransformKeeper> m_transformPool;
-        private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
 
         private GameObject m_parentObject;
         private List<Transform> m_boxSpawnPoints;
 
-        public BoxInitSystem(ObjectView objectViewPrefab)
+        public BoxInitSystem(ObjectView objectViewPrefab, IGameLevelService gameLevelService)
         {
+            m_gameLevelService = gameLevelService;
             m_objectViewPrefab = objectViewPrefab;
         }
 
@@ -32,13 +33,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End(1);
             m_boxTransformFilter = m_world.Filter<PlayableObject>().Inc<TransformKeeper>().End();
             
             m_transformPool = m_world.GetPool<TransformKeeper>();
-            m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
-
-            FindSpawnPoints();
+            
             CreateBoxViews();
             
             SetBoxStartPosition();
@@ -50,6 +48,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void CreateBoxViews()
         {
             m_parentObject = new GameObject(BoxParentName);
+            m_boxSpawnPoints = m_gameLevelService.View.GetBoxSpawnPoints();
 
             for (int i = 0; i < m_boxSpawnPoints.Count; i++)
             {
@@ -95,15 +94,6 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref ObjectViewRef cellViewRef = ref m_world.GetPool<ObjectViewRef>().Add(gameLevelEntityIndex);
                 cellViewRef.ObjectView = objectView;
-            }
-        }
-
-        private void FindSpawnPoints()
-        {
-            foreach (var item in m_gameLevelViewRefsFilter)
-            {
-                ref GameLevelViewRefComponent gameLevelViewRefComponent = ref m_gameLevelViewRefsPool.Get(item);
-                m_boxSpawnPoints = gameLevelViewRefComponent.GameLevelView.GetBoxSpawnPoints();
             }
         }
         

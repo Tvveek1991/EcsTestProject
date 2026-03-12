@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,16 +13,15 @@ namespace Project.Scripts.Gameplay.Systems
         private const float FADE_DURATION = .5f;
         
         private readonly FinishView m_finishViewPrefab;
+        private readonly ICanvasService m_canvasService;
 
         private EcsWorld m_world;
 
-        private EcsFilter m_canvasFilter;
         private EcsFilter m_endGameFilter;
         private EcsFilter m_deadPlayerFilter;
         private EcsFilter m_coinViewRefFilter;
         private EcsFilter m_coinsCounterFilter;
 
-        private EcsPool<CanvasKeeper> m_canvasPool;
         private EcsPool<CoinsCounter> m_coinsCounterPool;
         private EcsPool<FinishViewRefComponent> m_finishViewRefPool;
         private EcsPool<EndGame> m_endGamePool;
@@ -30,8 +30,9 @@ namespace Project.Scripts.Gameplay.Systems
         
         private int m_coinsTotalCount;
 
-        public FinishViewInitSystem(FinishView finishViewPrefab)
+        public FinishViewInitSystem(FinishView finishViewPrefab, ICanvasService canvasService)
         {
+            m_canvasService = canvasService;
             m_finishViewPrefab = finishViewPrefab;
         }
 
@@ -39,13 +40,11 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_canvasFilter = m_world.Filter<CanvasKeeper>().End(1);
             m_endGameFilter = m_world.Filter<EndGame>().End(1);
             m_coinViewRefFilter = m_world.Filter<CoinViewRef>().End();
             m_coinsCounterFilter = m_world.Filter<CoinsCounter>().End(1);
             m_deadPlayerFilter = m_world.Filter<Player>().Inc<Dead>().End(1);
 
-            m_canvasPool = m_world.GetPool<CanvasKeeper>();
             m_endGamePool = m_world.GetPool<EndGame>();
             m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
             m_finishViewRefPool = m_world.GetPool<FinishViewRefComponent>();
@@ -78,30 +77,27 @@ namespace Project.Scripts.Gameplay.Systems
             
             bool isWin = currentCount >= m_coinsTotalCount;
             
-            foreach (var canvasEntity in m_canvasFilter)
-            {
-                if (m_endGameFilter.GetEntitiesCount() > 0)
-                    return;
+            if (m_endGameFilter.GetEntitiesCount() > 0)
+                return;
                 
-                var endGameEntity = m_world.NewEntity();
-                m_endGamePool.Add(endGameEntity);
+            var endGameEntity = m_world.NewEntity();
+            m_endGamePool.Add(endGameEntity);
 
-                var newEntityIndex = m_world.NewEntity();
-                var spawnPoint = m_canvasPool.Get(canvasEntity).Canvas.transform;
+            var newEntityIndex = m_world.NewEntity();
+            var spawnPoint = m_canvasService.Canvas.transform;
 
-                m_finishView = Object.Instantiate(m_finishViewPrefab, spawnPoint);
+            m_finishView = Object.Instantiate(m_finishViewPrefab, spawnPoint);
 
-                AddListeners();
+            AddListeners();
 
-                AttachViewToGameLevelViewReference();
+            AttachViewToGameLevelViewReference();
 
-                ShowView(isWin);
+            ShowView(isWin);
 
-                void AttachViewToGameLevelViewReference()
-                {
-                    ref FinishViewRefComponent cellViewRef = ref m_finishViewRefPool.Add(newEntityIndex);
-                    cellViewRef.FinishView = m_finishView;
-                }
+            void AttachViewToGameLevelViewReference()
+            {
+                ref FinishViewRefComponent cellViewRef = ref m_finishViewRefPool.Add(newEntityIndex);
+                cellViewRef.FinishView = m_finishView;
             }
         }
 

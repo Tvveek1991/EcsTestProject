@@ -1,5 +1,6 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -8,22 +9,22 @@ namespace Project.Scripts.Gameplay.Systems
     public class CoinsCounterViewSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly CoinsCounterView m_coinsCounterViewPrefab;
-        
+        private readonly ICanvasService m_canvasService;
+
         private EcsWorld m_world;
 
-        private EcsFilter m_canvasFilter;
         private EcsFilter m_coinsCounterFilter;
         private EcsFilter m_coinViewRefFilter;
         private EcsFilter m_coinsCounterViewRefFilter;
 
-        private EcsPool<CanvasKeeper> m_canvasPool;
         private EcsPool<CoinsCounter> m_coinsCounterPool;
         private EcsPool<CoinsCounterViewRef> m_coinsCounterViewPool;
 
         private int m_coinsTotalCount;
         
-        public CoinsCounterViewSystem(CoinsCounterView coinsCounterViewPrefab)
+        public CoinsCounterViewSystem(CoinsCounterView coinsCounterViewPrefab, ICanvasService canvasService)
         {
+            m_canvasService = canvasService;
             m_coinsCounterViewPrefab = coinsCounterViewPrefab;
         }
         
@@ -31,12 +32,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
-            m_canvasFilter = m_world.Filter<CanvasKeeper>().End(1);
             m_coinViewRefFilter = m_world.Filter<CoinViewRef>().End();
             m_coinsCounterFilter = m_world.Filter<CoinsCounter>().End(1);
             m_coinsCounterViewRefFilter = m_world.Filter<CoinsCounterViewRef>().End(1);
             
-            m_canvasPool = m_world.GetPool<CanvasKeeper>();
             m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
             m_coinsCounterViewPool = m_world.GetPool<CoinsCounterViewRef>();
             
@@ -52,20 +51,17 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CreateCoinsCounterView()
         {
-            foreach (var canvasEntity in m_canvasFilter)
-            {
-                var newEntity = m_world.NewEntity();
-                var spawnPoint = m_canvasPool.Get(canvasEntity).Canvas.transform;
-                var view = Object.Instantiate(m_coinsCounterViewPrefab, spawnPoint).GetComponent<CoinsCounterView>();
-                view.ScoreText.text = "0";
+            var newEntity = m_world.NewEntity();
+            var spawnPoint = m_canvasService.Canvas.transform;
+            var view = Object.Instantiate(m_coinsCounterViewPrefab, spawnPoint).GetComponent<CoinsCounterView>();
+            view.ScoreText.text = "0";
 
-                AttachCoinsCounterViewComponent(newEntity, view);
-            }
+            AttachCoinsCounterViewComponent();
             
-            void AttachCoinsCounterViewComponent(int newEntity, CoinsCounterView coinsCounterView)
+            void AttachCoinsCounterViewComponent()
             {
-                ref CoinsCounterViewRef view = ref m_coinsCounterViewPool.Add(newEntity);
-                view.CoinsCounterView = coinsCounterView;
+                ref CoinsCounterViewRef viewRef = ref m_coinsCounterViewPool.Add(newEntity);
+                viewRef.CoinsCounterView = view;
             }
         }
         

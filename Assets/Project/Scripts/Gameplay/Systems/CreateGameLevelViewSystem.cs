@@ -1,5 +1,6 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -10,15 +11,17 @@ namespace Project.Scripts.Gameplay
         private const string GameLevelParentName = "Level";
         
         private readonly GameLevelView m_gameLevelViewPrefab;
-        
+        private readonly IGameLevelService m_gameLevelService;
+
         private EcsWorld m_world;
         
-        private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
+        private EcsPool<GameLevel> m_gameLevelPool;
         
         private GameObject m_parentObject;
         
-        public CreateGameLevelViewSystem(GameLevelView gameLevelViewPrefab)
+        public CreateGameLevelViewSystem(GameLevelView gameLevelViewPrefab, IGameLevelService gameLevelService)
         {
+            m_gameLevelService = gameLevelService;
             m_gameLevelViewPrefab = gameLevelViewPrefab;
         }
         
@@ -26,7 +29,7 @@ namespace Project.Scripts.Gameplay
         {
             m_world = systems.GetWorld();
 
-            m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
+            m_gameLevelPool = m_world.GetPool<GameLevel>();
 
             CreateGameLevelView();
         }
@@ -35,17 +38,11 @@ namespace Project.Scripts.Gameplay
         {
             m_parentObject = new GameObject(GameLevelParentName);
             
-            var gameLevelEntityIndex = m_world.NewEntity();
+            var entity = m_world.NewEntity();
+            m_gameLevelPool.Add(entity);
 
-            var levelView = Object.Instantiate(m_gameLevelViewPrefab, m_parentObject.transform).GetComponent<GameLevelView>();
-                
-            AttachViewToGameLevelViewReference();
-
-            void AttachViewToGameLevelViewReference()
-            {
-                ref GameLevelViewRefComponent cellViewRef = ref m_gameLevelViewRefsPool.Add(gameLevelEntityIndex);
-                cellViewRef.GameLevelView = levelView;
-            }
+            var levelView = Object.Instantiate(m_gameLevelViewPrefab, m_parentObject.transform);
+            m_gameLevelService.Construct(entity, levelView);
         }
         
         public void Destroy(IEcsSystems systems) => 

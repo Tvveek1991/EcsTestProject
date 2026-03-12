@@ -1,6 +1,7 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
+using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -10,18 +11,18 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private EcsWorld m_world;
         
-        private EcsFilter m_canvasFilter;
         private EcsFilter m_healthViewFilter;
         private EcsFilter m_healthReadyToViewFilter;
 
-        private EcsPool<CanvasKeeper> m_canvasPool;
         private EcsPool<Health> m_healthPool;
         private EcsPool<HealthViewRefComponent> m_healthViewPool;
 
         private readonly HealthView m_healthViewPrefab;
+        private readonly ICanvasService m_canvasService;
 
-        public HealthViewInitSystem(HealthView healthViewPrefab)
+        public HealthViewInitSystem(HealthView healthViewPrefab, ICanvasService canvasService)
         {
+            m_canvasService = canvasService;
             m_healthViewPrefab = healthViewPrefab;
         }
         
@@ -29,11 +30,9 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
-            m_canvasFilter = m_world.Filter<CanvasKeeper>().End(1);
             m_healthReadyToViewFilter = m_world.Filter<Health>().End();
             m_healthViewFilter = m_world.Filter<HealthViewRefComponent>().End();
 
-            m_canvasPool = m_world.GetPool<CanvasKeeper>();
             m_healthPool = m_world.GetPool<Health>();
             m_healthViewPool = m_world.GetPool<HealthViewRefComponent>();
         }
@@ -52,7 +51,6 @@ namespace Project.Scripts.Gameplay.Systems
         private void CreateHealthView()
         {
             foreach (var readyToHealthViewEntity in m_healthReadyToViewFilter)
-            foreach (var canvasEntity in m_canvasFilter)
             {
                 ref Health health = ref m_healthPool.Get(readyToHealthViewEntity);
                 if(health.ViewEntityIndex != 0)
@@ -60,7 +58,7 @@ namespace Project.Scripts.Gameplay.Systems
                 
                 var newEntity = m_world.NewEntity();
                 
-                var spawnPoint = m_canvasPool.Get(canvasEntity).Canvas.transform;
+                var spawnPoint = m_canvasService.Canvas.transform;
                     
                 var healthView = Object.Instantiate(m_healthViewPrefab, spawnPoint).GetComponent<HealthView>();
                 SetViewOptions(healthView, health);

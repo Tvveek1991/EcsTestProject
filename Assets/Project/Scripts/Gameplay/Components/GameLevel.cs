@@ -1,4 +1,7 @@
 ﻿namespace Project.Scripts.Gameplay.Components
 {
-    public struct CanvasKeeper { }
+    public struct GameLevel
+    {
+        
+    }
 }

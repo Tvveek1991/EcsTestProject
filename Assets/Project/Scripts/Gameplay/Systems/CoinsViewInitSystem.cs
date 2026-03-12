@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace Project.Scripts.Gameplay.Systems
         private const string CoinViewsParentName = "CoinViewsContainer";
 
         private readonly CoinView m_coinViewPrefab;
+        private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
 
@@ -18,25 +20,24 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_gameLevelViewRefsFilter;
 
         private EcsPool<TransformKeeper> m_transformPool;
-        private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
 
         private GameObject m_parentObject;
         private List<Transform> m_coinSpawnPoints;
 
-        public CoinsViewInitSystem(CoinView coinViewPrefab) =>
+        public CoinsViewInitSystem(CoinView coinViewPrefab, IGameLevelService gameLevelService)
+        {
             m_coinViewPrefab = coinViewPrefab;
+            m_gameLevelService = gameLevelService;
+        }
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
             m_coinViewRefFilter = m_world.Filter<CoinViewRef>().Inc<TransformKeeper>().End();
-            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End(1);
             
             m_transformPool = m_world.GetPool<TransformKeeper>();
-            m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
-            FindSpawnPoints();
             CreateCoinViews();
 
             SetCoinViewsStartPosition();
@@ -48,6 +49,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void CreateCoinViews()
         {
             m_parentObject = new GameObject(CoinViewsParentName);
+            m_coinSpawnPoints = m_gameLevelService.View.GetCoinsSpawnPoints();
 
             for (int i = 0; i < m_coinSpawnPoints.Count; i++)
             {
@@ -73,15 +75,6 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(entityIndex);
                 transformKeeper.ObjectTransform = coinView.transform;
-            }
-        }
-
-        private void FindSpawnPoints()
-        {
-            foreach (var item in m_gameLevelViewRefsFilter)
-            {
-                ref GameLevelViewRefComponent gameLevelViewRefComponent = ref m_gameLevelViewRefsPool.Get(item);
-                m_coinSpawnPoints = gameLevelViewRefComponent.GameLevelView.GetCoinsSpawnPoints();
             }
         }
 

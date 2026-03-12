@@ -1,5 +1,6 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -10,20 +11,20 @@ namespace Project.Scripts.Gameplay.Systems
         private const string PlayerParentName = "Hero";
         
         private readonly PersonView m_personViewPrefab;
-        
+        private readonly IGameLevelService m_gameLevelService;
+
         private EcsWorld m_world;
 
         private EcsFilter m_playerTransformFilter;
-        private EcsFilter m_gameLevelViewRefsFilter;
 
         private EcsPool<TransformKeeper> m_transformPool;
-        private EcsPool<GameLevelViewRefComponent> m_gameLevelViewRefsPool;
         
         private GameObject m_parentObject;
         
-        public PlayerInitSystem(PersonView personViewPrefab)
+        public PlayerInitSystem(PersonView personViewPrefab, IGameLevelService gameLevelService)
         {
             m_personViewPrefab = personViewPrefab;
+            m_gameLevelService = gameLevelService;
         }
 
         public void Init(IEcsSystems systems)
@@ -31,10 +32,8 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
             
             m_playerTransformFilter = m_world.Filter<Player>().Inc<TransformKeeper>().End(1);
-            m_gameLevelViewRefsFilter = m_world.Filter<GameLevelViewRefComponent>().End(1);
             
             m_transformPool = m_world.GetPool<TransformKeeper>();
-            m_gameLevelViewRefsPool = m_world.GetPool<GameLevelViewRefComponent>();
 
             CreateHeroView();
             SetSpawnPosition();
@@ -119,10 +118,9 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void SetSpawnPosition()
         {
-            foreach (var gameLevel in m_gameLevelViewRefsFilter)
             foreach (var player in m_playerTransformFilter)
             {
-                m_transformPool.Get(player).ObjectTransform.position = m_gameLevelViewRefsPool.Get(gameLevel).GameLevelView.GetHeroSpawnPoint();
+                m_transformPool.Get(player).ObjectTransform.position = m_gameLevelService.View.GetHeroSpawnPoint();
             }
         }
     }
