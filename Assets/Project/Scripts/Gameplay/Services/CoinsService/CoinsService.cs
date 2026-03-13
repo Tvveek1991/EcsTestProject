@@ -7,6 +7,12 @@ namespace Project.Scripts.Gameplay.Services.CoinsService
     {
         private readonly Dictionary<int, CoinView> m_views = new();
         
+        private int m_totalCount;
+
+        public int TotalCount => m_totalCount;
+        
+        public void RefreshTotalCount() => m_totalCount = m_views.Count;
+
         public void AddCoinView(int entity, CoinView view) => m_views.Add(entity, view);
 
         public CoinView GetViewByEntity(int entity) => m_views[entity];

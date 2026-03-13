@@ -1,14 +1,13 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Data;
+using Project.Scripts.Gameplay.Services.CameraService;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CameraFollowSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private readonly Camera m_camera;
-        private readonly CameraData m_cameraData;
+        private readonly ICameraService m_cameraService;
         
         private EcsWorld m_world;
         
@@ -18,10 +17,9 @@ namespace Project.Scripts.Gameplay.Systems
         
         private Vector3 m_offset;
         
-        public CameraFollowSystem(Camera camera, CameraData cameraData)
+        public CameraFollowSystem(ICameraService cameraService)
         {
-            m_camera = camera;
-            m_cameraData = cameraData;
+            m_cameraService = cameraService;
         }
         
         public void Init(IEcsSystems systems)
@@ -40,10 +38,10 @@ namespace Project.Scripts.Gameplay.Systems
                 Transform cameraTransform;
                 Vector3 target = m_transformPool.Get(index).ObjectTransform.position;
                 
-                Vector3 desiredPosition = new Vector3(target.x, (cameraTransform = m_camera.transform).position.y, m_cameraData.OffsetZ);
-                desiredPosition.x = Mathf.Clamp(desiredPosition.x, m_cameraData.MinPositionX, m_cameraData.MaxPositionX);
+                Vector3 desiredPosition = new Vector3(target.x, (cameraTransform = m_cameraService.Camera.transform).position.y, m_cameraService.CameraData.OffsetZ);
+                desiredPosition.x = Mathf.Clamp(desiredPosition.x, m_cameraService.CameraData.MinPositionX, m_cameraService.CameraData.MaxPositionX);
                 
-                Vector3 smoothedPosition = Vector3.Lerp(cameraTransform.position, desiredPosition, m_cameraData.SmoothSpeed);
+                Vector3 smoothedPosition = Vector3.Lerp(cameraTransform.position, desiredPosition, m_cameraService.CameraData.SmoothSpeed);
                 cameraTransform.position = smoothedPosition;
             }
         }

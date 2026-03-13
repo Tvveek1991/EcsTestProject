@@ -1,9 +1,9 @@
-using Leopotam.EcsLite;
+﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CoinsCountSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
+    public class CoinsCounterChangeSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
         private EcsWorld m_world;
         
@@ -22,8 +22,6 @@ namespace Project.Scripts.Gameplay.Systems
             
             m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
             m_coinsCounterChangePool = m_world.GetPool<CoinsCounterChange>();
-
-            CreateCoinsCounterComponent();
         }
 
         public void Run(IEcsSystems systems)
@@ -41,12 +39,6 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 m_world.DelEntity(coinsCounterChange);
             }
-        }
-
-        private void CreateCoinsCounterComponent()
-        {
-            var entity = m_world.NewEntity();
-            m_coinsCounterPool.Add(entity).Count = 0;
         }
     }
 }

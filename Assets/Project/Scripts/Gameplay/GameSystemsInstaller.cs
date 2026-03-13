@@ -17,12 +17,16 @@ namespace Gameplay
       builder.Register<IEcsSystem, CreateGameLevelViewSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, CameraInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CameraFollowSystem>(Lifetime.Scoped);
       
-      builder.Register<IEcsSystem, CoinsCountSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CoinsCounterInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CoinsCounterChangeSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CoinsCounterViewInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CoinsCounterViewChangeSystem>(Lifetime.Scoped);
+      
       builder.Register<IEcsSystem, CoinsViewInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CoinsViewCheckSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CoinsViewAnimationSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CoinsCounterViewSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, CreateTutorialViewSystem>(Lifetime.Scoped);
 
@@ -34,7 +38,6 @@ namespace Gameplay
       builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, HealthViewFollowSystem>(Lifetime.Scoped);
       
-      builder.Register<IEcsSystem, CameraFollowSystem>(Lifetime.Scoped);
 
       builder.Register<IEcsSystem, PersonConnectSensorsInitSystem>(Lifetime.Scoped);
       

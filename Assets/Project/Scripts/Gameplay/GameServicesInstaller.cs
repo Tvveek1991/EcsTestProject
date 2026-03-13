@@ -1,3 +1,4 @@
+using Project.Scripts.Gameplay.Services.CameraService;
 using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Services.CoinsCounterService;
 using Project.Scripts.Gameplay.Services.CoinsService;
@@ -15,6 +16,7 @@ namespace Gameplay
     public void Install(IContainerBuilder builder)
     {
       builder.Register<ICoinsService, CoinsService>(Lifetime.Scoped);
+      builder.Register<ICameraService, CameraService>(Lifetime.Scoped);
       builder.Register<ICanvasService, CanvasService>(Lifetime.Scoped);
       builder.Register<IPersonViewService, PersonViewService>(Lifetime.Scoped);
       builder.Register<IGameLevelService, GameLevelService>(Lifetime.Scoped);

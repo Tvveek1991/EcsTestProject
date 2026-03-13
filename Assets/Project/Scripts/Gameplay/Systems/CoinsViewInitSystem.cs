@@ -66,6 +66,8 @@ namespace Project.Scripts.Gameplay.Systems
                 
                 AttachComponents(newEntity, coinView);
             }
+            
+            m_coinsService.RefreshTotalCount();
         }
 
         private void AttachComponents(int entityIndex, CoinView coinView)

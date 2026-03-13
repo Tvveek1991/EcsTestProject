@@ -1,6 +1,7 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
+using Project.Scripts.Gameplay.Services.CameraService;
 using Project.Scripts.Gameplay.Services.GameLevelService;
 using UnityEngine;
 
@@ -8,8 +9,7 @@ namespace Project.Scripts.Gameplay
 {
     public sealed class CameraInitSystem : IEcsInitSystem
     {
-        private readonly Camera m_camera;
-        private readonly CameraData m_cameraData;
+        private readonly ICameraService m_cameraService;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
@@ -19,10 +19,9 @@ namespace Project.Scripts.Gameplay
         private EcsPool<CameraKeeper> m_cameraPool;
         private EcsPool<TransformKeeper> m_transformPool;
 
-        public CameraInitSystem(Camera camera, CameraData cameraData, IGameLevelService gameLevelService)
+        public CameraInitSystem(ICameraService cameraService, IGameLevelService gameLevelService)
         {
-            m_camera = camera;
-            m_cameraData = cameraData;
+            m_cameraService = cameraService;
             m_gameLevelService = gameLevelService;
         }
         
@@ -45,7 +44,7 @@ namespace Project.Scripts.Gameplay
             var cameraEntity = m_world.NewEntity();
             m_cameraPool.Add(cameraEntity);
 
-            var cameraTransform = m_camera.transform;
+            var cameraTransform = m_cameraService.Camera.transform;
             ref TransformKeeper transformKeeper = ref m_transformPool.Add(cameraEntity);
             transformKeeper.ObjectTransform = cameraTransform;
         }
@@ -55,7 +54,7 @@ namespace Project.Scripts.Gameplay
             foreach (var entity in m_cameraFilter)
             {
                 Vector2 newCameraCenter = m_gameLevelService.View.GetHeroSpawnPoint();
-                newCameraCenter += m_cameraData.FieldViewCenterOffset;
+                newCameraCenter += m_cameraService.CameraData.FieldViewCenterOffset;
 
                 var cameraTransform = m_transformPool.Get(entity).ObjectTransform;
                 cameraTransform.position = new Vector3(newCameraCenter.x, newCameraCenter.y, cameraTransform.position.z);
