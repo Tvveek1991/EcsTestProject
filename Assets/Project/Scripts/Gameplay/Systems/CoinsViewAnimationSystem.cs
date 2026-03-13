@@ -21,7 +21,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
         
-            m_animatedCoinViewFilter = m_world.Filter<CoinViewRef>().Inc<CoinViewFlyAwayAnimation>().Inc<TransformKeeper>().End();
+            m_animatedCoinViewFilter = m_world.Filter<CoinViewKeeper>().Inc<CoinViewFlyAwayAnimation>().Inc<TransformKeeper>().End();
 
             m_transformPool = m_world.GetPool<TransformKeeper>();
             m_coinsCounterChangePool = m_world.GetPool<CoinsCounterChange>();

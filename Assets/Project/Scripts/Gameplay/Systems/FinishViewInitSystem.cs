@@ -2,17 +2,19 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.CanvasService;
+using Project.Scripts.Gameplay.Services.FinishViewService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class FinishViewInitSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
+    public class FinishViewInitSystem : IEcsInitSystem, IEcsRunSystem
     {
         private const float FADE_DURATION = .5f;
         
         private readonly FinishView m_finishViewPrefab;
+        private readonly IFinishViewService m_finishViewService;
         private readonly ICanvasService m_canvasService;
 
         private EcsWorld m_world;
@@ -23,17 +25,16 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_coinsCounterFilter;
 
         private EcsPool<CoinsCounter> m_coinsCounterPool;
-        private EcsPool<FinishViewRefComponent> m_finishViewRefPool;
+        private EcsPool<FinishViewComponent> m_finishViewRefPool;
         private EcsPool<EndGame> m_endGamePool;
-
-        private FinishView m_finishView;
         
         private int m_coinsTotalCount;
 
-        public FinishViewInitSystem(FinishView finishViewPrefab, ICanvasService canvasService)
+        public FinishViewInitSystem(FinishView finishViewPrefab, IFinishViewService finishViewService, ICanvasService canvasService)
         {
             m_canvasService = canvasService;
             m_finishViewPrefab = finishViewPrefab;
+            m_finishViewService = finishViewService;
         }
 
         public void Init(IEcsSystems systems)
@@ -41,13 +42,13 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_endGameFilter = m_world.Filter<EndGame>().End(1);
-            m_coinViewRefFilter = m_world.Filter<CoinViewRef>().End();
+            m_coinViewRefFilter = m_world.Filter<CoinViewKeeper>().End();
             m_coinsCounterFilter = m_world.Filter<CoinsCounter>().End(1);
             m_deadPlayerFilter = m_world.Filter<Player>().Inc<Dead>().End(1);
 
             m_endGamePool = m_world.GetPool<EndGame>();
             m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
-            m_finishViewRefPool = m_world.GetPool<FinishViewRefComponent>();
+            m_finishViewRefPool = m_world.GetPool<FinishViewComponent>();
 
             m_coinsTotalCount = m_coinViewRefFilter.GetEntitiesCount();
         }
@@ -55,12 +56,6 @@ namespace Project.Scripts.Gameplay.Systems
         public void Run(IEcsSystems systems)
         {
             TryCreateView();
-        }
-
-        public void Destroy(IEcsSystems systems)
-        {
-            if (m_finishView.gameObject)
-                Object.Destroy(m_finishView.gameObject);
         }
 
         private void TryCreateView()
@@ -83,27 +78,22 @@ namespace Project.Scripts.Gameplay.Systems
             var endGameEntity = m_world.NewEntity();
             m_endGamePool.Add(endGameEntity);
 
-            var newEntityIndex = m_world.NewEntity();
+            var newEntity = m_world.NewEntity();
+            m_finishViewRefPool.Add(newEntity);
+                
             var spawnPoint = m_canvasService.Canvas.transform;
 
-            m_finishView = Object.Instantiate(m_finishViewPrefab, spawnPoint);
+            var view = Object.Instantiate(m_finishViewPrefab, spawnPoint);
+            m_finishViewService.Construct(newEntity, view);
 
             AddListeners();
 
-            AttachViewToGameLevelViewReference();
-
             ShowView(isWin);
-
-            void AttachViewToGameLevelViewReference()
-            {
-                ref FinishViewRefComponent cellViewRef = ref m_finishViewRefPool.Add(newEntityIndex);
-                cellViewRef.FinishView = m_finishView;
-            }
         }
 
         private void AddListeners()
         {
-            m_finishView.RestartButton.onClick.AddListener(() =>
+            m_finishViewService.View.RestartButton.onClick.AddListener(() =>
             {
                 DOTween.KillAll();
                 m_world.Destroy();
@@ -113,11 +103,11 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void ShowView(bool isWin)
         {
-            m_finishView.CanvasGroup.alpha = 1;
-            m_finishView.CanvasGroup.DOFade(1f, FADE_DURATION);
+            m_finishViewService.View.CanvasGroup.alpha = 1;
+            m_finishViewService.View.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-            m_finishView.Title.text = isWin ? "You win" : "You died";
-            m_finishView.ButtonText.text = isWin ? "Start new game" : "Restart";
+            m_finishViewService.View.Title.text = isWin ? "You win" : "You died";
+            m_finishViewService.View.ButtonText.text = isWin ? "Start new game" : "Restart";
         }
     }
 }

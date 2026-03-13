@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.CoinsService;
 using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
@@ -12,11 +13,12 @@ namespace Project.Scripts.Gameplay.Systems
         private const string CoinViewsParentName = "CoinViewsContainer";
 
         private readonly CoinView m_coinViewPrefab;
+        private readonly ICoinsService m_coinsService;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
 
-        private EcsFilter m_coinViewRefFilter;
+        private EcsFilter m_coinViewFilter;
         private EcsFilter m_gameLevelViewRefsFilter;
 
         private EcsPool<TransformKeeper> m_transformPool;
@@ -24,8 +26,9 @@ namespace Project.Scripts.Gameplay.Systems
         private GameObject m_parentObject;
         private List<Transform> m_coinSpawnPoints;
 
-        public CoinsViewInitSystem(CoinView coinViewPrefab, IGameLevelService gameLevelService)
+        public CoinsViewInitSystem(CoinView coinViewPrefab, ICoinsService coinsService, IGameLevelService gameLevelService)
         {
+            m_coinsService = coinsService;
             m_coinViewPrefab = coinViewPrefab;
             m_gameLevelService = gameLevelService;
         }
@@ -34,7 +37,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_coinViewRefFilter = m_world.Filter<CoinViewRef>().Inc<TransformKeeper>().End();
+            m_coinViewFilter = m_world.Filter<CoinViewKeeper>().Inc<TransformKeeper>().End();
             
             m_transformPool = m_world.GetPool<TransformKeeper>();
 
@@ -43,8 +46,11 @@ namespace Project.Scripts.Gameplay.Systems
             SetCoinViewsStartPosition();
         }
         
-        public void Destroy(IEcsSystems systems) => 
+        public void Destroy(IEcsSystems systems)
+        {
+            m_coinsService.Clear();
             Object.Destroy(m_parentObject);
+        }
 
         private void CreateCoinViews()
         {
@@ -53,23 +59,20 @@ namespace Project.Scripts.Gameplay.Systems
 
             for (int i = 0; i < m_coinSpawnPoints.Count; i++)
             {
-                var gameLevelEntityIndex = m_world.NewEntity();
+                var newEntity = m_world.NewEntity();
                 var coinView = Object.Instantiate(m_coinViewPrefab, m_parentObject.transform).GetComponent<CoinView>();
 
-                AttachComponents(gameLevelEntityIndex, coinView);
+                m_coinsService.AddCoinView(newEntity, coinView);
+                
+                AttachComponents(newEntity, coinView);
             }
         }
 
         private void AttachComponents(int entityIndex, CoinView coinView)
         {
-            AttachCoinViewRefComponent();
+            m_world.GetPool<CoinViewKeeper>().Add(entityIndex);
+            
             AttachTransformComponent();
-
-            void AttachCoinViewRefComponent()
-            {
-                ref CoinViewRef cellViewRef = ref m_world.GetPool<CoinViewRef>().Add(entityIndex);
-                cellViewRef.CoinView = coinView;
-            }
 
             void AttachTransformComponent()
             {
@@ -81,7 +84,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void SetCoinViewsStartPosition()
         {
             var listSpawnPoints = m_coinSpawnPoints;
-            foreach (var coinView in m_coinViewRefFilter)
+            foreach (var coinView in m_coinViewFilter)
             {
                 if (listSpawnPoints.Count <= 0) continue;
 

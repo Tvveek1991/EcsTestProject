@@ -60,7 +60,6 @@ namespace Project.Scripts.Gameplay
                 var cameraTransform = m_transformPool.Get(entity).ObjectTransform;
                 cameraTransform.position = new Vector3(newCameraCenter.x, newCameraCenter.y, cameraTransform.position.z);
             }
-            
         }
     }
 }
