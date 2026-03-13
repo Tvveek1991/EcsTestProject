@@ -2,7 +2,7 @@
 
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct HealthViewRefComponent
+    public struct HealthViewComponent
     {
         public HealthView HealthView;
     }

@@ -16,7 +16,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_healHealthFilter;
 
         private EcsPool<Health> m_healthPool;
-        private EcsPool<HealthViewRefComponent> m_healthViewPool;
+        private EcsPool<HealthViewComponent> m_healthViewPool;
         private EcsPool<HurtCommand> m_hurtCommandPool;
         private EcsPool<HealCommand> m_healCommandPool;
 
@@ -28,7 +28,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_healHealthFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
 
             m_healthPool = m_world.GetPool<Health>();
-            m_healthViewPool = m_world.GetPool<HealthViewRefComponent>();
+            m_healthViewPool = m_world.GetPool<HealthViewComponent>();
             m_hurtCommandPool = m_world.GetPool<HurtCommand>();
             m_healCommandPool = m_world.GetPool<HealCommand>();
         }
@@ -65,9 +65,9 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_healHealthFilter)
             {
                 ref Health health = ref m_healthPool.Get(entity);
-                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
+                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
 
-                var healthView = healthViewRefComponent.HealthView;
+                var healthView = healthViewComponent.HealthView;
                 healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
                     .OnComplete(() =>
                     {
@@ -82,9 +82,9 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_hitHealthFilter)
             {
                 Health health = m_healthPool.Get(entity);
-                ref HealthViewRefComponent healthViewRefComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
+                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
 
-                var healthView = healthViewRefComponent.HealthView;
+                var healthView = healthViewComponent.HealthView;
                 if (healthView.CanvasGroup.alpha <= 0)
                     healthView.CanvasGroup.DOFade(1f, FADE_DURATION);
 

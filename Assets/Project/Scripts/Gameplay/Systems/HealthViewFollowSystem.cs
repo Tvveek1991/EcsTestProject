@@ -1,5 +1,6 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.PersonService;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -7,7 +8,8 @@ namespace Project.Scripts.Gameplay.Systems
     public class HealthViewFollowSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly Camera m_camera;
-        
+        private readonly IPersonViewService m_personViewService;
+
         private EcsWorld m_world;
         private EcsFilter m_healthViewFilter;
         private EcsFilter m_personViewWithHealthFilter;
@@ -15,25 +17,24 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<Health> m_healthPool;
         private EcsPool<TransformKeeper> m_transformPool;
-        private EcsPool<PersonViewRef> m_personViewPool;
         private EcsPool<ObjectViewRef> m_objectViewPool;
 
-        public HealthViewFollowSystem(Camera camera)
+        public HealthViewFollowSystem(Camera camera, IPersonViewService personViewService)
         {
             m_camera = camera;
+            m_personViewService = personViewService;
         }
         
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_healthViewFilter = m_world.Filter<HealthViewRefComponent>().Inc<TransformKeeper>().End();
-            m_personViewWithHealthFilter = m_world.Filter<PersonViewRef>().Inc<Health>().End();
+            m_healthViewFilter = m_world.Filter<HealthViewComponent>().Inc<TransformKeeper>().End();
+            m_personViewWithHealthFilter = m_world.Filter<PersonViewComponent>().Inc<Health>().End();
             m_objectViewWithHealthFilter = m_world.Filter<ObjectViewRef>().Inc<Health>().End();
 
             m_healthPool = m_world.GetPool<Health>();
             m_transformPool = m_world.GetPool<TransformKeeper>();
-            m_personViewPool = m_world.GetPool<PersonViewRef>();
             m_objectViewPool = m_world.GetPool<ObjectViewRef>();
         }
         
@@ -52,9 +53,12 @@ namespace Project.Scripts.Gameplay.Systems
                 if (healthViewEntity == health.ViewEntityIndex)
                 {
                     ref TransformKeeper transformKeeper = ref m_transformPool.Get(healthViewEntity);
-                    ref PersonViewRef personView = ref m_personViewPool.Get(personViewWithHealthEntity);
+                    var view = m_personViewService.GetPersonViewByEntity(personViewWithHealthEntity);
 
-                    Vector3 screenPosition = m_camera.WorldToScreenPoint(personView.PersonView.GetHealthFollowPoint().position);
+                    if(view == null)
+                        continue;
+                    
+                    Vector3 screenPosition = m_camera.WorldToScreenPoint(view.GetHealthFollowPoint().position);
                     transformKeeper.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
                 }
             }

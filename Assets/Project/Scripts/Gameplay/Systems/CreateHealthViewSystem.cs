@@ -15,7 +15,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_healthReadyToViewFilter;
 
         private EcsPool<Health> m_healthPool;
-        private EcsPool<HealthViewRefComponent> m_healthViewPool;
+        private EcsPool<HealthViewComponent> m_healthViewPool;
 
         private readonly HealthView m_healthViewPrefab;
         private readonly ICanvasService m_canvasService;
@@ -31,10 +31,10 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
             
             m_healthReadyToViewFilter = m_world.Filter<Health>().End();
-            m_healthViewFilter = m_world.Filter<HealthViewRefComponent>().End();
+            m_healthViewFilter = m_world.Filter<HealthViewComponent>().End();
 
             m_healthPool = m_world.GetPool<Health>();
-            m_healthViewPool = m_world.GetPool<HealthViewRefComponent>();
+            m_healthViewPool = m_world.GetPool<HealthViewComponent>();
         }
         
         public void Run(IEcsSystems systems)
@@ -72,7 +72,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void AttacheHealthViewComponent(int newEntity, HealthView healthView)
         {
-            ref HealthViewRefComponent view = ref m_healthViewPool.Add(newEntity);
+            ref HealthViewComponent view = ref m_healthViewPool.Add(newEntity);
             view.HealthView = healthView;
         }
 

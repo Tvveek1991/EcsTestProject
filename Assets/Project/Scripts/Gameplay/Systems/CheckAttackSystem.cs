@@ -1,11 +1,14 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.PersonService;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CheckAttackSystem : IEcsInitSystem, IEcsRunSystem
     {
+        private readonly IPersonViewService m_personViewService;
+        
         private const float MAX_DISTANCE = 1.3f;
         private const string LAYER_NAME = "InteractiveObject";
 
@@ -19,15 +22,19 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<AttackCheckComponent> m_attackCheckPool;
         private EcsPool<ObjectViewRef> m_objectViewRefPool;
         private EcsPool<SpriteRendererKeeper> m_spriteRendererPool;
-        private EcsPool<PersonViewRef> m_personViewRefComponentPool;
 
+        public CheckAttackSystem(IPersonViewService personViewService)
+        {
+            m_personViewService = personViewService;
+        }
+        
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
             m_hitFilter = m_world.Filter<ObjectViewRef>().Inc<Health>()
                 .Exc<HurtCommand>().End();
-            m_attackedPersonFilter = m_world.Filter<PersonViewRef>().Inc<AttackCheckComponent>().Inc<SpriteRendererKeeper>().End();
+            m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<AttackCheckComponent>().Inc<SpriteRendererKeeper>().End();
 
             m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
             
@@ -36,7 +43,6 @@ namespace Project.Scripts.Gameplay.Systems
             
             m_healthPool = m_world.GetPool<Health>();
             m_spriteRendererPool = m_world.GetPool<SpriteRendererKeeper>();
-            m_personViewRefComponentPool = m_world.GetPool<PersonViewRef>();
         }
 
         public void Run(IEcsSystems systems)
@@ -50,7 +56,12 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 m_attackCheckPool.Del(person);
                 
-                var checkerTr = m_personViewRefComponentPool.Get(person).PersonView.GetCheckerSpawnPoint();
+                var personView = m_personViewService.GetPersonViewByEntity(person);
+                
+                if(personView == null)
+                    continue;
+                
+                var checkerTr = personView.GetCheckerSpawnPoint();
                 var direction = m_spriteRendererPool.Get(person).SpriteRenderer.flipX ? Vector3.left : Vector3.right;
 
                 int layerMask = LayerMask.GetMask(LAYER_NAME);

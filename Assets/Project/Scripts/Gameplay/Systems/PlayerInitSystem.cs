@@ -1,6 +1,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.GameLevelService;
+using Project.Scripts.Gameplay.Services.PersonService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace Project.Scripts.Gameplay.Systems
         private const string PlayerParentName = "Hero";
         
         private readonly PersonView m_personViewPrefab;
+        private readonly IPersonViewService m_personViewService;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
@@ -21,8 +23,9 @@ namespace Project.Scripts.Gameplay.Systems
         
         private GameObject m_parentObject;
         
-        public PlayerInitSystem(PersonView personViewPrefab, IGameLevelService gameLevelService)
+        public PlayerInitSystem(PersonView personViewPrefab, IPersonViewService personViewService, IGameLevelService gameLevelService)
         {
+            m_personViewService = personViewService;
             m_personViewPrefab = personViewPrefab;
             m_gameLevelService = gameLevelService;
         }
@@ -53,17 +56,22 @@ namespace Project.Scripts.Gameplay.Systems
             AttachComponents(playerEntity, heroView);
         }
 
-        private void AttachComponents(int playerEntity, PersonView heroView)
+        private void AttachComponents(int playerEntity, PersonView view)
         {
+            m_personViewService.AddPerson(playerEntity, view);
+            
+            m_world.GetPool<PersonViewComponent>().Add(playerEntity);
+
             AttachPlayerComponent();
             AttachPersonComponent();
+            
             AttachAnimatorComponent();
             AttachTransformComponent();
-            AttachWallCheckComponent();
-            AttachGroundCheckComponent();
             AttachRigidbody2dComponent();
             AttachSpriteRendererComponent();
-            AttachViewToHeroViewReferenceComponent();
+            
+            AttachWallCheckComponent();
+            AttachGroundCheckComponent();
 
             void AttachPlayerComponent()
             {
@@ -78,31 +86,25 @@ namespace Project.Scripts.Gameplay.Systems
             void AttachAnimatorComponent()
             {
                 ref AnimatorKeeper animatorKeeper = ref m_world.GetPool<AnimatorKeeper>().Add(playerEntity);
-                animatorKeeper.AnimatorController = heroView.GetComponent<Animator>();
+                animatorKeeper.AnimatorController = view.GetComponent<Animator>();
             }
 
             void AttachTransformComponent()
             {
                 ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(playerEntity);
-                transformKeeper.ObjectTransform = heroView.transform;
+                transformKeeper.ObjectTransform = view.transform;
             }
 
             void AttachRigidbody2dComponent()
             {
                 ref Rigidbody2d rigidbody2d = ref m_world.GetPool<Rigidbody2d>().Add(playerEntity);
-                rigidbody2d.Rigidbody = heroView.GetComponent<Rigidbody2D>();
+                rigidbody2d.Rigidbody = view.GetComponent<Rigidbody2D>();
             }
 
             void AttachSpriteRendererComponent()
             {
                 ref SpriteRendererKeeper spriteRendererKeeper = ref m_world.GetPool<SpriteRendererKeeper>().Add(playerEntity);
-                spriteRendererKeeper.SpriteRenderer = heroView.GetComponent<SpriteRenderer>();
-            }
-
-            void AttachViewToHeroViewReferenceComponent()
-            {
-                ref PersonViewRef cellViewRef = ref m_world.GetPool<PersonViewRef>().Add(playerEntity);
-                cellViewRef.PersonView = heroView;
+                spriteRendererKeeper.SpriteRenderer = view.GetComponent<SpriteRenderer>();
             }
 
             void AttachGroundCheckComponent()
