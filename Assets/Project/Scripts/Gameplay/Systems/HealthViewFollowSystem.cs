@@ -1,6 +1,8 @@
-﻿using Leopotam.EcsLite;
+﻿using Gameplay.Services.ObjectsService;
+using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.PersonService;
+using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -9,6 +11,7 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private readonly Camera m_camera;
         private readonly IPersonViewService m_personViewService;
+        private readonly IObjectsService m_objectsService;
 
         private EcsWorld m_world;
         private EcsFilter m_healthViewFilter;
@@ -17,11 +20,11 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<Health> m_healthPool;
         private EcsPool<TransformKeeper> m_transformPool;
-        private EcsPool<ObjectViewRef> m_objectViewPool;
 
-        public HealthViewFollowSystem(Camera camera, IPersonViewService personViewService)
+        public HealthViewFollowSystem(Camera camera, IPersonViewService personViewService, IObjectsService objectsService)
         {
             m_camera = camera;
+            m_objectsService = objectsService;
             m_personViewService = personViewService;
         }
         
@@ -35,7 +38,6 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_healthPool = m_world.GetPool<Health>();
             m_transformPool = m_world.GetPool<TransformKeeper>();
-            m_objectViewPool = m_world.GetPool<ObjectViewRef>();
         }
         
         public void Run(IEcsSystems systems)
@@ -50,14 +52,13 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var personViewWithHealthEntity in m_personViewWithHealthFilter)
             {
                 ref Health health = ref m_healthPool.Get(personViewWithHealthEntity);
-                if (healthViewEntity == health.ViewEntityIndex)
+                if (healthViewEntity == health.ViewEntity)
                 {
                     ref TransformKeeper transformKeeper = ref m_transformPool.Get(healthViewEntity);
-                    var view = m_personViewService.GetPersonViewByEntity(personViewWithHealthEntity);
 
-                    if(view == null)
+                    if (!m_personViewService.Views.TryGetValue(personViewWithHealthEntity, out var view)) 
                         continue;
-                    
+
                     Vector3 screenPosition = m_camera.WorldToScreenPoint(view.GetHealthFollowPoint().position);
                     transformKeeper.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
                 }
@@ -70,12 +71,14 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var objectViewWithHealthEntity in m_objectViewWithHealthFilter)
             {
                 ref Health health = ref m_healthPool.Get(objectViewWithHealthEntity);
-                if (healthViewEntity == health.ViewEntityIndex)
+                if (healthViewEntity == health.ViewEntity)
                 {
                     ref TransformKeeper transformKeeper = ref m_transformPool.Get(healthViewEntity);
-                    ref ObjectViewRef objectView = ref m_objectViewPool.Get(objectViewWithHealthEntity);
+                    
+                    if (!m_objectsService.Views.TryGetValue(objectViewWithHealthEntity, out var view)) 
+                        continue;
 
-                    Vector3 screenPosition = m_camera.WorldToScreenPoint(objectView.ObjectView.GetHealthFollowPoint().position);
+                    Vector3 screenPosition = m_camera.WorldToScreenPoint(view.GetHealthFollowPoint().position);
                     transformKeeper.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
                 }
             }

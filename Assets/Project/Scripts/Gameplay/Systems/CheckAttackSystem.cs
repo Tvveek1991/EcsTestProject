@@ -1,3 +1,4 @@
+using Gameplay.Services.ObjectsService;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.PersonService;
@@ -8,7 +9,8 @@ namespace Project.Scripts.Gameplay.Systems
     public class CheckAttackSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly IPersonViewService m_personViewService;
-        
+        private readonly IObjectsService m_objectsService;
+
         private const float MAX_DISTANCE = 1.3f;
         private const string LAYER_NAME = "InteractiveObject";
 
@@ -20,11 +22,11 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<Health> m_healthPool;
         private EcsPool<HurtCommand> m_hurtCommandPool;
         private EcsPool<AttackCheckComponent> m_attackCheckPool;
-        private EcsPool<ObjectViewRef> m_objectViewRefPool;
         private EcsPool<SpriteRendererKeeper> m_spriteRendererPool;
 
-        public CheckAttackSystem(IPersonViewService personViewService)
+        public CheckAttackSystem(IPersonViewService personViewService, IObjectsService objectsService)
         {
+            m_objectsService = objectsService;
             m_personViewService = personViewService;
         }
         
@@ -39,7 +41,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
             
             m_hurtCommandPool = m_world.GetPool<HurtCommand>();
-            m_objectViewRefPool = m_world.GetPool<ObjectViewRef>();
             
             m_healthPool = m_world.GetPool<Health>();
             m_spriteRendererPool = m_world.GetPool<SpriteRendererKeeper>();
@@ -73,7 +74,10 @@ namespace Project.Scripts.Gameplay.Systems
                 {
                     foreach (var hitObject in m_hitFilter)
                     {
-                        if (m_objectViewRefPool.Get(hitObject).ObjectView.gameObject == hit.collider.gameObject)
+                        if(!m_objectsService.Views.TryGetValue(hitObject, out var view))
+                            continue;
+                        
+                        if (view.gameObject == hit.collider.gameObject)
                         {
                             if(m_healthPool.Get(hitObject).Count <= 0)
                                 return;

@@ -49,7 +49,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_hitHealthFilter)
             {
                 Health health = m_healthPool.Get(entity);
-                int viewEntity = health.ViewEntityIndex;
+                int viewEntity = health.ViewEntity;
                 
                 if (health.Count <= 0)
                 {
@@ -65,7 +65,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_healHealthFilter)
             {
                 ref Health health = ref m_healthPool.Get(entity);
-                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
+                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntity);
 
                 var healthView = healthViewComponent.HealthView;
                 healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
@@ -82,7 +82,7 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_hitHealthFilter)
             {
                 Health health = m_healthPool.Get(entity);
-                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntityIndex);
+                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntity);
 
                 var healthView = healthViewComponent.HealthView;
                 if (healthView.CanvasGroup.alpha <= 0)

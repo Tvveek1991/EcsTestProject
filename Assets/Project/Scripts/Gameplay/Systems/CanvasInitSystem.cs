@@ -31,11 +31,11 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CreateCanvas()
         {
-            var canvasEntityIndex = m_world.NewEntity();
-            m_canvasPool.Add(canvasEntityIndex);
+            var canvasEntity = m_world.NewEntity();
+            m_canvasPool.Add(canvasEntity);
             
             var canvas = Object.Instantiate(m_canvasPrefab);
-            m_canvasService.Construct(canvasEntityIndex, canvas);
+            m_canvasService.Construct(canvasEntity, canvas);
         }
 
         public void Destroy(IEcsSystems systems)

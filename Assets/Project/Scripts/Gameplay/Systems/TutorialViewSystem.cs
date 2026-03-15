@@ -15,7 +15,7 @@ namespace Project.Scripts.Gameplay.Systems
         
         private EcsWorld m_world;
         
-        private EcsPool<Tutorial> m_tutorialViewPool;
+        private EcsPool<TutorialViewRef> m_tutorialViewPool;
         
         public CreateTutorialViewSystem(TextMeshProUGUI tutorialPrefab, ICanvasService canvasService, ITutorialService tutorialService)
         {
@@ -28,7 +28,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_tutorialViewPool = m_world.GetPool<Tutorial>();
+            m_tutorialViewPool = m_world.GetPool<TutorialViewRef>();
 
             CreateTutorialView();
         }

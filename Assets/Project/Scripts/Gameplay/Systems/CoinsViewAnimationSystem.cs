@@ -55,7 +55,10 @@ namespace Project.Scripts.Gameplay.Systems
                         sequence.Kill();
                         sequence = null;
 
-                        Object.Destroy(m_coinsService.GetViewByEntity(coinView).gameObject);
+                        if (!m_coinsService.Views.TryGetValue(coinView, out var view)) 
+                            return;
+                        
+                        Object.Destroy(view.gameObject);
                         m_coinsService.RemoveView(coinView);
                     });
                 m_sequences.Add(sequence);

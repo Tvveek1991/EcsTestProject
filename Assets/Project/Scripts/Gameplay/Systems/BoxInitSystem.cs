@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gameplay.Services.ObjectsService;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.GameLevelService;
@@ -12,6 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
         private const string BoxParentName = "Boxes";
 
         private readonly ObjectView m_objectViewPrefab;
+        private readonly IObjectsService m_objectsService;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
@@ -23,10 +25,11 @@ namespace Project.Scripts.Gameplay.Systems
         private GameObject m_parentObject;
         private List<Transform> m_boxSpawnPoints;
 
-        public BoxInitSystem(ObjectView objectViewPrefab, IGameLevelService gameLevelService)
+        public BoxInitSystem(ObjectView objectViewPrefab, IObjectsService objectsService, IGameLevelService gameLevelService)
         {
-            m_gameLevelService = gameLevelService;
+            m_objectsService = objectsService;
             m_objectViewPrefab = objectViewPrefab;
+            m_gameLevelService = gameLevelService;
         }
 
         public void Init(IEcsSystems systems)
@@ -52,48 +55,40 @@ namespace Project.Scripts.Gameplay.Systems
 
             for (int i = 0; i < m_boxSpawnPoints.Count; i++)
             {
-                var gameLevelEntityIndex = m_world.NewEntity();
-                var boxView = Object.Instantiate(m_objectViewPrefab, m_parentObject.transform).GetComponent<ObjectView>();
+                var entity = m_world.NewEntity();
+                var view = Object.Instantiate(m_objectViewPrefab, m_parentObject.transform);
                 
-                AttachComponents(gameLevelEntityIndex, boxView);
+                m_objectsService.AddObjectView(entity, view);
+                
+                AttachComponents(entity, view);
             }
         }
 
-        private void AttachComponents(int gameLevelEntityIndex, ObjectView objectView)
+        private void AttachComponents(int entity, ObjectView view)
         {
-            AttachObjectComponent();
+            m_world.GetPool<ObjectViewRef>().Add(entity);
+            m_world.GetPool<PlayableObject>().Add(entity);
+            
             AttachTransformComponent();
             AttachRigidbody2dComponent();
             AttachSpriteRendererComponent();
-            AttachViewToHeroViewReferenceComponent();
-
-            void AttachObjectComponent()
-            {
-                m_world.GetPool<PlayableObject>().Add(gameLevelEntityIndex);
-            }
 
             void AttachTransformComponent()
             {
-                ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(gameLevelEntityIndex);
-                transformKeeper.ObjectTransform = objectView.transform;
+                ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(entity);
+                transformKeeper.ObjectTransform = view.transform;
             }
 
             void AttachRigidbody2dComponent()
             {
-                ref Rigidbody2d rigidbody2d = ref m_world.GetPool<Rigidbody2d>().Add(gameLevelEntityIndex);
-                rigidbody2d.Rigidbody = objectView.GetComponent<Rigidbody2D>();
+                ref Rigidbody2d rigidbody2d = ref m_world.GetPool<Rigidbody2d>().Add(entity);
+                rigidbody2d.Rigidbody = view.GetComponent<Rigidbody2D>();
             }
 
             void AttachSpriteRendererComponent()
             {
-                ref SpriteRendererKeeper spriteRendererKeeper = ref m_world.GetPool<SpriteRendererKeeper>().Add(gameLevelEntityIndex);
-                spriteRendererKeeper.SpriteRenderer = objectView.GetComponent<SpriteRenderer>();
-            }
-
-            void AttachViewToHeroViewReferenceComponent()
-            {
-                ref ObjectViewRef cellViewRef = ref m_world.GetPool<ObjectViewRef>().Add(gameLevelEntityIndex);
-                cellViewRef.ObjectView = objectView;
+                ref SpriteRendererKeeper spriteRendererKeeper = ref m_world.GetPool<SpriteRendererKeeper>().Add(entity);
+                spriteRendererKeeper.SpriteRenderer = view.GetComponent<SpriteRenderer>();
             }
         }
         

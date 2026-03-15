@@ -10,12 +10,12 @@ namespace Project.Scripts.Gameplay.Services.CoinsService
         private int m_totalCount;
 
         public int TotalCount => m_totalCount;
+        public Dictionary<int, CoinView> Views => m_views;
+        
         
         public void RefreshTotalCount() => m_totalCount = m_views.Count;
 
         public void AddCoinView(int entity, CoinView view) => m_views.Add(entity, view);
-
-        public CoinView GetViewByEntity(int entity) => m_views[entity];
         
         public void RemoveView(int entity) => m_views.Remove(entity);
 

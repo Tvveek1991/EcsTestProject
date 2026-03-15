@@ -3,6 +3,6 @@
     public struct Health
     {
         public int Count;
-        public int ViewEntityIndex;
+        public int ViewEntity;
     }
 }

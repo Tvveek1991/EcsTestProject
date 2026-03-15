@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Gameplay.Services.ObjectsService;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace Project.Scripts.Gameplay.Systems
     public class CheckDestroyedParticlesSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
         private readonly GameObject m_destroyedParticlesPrefab;
+        private readonly IObjectsService m_objectsService;
 
         private EcsWorld m_world;
 
@@ -16,8 +18,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<TransformKeeper> m_transformPool;
         private EcsPool<ObjectViewRef> m_objectViewRefPool;
 
-        public CheckDestroyedParticlesSystem(GameObject destroyedParticles)
+        public CheckDestroyedParticlesSystem(GameObject destroyedParticles, IObjectsService objectsService)
         {
+            m_objectsService = objectsService;
             m_destroyedParticlesPrefab = destroyedParticles;
         }
 
@@ -35,7 +38,9 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var entity in m_filter)
             {
-                var view = m_objectViewRefPool.Get(entity).ObjectView;
+                if(!m_objectsService.Views.TryGetValue(entity, out var view))
+                    continue;
+                
                 var particles = Object.Instantiate(m_destroyedParticlesPrefab, view.GetDestroyParticlesPoint().position, Quaternion.identity, null);
 
                 var objectTransform = m_transformPool.Get(entity).ObjectTransform;

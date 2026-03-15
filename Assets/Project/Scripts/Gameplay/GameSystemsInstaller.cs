@@ -30,12 +30,12 @@ namespace Gameplay
       
       builder.Register<IEcsSystem, CreateTutorialViewSystem>(Lifetime.Scoped);
 
-      builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);////////
 
       builder.Register<IEcsSystem, BoxInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);////
       builder.Register<IEcsSystem, HealthViewFollowSystem>(Lifetime.Scoped);
       
 

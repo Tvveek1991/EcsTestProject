@@ -1,12 +1,14 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.CoinsService;
+using Project.Scripts.Gameplay.Views;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CoinsViewCheckSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly ICoinsService m_coinsService;
+        
         private EcsWorld m_world;
 
         private EcsFilter m_coinViewFilter;
@@ -31,9 +33,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var coinView in m_coinViewFilter)
             {
-                var view = m_coinsService.GetViewByEntity(coinView);
-                
-                if(view == null)
+                if(!m_coinsService.Views.TryGetValue(coinView, out var view))
                     continue;
                 
                 if (view.Sensor.IsConnected)

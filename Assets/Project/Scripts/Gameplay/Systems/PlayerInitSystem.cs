@@ -25,9 +25,9 @@ namespace Project.Scripts.Gameplay.Systems
         
         public PlayerInitSystem(PersonView personViewPrefab, IPersonViewService personViewService, IGameLevelService gameLevelService)
         {
-            m_personViewService = personViewService;
             m_personViewPrefab = personViewPrefab;
             m_gameLevelService = gameLevelService;
+            m_personViewService = personViewService;
         }
 
         public void Init(IEcsSystems systems)
@@ -51,7 +51,7 @@ namespace Project.Scripts.Gameplay.Systems
             
             var playerEntity = m_world.NewEntity();
 
-            var heroView = Object.Instantiate(m_personViewPrefab, m_parentObject.transform).GetComponent<PersonView>();
+            var heroView = Object.Instantiate(m_personViewPrefab, m_parentObject.transform);
 
             AttachComponents(playerEntity, heroView);
         }
@@ -62,8 +62,8 @@ namespace Project.Scripts.Gameplay.Systems
             
             m_world.GetPool<PersonViewComponent>().Add(playerEntity);
 
-            AttachPlayerComponent();
-            AttachPersonComponent();
+            m_world.GetPool<Person>().Add(playerEntity);
+            m_world.GetPool<Player>().Add(playerEntity);
             
             AttachAnimatorComponent();
             AttachTransformComponent();
@@ -72,16 +72,6 @@ namespace Project.Scripts.Gameplay.Systems
             
             AttachWallCheckComponent();
             AttachGroundCheckComponent();
-
-            void AttachPlayerComponent()
-            {
-                m_world.GetPool<Player>().Add(playerEntity);
-            }
-
-            void AttachPersonComponent()
-            {
-                m_world.GetPool<Person>().Add(playerEntity);
-            }
 
             void AttachAnimatorComponent()
             {

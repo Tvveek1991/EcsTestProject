@@ -6,6 +6,7 @@ namespace Project.Scripts.Gameplay.Services.PersonService
     public class PersonViewService : IPersonViewService
     {
         private readonly Dictionary<int, PersonView> m_personViews = new();
+        public Dictionary<int, PersonView> Views => m_personViews;
 
         public void AddPerson(int entity, PersonView view) => m_personViews.Add(entity, view);
         public PersonView GetPersonViewByEntity(int entity) => m_personViews[entity];

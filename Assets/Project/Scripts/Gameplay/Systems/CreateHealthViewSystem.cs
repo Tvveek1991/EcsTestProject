@@ -10,9 +10,9 @@ namespace Project.Scripts.Gameplay.Systems
     public class HealthViewInitSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
     {
         private EcsWorld m_world;
-        
+
+        private EcsFilter m_healthFilter;
         private EcsFilter m_healthViewFilter;
-        private EcsFilter m_healthReadyToViewFilter;
 
         private EcsPool<Health> m_healthPool;
         private EcsPool<HealthViewComponent> m_healthViewPool;
@@ -30,7 +30,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
-            m_healthReadyToViewFilter = m_world.Filter<Health>().End();
+            m_healthFilter = m_world.Filter<Health>().End();
             m_healthViewFilter = m_world.Filter<HealthViewComponent>().End();
 
             m_healthPool = m_world.GetPool<Health>();
@@ -50,10 +50,10 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CreateHealthView()
         {
-            foreach (var readyToHealthViewEntity in m_healthReadyToViewFilter)
+            foreach (var readyToHealthViewEntity in m_healthFilter)
             {
                 ref Health health = ref m_healthPool.Get(readyToHealthViewEntity);
-                if(health.ViewEntityIndex != 0)
+                if(health.ViewEntity != 0)
                     continue;
                 
                 var newEntity = m_world.NewEntity();
@@ -66,7 +66,7 @@ namespace Project.Scripts.Gameplay.Systems
                 AttacheHealthViewComponent(newEntity, healthView);
                 AttachTransformComponent(newEntity, healthView.transform);
                 
-                health.ViewEntityIndex = newEntity;
+                health.ViewEntity = newEntity;
             }
         }
 

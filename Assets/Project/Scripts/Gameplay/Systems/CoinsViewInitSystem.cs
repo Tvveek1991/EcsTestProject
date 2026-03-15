@@ -49,6 +49,7 @@ namespace Project.Scripts.Gameplay.Systems
         public void Destroy(IEcsSystems systems)
         {
             m_coinsService.Clear();
+            
             Object.Destroy(m_parentObject);
         }
 
@@ -60,7 +61,7 @@ namespace Project.Scripts.Gameplay.Systems
             for (int i = 0; i < m_coinSpawnPoints.Count; i++)
             {
                 var newEntity = m_world.NewEntity();
-                var coinView = Object.Instantiate(m_coinViewPrefab, m_parentObject.transform).GetComponent<CoinView>();
+                var coinView = Object.Instantiate(m_coinViewPrefab, m_parentObject.transform);
 
                 m_coinsService.AddCoinView(newEntity, coinView);
                 
@@ -70,16 +71,16 @@ namespace Project.Scripts.Gameplay.Systems
             m_coinsService.RefreshTotalCount();
         }
 
-        private void AttachComponents(int entityIndex, CoinView coinView)
+        private void AttachComponents(int entity, CoinView view)
         {
-            m_world.GetPool<CoinViewKeeper>().Add(entityIndex);
+            m_world.GetPool<CoinViewKeeper>().Add(entity);
             
             AttachTransformComponent();
 
             void AttachTransformComponent()
             {
-                ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(entityIndex);
-                transformKeeper.ObjectTransform = coinView.transform;
+                ref TransformKeeper transformKeeper = ref m_world.GetPool<TransformKeeper>().Add(entity);
+                transformKeeper.ObjectTransform = view.transform;
             }
         }
 
@@ -88,7 +89,8 @@ namespace Project.Scripts.Gameplay.Systems
             var listSpawnPoints = m_coinSpawnPoints;
             foreach (var coinView in m_coinViewFilter)
             {
-                if (listSpawnPoints.Count <= 0) continue;
+                if (listSpawnPoints.Count <= 0) 
+                    continue;
 
                 m_transformPool.Get(coinView).ObjectTransform.position = listSpawnPoints[0].position;
                 listSpawnPoints.RemoveAt(0);
