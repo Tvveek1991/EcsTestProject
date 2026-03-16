@@ -4,10 +4,10 @@ namespace Project.Scripts.Gameplay.Components.Input
     {
         public bool IsEnabled;
         
-        public bool IsJumpPressed;
-        public bool IsRollPressed;
-        public bool IsMoveLeftPressed;
-        public bool IsMoveRightPressed;
+        public bool IsJump;
+        public bool IsRolling;
+        public bool IsMoveLeft;
+        public bool IsMoveRight;
         public bool IsHurt;
         public bool IsDead;
         public bool IsAttack;

@@ -38,7 +38,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<Jump> m_jumpPool;
         private EcsPool<Block> m_blockPool;
-        private EcsPool<AttackComponent> m_attackPool;
+        private EcsPool<Attack> m_attackPool;
         private EcsPool<Rolling> m_rollingPool;
         private EcsPool<AnimatorKeeper> m_animatorPool;
         private EcsPool<WallCheck> m_wallCheckPool;
@@ -71,7 +71,7 @@ namespace Project.Scripts.Gameplay.Systems
                 .Exc<Run>().End();
             m_jumperFilter = m_world.Filter<AnimatorKeeper>().Inc<Jump>().End();
             m_rollingFilter = m_world.Filter<AnimatorKeeper>().Inc<Rolling>().End();
-            m_attackFilter = m_world.Filter<AnimatorKeeper>().Inc<Person>().Inc<AttackComponent>()
+            m_attackFilter = m_world.Filter<AnimatorKeeper>().Inc<Person>().Inc<Attack>()
                 .Exc<Rolling>().End();
 
             m_blockFilter = m_world.Filter<AnimatorKeeper>().Inc<Person>().Inc<Block>().End();
@@ -82,7 +82,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void SetPools()
         {
             m_blockPool = m_world.GetPool<Block>();
-            m_attackPool = m_world.GetPool<AttackComponent>();
+            m_attackPool = m_world.GetPool<Attack>();
             m_rollingPool = m_world.GetPool<Rolling>();
             m_animatorPool = m_world.GetPool<AnimatorKeeper>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2d>();

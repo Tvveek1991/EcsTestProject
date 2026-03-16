@@ -12,16 +12,16 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_attackFilter;
 
-        private EcsPool<AttackComponent> m_attackPool;
+        private EcsPool<Attack> m_attackPool;
         private EcsPool<AttackCheckComponent> m_attackCheckPool;
 
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_attackFilter = m_world.Filter<Person>().Inc<AttackComponent>().End();
+            m_attackFilter = m_world.Filter<Person>().Inc<Attack>().End();
 
-            m_attackPool = m_world.GetPool<AttackComponent>();
+            m_attackPool = m_world.GetPool<Attack>();
             m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
         }
 
@@ -34,22 +34,22 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var entity in m_attackFilter)
             {
-                ref AttackComponent attackComponent = ref m_attackPool.Get(entity);
-                attackComponent.TimeSinceAttack += Time.deltaTime;
+                ref Attack attack = ref m_attackPool.Get(entity);
+                attack.TimeSinceAttack += Time.deltaTime;
 
-                if (attackComponent.IsAnimate && attackComponent.TimeSinceAttack > 0.25f)
+                if (attack.IsAnimate && attack.TimeSinceAttack > 0.25f)
                 {
-                    attackComponent.CurrentAttackIndex++;
+                    attack.CurrentAttackIndex++;
 
                     m_attackCheckPool.Add(entity);
 
-                    if (attackComponent.CurrentAttackIndex > 3)
-                        attackComponent.CurrentAttackIndex = 1;
+                    if (attack.CurrentAttackIndex > 3)
+                        attack.CurrentAttackIndex = 1;
 
-                    if (attackComponent.TimeSinceAttack > 1.0f)
-                        attackComponent.CurrentAttackIndex = 1;
+                    if (attack.TimeSinceAttack > 1.0f)
+                        attack.CurrentAttackIndex = 1;
 
-                    attackComponent.TimeSinceAttack = 0.0f;
+                    attack.TimeSinceAttack = 0.0f;
                 }
                 
                 if(m_attackPool.Get(entity).TimeSinceAttack > TIME_TO_REMOVE_COMPONENT)

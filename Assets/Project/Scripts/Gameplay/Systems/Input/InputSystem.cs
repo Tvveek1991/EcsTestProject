@@ -29,11 +29,11 @@ namespace Project.Scripts.Gameplay.Systems.Input
             {
                 ref var input = ref m_inputPool.Get(i);
             
-                input.IsJumpPressed = UnityEngine.Input.GetKeyDown(KeyCode.Space);
-                input.IsRollPressed = UnityEngine.Input.GetKeyDown(KeyCode.LeftShift);
+                input.IsJump = UnityEngine.Input.GetKeyDown(KeyCode.Space);
+                input.IsRolling = UnityEngine.Input.GetKeyDown(KeyCode.LeftShift);
                 
-                input.IsMoveLeftPressed = UnityEngine.Input.GetKey(KeyCode.A);
-                input.IsMoveRightPressed = UnityEngine.Input.GetKey(KeyCode.D);
+                input.IsMoveLeft = UnityEngine.Input.GetKey(KeyCode.A);
+                input.IsMoveRight = UnityEngine.Input.GetKey(KeyCode.D);
                 
                 input.IsDead = UnityEngine.Input.GetKeyDown(KeyCode.E);
                 input.IsHurt = UnityEngine.Input.GetKeyDown(KeyCode.Q);

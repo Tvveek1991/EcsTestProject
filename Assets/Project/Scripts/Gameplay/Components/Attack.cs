@@ -1,6 +1,6 @@
 ﻿namespace Project.Scripts.Gameplay.Components
 {
-    public struct AttackComponent
+    public struct Attack
     {
         public bool IsAnimate;
         public float TimeSinceAttack;
