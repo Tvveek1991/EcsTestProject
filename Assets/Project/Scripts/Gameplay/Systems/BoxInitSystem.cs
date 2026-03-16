@@ -34,6 +34,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Init(IEcsSystems systems)
         {
+            m_objectsService.Clear();
+            
             m_world = systems.GetWorld();
 
             m_boxTransformFilter = m_world.Filter<PlayableObject>().Inc<TransformKeeper>().End();
@@ -45,8 +47,12 @@ namespace Project.Scripts.Gameplay.Systems
             SetBoxStartPosition();
         }
 
-        public void Destroy(IEcsSystems systems) =>
+        public void Destroy(IEcsSystems systems)
+        {
+            m_objectsService.Clear();
+            
             Object.Destroy(m_parentObject);
+        }
 
         private void CreateBoxViews()
         {

@@ -35,6 +35,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Init(IEcsSystems systems)
         {
+            m_coinsService.Clear();
+            
             m_world = systems.GetWorld();
 
             m_coinViewFilter = m_world.Filter<CoinViewKeeper>().Inc<TransformKeeper>().End();

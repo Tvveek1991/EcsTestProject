@@ -10,7 +10,6 @@ namespace Project.Scripts.Gameplay.Services.CoinsService
         
         void RefreshTotalCount();
         void AddCoinView(int entity, CoinView view);
-        // CoinView GetViewByEntity(int entity);
         void RemoveView(int entity);
         void Clear();
     }

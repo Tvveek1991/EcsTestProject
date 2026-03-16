@@ -49,7 +49,8 @@ namespace Project.Scripts.Gameplay.Systems
                     {
                         objectTransform.DOKill();
                         Object.Destroy(particles.gameObject);
-                        Object.Destroy(objectTransform.gameObject);
+                        Object.Destroy(view.gameObject);
+                        m_objectsService.RemoveView(entity);
                     });
             }
         }

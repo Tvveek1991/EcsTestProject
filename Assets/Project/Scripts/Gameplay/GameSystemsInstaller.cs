@@ -38,7 +38,6 @@ namespace Gameplay
       builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);////
       builder.Register<IEcsSystem, HealthViewFollowSystem>(Lifetime.Scoped);
       
-
       builder.Register<IEcsSystem, PersonConnectSensorsInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, CheckPlayerInputSystem>(Lifetime.Scoped);
