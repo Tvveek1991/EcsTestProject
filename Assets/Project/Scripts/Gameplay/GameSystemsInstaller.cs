@@ -11,14 +11,6 @@ namespace Gameplay
   {
     public void Install(IContainerBuilder builder)
     {
-      builder.Register<IEcsSystem, InputSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CheckInputJumpSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CheckInputRollSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CheckInputMoveSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CheckInputHurtSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CheckInputAttackSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CheckInputBlockSystem>(Lifetime.Scoped);
-      
       builder.Register<IEcsSystem, CanvasInitSystem>(Lifetime.Scoped);
 
       builder.Register<IEcsSystem, CreateGameLevelViewSystem>(Lifetime.Scoped);
@@ -39,6 +31,14 @@ namespace Gameplay
 
       builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);////////
 
+      builder.Register<IEcsSystem, InputSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckInputJumpSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckInputRollSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckInputMoveSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckInputHurtSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckInputAttackSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckInputBlockSystem>(Lifetime.Scoped);
+      
       builder.Register<IEcsSystem, BoxInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);

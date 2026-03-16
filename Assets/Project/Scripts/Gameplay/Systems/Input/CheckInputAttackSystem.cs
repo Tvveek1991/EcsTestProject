@@ -41,11 +41,11 @@ namespace Project.Scripts.Gameplay.Systems.Input
         private void AttachAttackComponent()
         {
             foreach (var input in m_inputFilter)
-            foreach (var personIndex in m_readyToAttackFilter)
+            foreach (var entity in m_readyToAttackFilter)
             {
                 if (!m_inputPool.Get(input).IsAttack) continue;
 
-                m_attackPool.Add(personIndex);
+                m_attackPool.Add(entity);
             }
         }
 

@@ -37,12 +37,10 @@ namespace Project.Scripts.Gameplay.Systems
             m_hitFilter = m_world.Filter<ObjectViewComponent>().Inc<Health>()
                 .Exc<HurtCommand>().End();
             m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<AttackCheckComponent>().Inc<SpriteRendererKeeper>().End();
-
-            m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
-            
-            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
             
             m_healthPool = m_world.GetPool<Health>();
+            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
+            m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
             m_spriteRendererPool = m_world.GetPool<SpriteRendererKeeper>();
         }
 
