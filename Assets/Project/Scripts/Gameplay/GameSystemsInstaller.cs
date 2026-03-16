@@ -1,6 +1,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay;
 using Project.Scripts.Gameplay.Systems;
+using Project.Scripts.Gameplay.Systems.Input;
 using VContainer;
 using VContainer.Unity;
 
@@ -11,6 +12,7 @@ namespace Gameplay
     public void Install(IContainerBuilder builder)
     {
       builder.Register<IEcsSystem, InputSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckPlayerInputSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, CanvasInitSystem>(Lifetime.Scoped);
 
@@ -35,12 +37,11 @@ namespace Gameplay
       builder.Register<IEcsSystem, BoxInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);////
+      
+      builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, HealthViewFollowSystem>(Lifetime.Scoped);
       
-      builder.Register<IEcsSystem, PersonConnectSensorsInitSystem>(Lifetime.Scoped);
-      
-      builder.Register<IEcsSystem, CheckPlayerInputSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonConnectSensorsInitSystem>(Lifetime.Scoped);////
       
       builder.Register<IEcsSystem, FlipHeroViewSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, JumpSystem>(Lifetime.Scoped);

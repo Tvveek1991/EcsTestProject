@@ -5,6 +5,7 @@ using Project.Scripts.Gameplay.Services.CoinsCounterService;
 using Project.Scripts.Gameplay.Services.CoinsService;
 using Project.Scripts.Gameplay.Services.FinishViewService;
 using Project.Scripts.Gameplay.Services.GameLevelService;
+using Project.Scripts.Gameplay.Services.HealthViewService;
 using Project.Scripts.Gameplay.Services.PersonService;
 using Project.Scripts.Gameplay.Services.TutorialService;
 using VContainer;
@@ -22,11 +23,12 @@ namespace Gameplay
       
       builder.Register<ICoinsService, CoinsService>(Lifetime.Scoped);
       builder.Register<IObjectsService, ObjectsService>(Lifetime.Scoped);
-      builder.Register<IPersonViewService, PersonViewService>(Lifetime.Scoped);
-      
-      builder.Register<ITutorialService, TutorialService>(Lifetime.Scoped);
       builder.Register<IGameLevelService, GameLevelService>(Lifetime.Scoped);
+      builder.Register<IPersonViewService, PersonViewService>(Lifetime.Scoped);
+
+      builder.Register<ITutorialService, TutorialService>(Lifetime.Scoped);
       builder.Register<IFinishViewService, FinishViewService>(Lifetime.Scoped);
+      builder.Register<IHealthViewService, HealthViewService>(Lifetime.Scoped);
       builder.Register<ICoinsCounterService, CoinsCounterService>(Lifetime.Scoped);
     }
   }

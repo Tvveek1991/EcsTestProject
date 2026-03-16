@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Services.HealthViewService;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -9,6 +10,8 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private const float FADE_DURATION = .15f;
         private const float SLIDER_CHANGE_DURATION = .25f;
+        
+        private readonly IHealthViewService m_healthViewService;
 
         private EcsWorld m_world;
 
@@ -16,10 +19,14 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_healHealthFilter;
 
         private EcsPool<Health> m_healthPool;
-        private EcsPool<HealthViewComponent> m_healthViewPool;
         private EcsPool<HurtCommand> m_hurtCommandPool;
         private EcsPool<HealCommand> m_healCommandPool;
 
+        public HealthViewChangeSystem(IHealthViewService healthViewService)
+        {
+            m_healthViewService = healthViewService;
+        }
+        
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
@@ -28,7 +35,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_healHealthFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
 
             m_healthPool = m_world.GetPool<Health>();
-            m_healthViewPool = m_world.GetPool<HealthViewComponent>();
             m_hurtCommandPool = m_world.GetPool<HurtCommand>();
             m_healCommandPool = m_world.GetPool<HealCommand>();
         }
@@ -65,14 +71,15 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_healHealthFilter)
             {
                 ref Health health = ref m_healthPool.Get(entity);
-                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntity);
+                
+                if(!m_healthViewService.Views.TryGetValue(health.ViewEntity, out var view))
+                    continue;
 
-                var healthView = healthViewComponent.HealthView;
-                healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
+                view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
                     .OnComplete(() =>
                     {
-                        if (healthView.HealthBar.value >= healthView.HealthBar.maxValue)
-                            healthView.CanvasGroup.DOFade(0f, FADE_DURATION);
+                        if (view.HealthBar.value >= view.HealthBar.maxValue)
+                            view.CanvasGroup.DOFade(0f, FADE_DURATION);
                     });
             }
         }
@@ -82,16 +89,20 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_hitHealthFilter)
             {
                 Health health = m_healthPool.Get(entity);
-                ref HealthViewComponent healthViewComponent = ref m_healthViewPool.Get(health.ViewEntity);
+                
+                if(!m_healthViewService.Views.TryGetValue(health.ViewEntity, out var view))
+                    continue;
 
-                var healthView = healthViewComponent.HealthView;
-                if (healthView.CanvasGroup.alpha <= 0)
-                    healthView.CanvasGroup.DOFade(1f, FADE_DURATION);
+                if (view.CanvasGroup.alpha <= 0)
+                    view.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-                healthView.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION).OnComplete(() =>
+                view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION).OnComplete(() =>
                 {
-                    if (health.Count <= 0)
-                        Object.Destroy(healthView.gameObject);
+                    if (health.Count > 0)
+                        return;
+                    
+                    m_healthViewService.RemoveView(health.ViewEntity);
+                    Object.Destroy(view.gameObject);
                 });
             }
         }

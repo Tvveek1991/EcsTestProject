@@ -1,5 +1,6 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Components.Input;
 
 namespace Project.Scripts.Gameplay.Systems
 {

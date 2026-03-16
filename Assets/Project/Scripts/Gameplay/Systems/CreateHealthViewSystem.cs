@@ -2,6 +2,7 @@
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.CanvasService;
+using Project.Scripts.Gameplay.Services.HealthViewService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -12,18 +13,19 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsWorld m_world;
 
         private EcsFilter m_healthFilter;
-        private EcsFilter m_healthViewFilter;
 
         private EcsPool<Health> m_healthPool;
         private EcsPool<HealthViewComponent> m_healthViewPool;
 
         private readonly HealthView m_healthViewPrefab;
         private readonly ICanvasService m_canvasService;
+        private readonly IHealthViewService m_healthViewService;
 
-        public HealthViewInitSystem(HealthView healthViewPrefab, ICanvasService canvasService)
+        public HealthViewInitSystem(HealthView healthViewPrefab, IHealthViewService healthViewService, ICanvasService canvasService)
         {
             m_canvasService = canvasService;
             m_healthViewPrefab = healthViewPrefab;
+            m_healthViewService = healthViewService;
         }
         
         public void Init(IEcsSystems systems)
@@ -31,7 +33,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
             
             m_healthFilter = m_world.Filter<Health>().End();
-            m_healthViewFilter = m_world.Filter<HealthViewComponent>().End();
 
             m_healthPool = m_world.GetPool<Health>();
             m_healthViewPool = m_world.GetPool<HealthViewComponent>();
@@ -44,8 +45,8 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Destroy(IEcsSystems systems)
         {
-            foreach (var healthViewEntity in m_healthViewFilter)
-                Object.Destroy(m_healthViewPool.Get(healthViewEntity).HealthView);
+            /*foreach (var healthViewEntity in m_healthViewFilter)
+                Object.Destroy(m_healthViewPool.Get(healthViewEntity).HealthView);*/
         }
 
         private void CreateHealthView()
@@ -60,20 +61,16 @@ namespace Project.Scripts.Gameplay.Systems
                 
                 var spawnPoint = m_canvasService.Canvas.transform;
                     
-                var healthView = Object.Instantiate(m_healthViewPrefab, spawnPoint).GetComponent<HealthView>();
+                var healthView = Object.Instantiate(m_healthViewPrefab, spawnPoint);
                 SetViewOptions(healthView, health);
 
-                AttacheHealthViewComponent(newEntity, healthView);
+                m_healthViewService.AddHealthView(newEntity, healthView);
+                
+                m_healthViewPool.Add(newEntity);
                 AttachTransformComponent(newEntity, healthView.transform);
                 
                 health.ViewEntity = newEntity;
             }
-        }
-
-        private void AttacheHealthViewComponent(int newEntity, HealthView healthView)
-        {
-            ref HealthViewComponent view = ref m_healthViewPool.Add(newEntity);
-            view.HealthView = healthView;
         }
 
         private void AttachTransformComponent(int entity, Transform attachedTransform)

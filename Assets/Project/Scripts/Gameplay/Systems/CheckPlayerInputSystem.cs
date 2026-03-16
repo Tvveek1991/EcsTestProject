@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Components.Input;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems

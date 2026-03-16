@@ -34,7 +34,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_hitFilter = m_world.Filter<ObjectViewRef>().Inc<Health>()
+            m_hitFilter = m_world.Filter<ObjectViewComponent>().Inc<Health>()
                 .Exc<HurtCommand>().End();
             m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<AttackCheckComponent>().Inc<SpriteRendererKeeper>().End();
 

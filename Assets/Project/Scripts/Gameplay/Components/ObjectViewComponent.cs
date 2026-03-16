@@ -1,4 +1,4 @@
 namespace Project.Scripts.Gameplay.Components
 {
-    public struct ObjectViewRef { }
+    public struct ObjectViewComponent { }
 }

@@ -72,7 +72,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void AttachComponents(int entity, ObjectView view)
         {
-            m_world.GetPool<ObjectViewRef>().Add(entity);
+            m_world.GetPool<ObjectViewComponent>().Add(entity);
             m_world.GetPool<PlayableObject>().Add(entity);
             
             AttachTransformComponent();
