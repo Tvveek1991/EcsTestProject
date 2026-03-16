@@ -9,5 +9,6 @@ namespace Project.Scripts.Gameplay.Data
         public float Speed = 4.0f;
         public float JumpForce = 7.5f;
         public float RollForce = 6.0f;
+        public float TimeToRepeatAttack = .25f;
     }
 }

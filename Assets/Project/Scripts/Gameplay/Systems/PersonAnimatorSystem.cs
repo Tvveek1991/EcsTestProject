@@ -23,7 +23,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsWorld m_world;
 
-        private EcsFilter m_hurtCommandFilter;
+        private EcsFilter m_hitCommandFilter;
         private EcsFilter m_deadCommandFilter;
         private EcsFilter m_blockFilter;
         private EcsFilter m_outOfBlockFilter;
@@ -56,7 +56,7 @@ namespace Project.Scripts.Gameplay.Systems
         private void SetFilters()
         {
             m_deadCommandFilter = m_world.Filter<Person>().Inc<AnimatorKeeper>().Inc<DeadCommand>().End();
-            m_hurtCommandFilter = m_world.Filter<AnimatorKeeper>().Inc<HurtCommand>()
+            m_hitCommandFilter = m_world.Filter<AnimatorKeeper>().Inc<HitCommand>()
                 .Exc<DeadCommand>().Exc<Dead>().End();
 
             m_wallCheckFilter = m_world.Filter<AnimatorKeeper>().Inc<WallCheck>()
@@ -176,10 +176,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var personIndex in m_attackFilter)
             {
-                if (!m_attackPool.Get(personIndex).IsAnimate) continue;
+                if (!m_attackPool.Get(personIndex).IsActive) continue;
 
                 m_animatorPool.Get(personIndex).AnimatorController.SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personIndex).CurrentAttackIndex}");
-                m_attackPool.Get(personIndex).IsAnimate = false;
+                m_attackPool.Get(personIndex).IsActive = false;
             }
         }
 
@@ -194,7 +194,7 @@ namespace Project.Scripts.Gameplay.Systems
         
         private void CheckHurtAnimation()
         {
-            foreach (var index in m_hurtCommandFilter)
+            foreach (var index in m_hitCommandFilter)
             {
                 m_animatorPool.Get(index).AnimatorController.SetTrigger(m_hurt);
             }

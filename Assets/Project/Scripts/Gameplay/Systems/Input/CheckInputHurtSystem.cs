@@ -12,7 +12,7 @@ namespace Project.Scripts.Gameplay.Systems.Input
         private EcsFilter m_inputFilter;
 
         private EcsPool<InputComponent> m_inputPool;
-        private EcsPool<HurtCommand> m_hurtCommandPool;
+        private EcsPool<HitCommand> m_hitCommandPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -20,10 +20,10 @@ namespace Project.Scripts.Gameplay.Systems.Input
 
             m_inputFilter = m_world.Filter<InputComponent>().End(1);
             m_hitFilter = m_world.Filter<Player>().Inc<Health>()
-                .Exc<HurtCommand>().End(1);
+                .Exc<HitCommand>().End(1);
 
             m_inputPool = m_world.GetPool<InputComponent>();
-            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
+            m_hitCommandPool = m_world.GetPool<HitCommand>();
         }
 
         public void Run(IEcsSystems systems)
@@ -40,7 +40,7 @@ namespace Project.Scripts.Gameplay.Systems.Input
             foreach (var hitEntity in m_hitFilter)
             {
                 if (m_inputPool.Get(input).IsHurt) 
-                    m_hurtCommandPool.Add(hitEntity).HitValue = 25;
+                    m_hitCommandPool.Add(hitEntity).HitValue = 25;
             }
         }
         

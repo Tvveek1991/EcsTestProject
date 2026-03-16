@@ -2,7 +2,7 @@
 {
     public struct Attack
     {
-        public bool IsAnimate;
+        public bool IsActive;
         public float TimeSinceAttack;
         public int CurrentAttackIndex;
     }

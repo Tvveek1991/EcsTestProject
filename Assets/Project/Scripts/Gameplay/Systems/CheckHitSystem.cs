@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CheckAttackSystem : IEcsInitSystem, IEcsRunSystem
+    public class CheckHitSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly IPersonViewService m_personViewService;
         private readonly IObjectsService m_objectsService;
@@ -19,12 +19,12 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_hitFilter;
         private EcsFilter m_attackedPersonFilter;
 
+        private EcsPool<Attack> m_attackPool;
         private EcsPool<Health> m_healthPool;
-        private EcsPool<HurtCommand> m_hurtCommandPool;
-        private EcsPool<AttackCheckComponent> m_attackCheckPool;
+        private EcsPool<HitCommand> m_hitCommandPool;
         private EcsPool<SpriteRendererKeeper> m_spriteRendererPool;
 
-        public CheckAttackSystem(IPersonViewService personViewService, IObjectsService objectsService)
+        public CheckHitSystem(IPersonViewService personViewService, IObjectsService objectsService)
         {
             m_objectsService = objectsService;
             m_personViewService = personViewService;
@@ -35,12 +35,12 @@ namespace Project.Scripts.Gameplay.Systems
             m_world = systems.GetWorld();
 
             m_hitFilter = m_world.Filter<ObjectViewComponent>().Inc<Health>()
-                .Exc<HurtCommand>().End();
-            m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<AttackCheckComponent>().Inc<SpriteRendererKeeper>().End();
-            
+                .Exc<HitCommand>().End();
+            m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<Attack>().Inc<SpriteRendererKeeper>().End();
+
+            m_attackPool = m_world.GetPool<Attack>();
             m_healthPool = m_world.GetPool<Health>();
-            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
-            m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
+            m_hitCommandPool = m_world.GetPool<HitCommand>();
             m_spriteRendererPool = m_world.GetPool<SpriteRendererKeeper>();
         }
 
@@ -51,17 +51,18 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CheckAttackedObject()
         {
-            foreach (var person in m_attackedPersonFilter)
+            foreach (var entity in m_attackedPersonFilter)
             {
-                m_attackCheckPool.Del(person);
+                if(!m_attackPool.Get(entity).IsActive)
+                    continue;
                 
-                var personView = m_personViewService.GetPersonViewByEntity(person);
+                var personView = m_personViewService.GetPersonViewByEntity(entity);
                 
                 if(personView == null)
                     continue;
                 
                 var checkerTr = personView.GetCheckerSpawnPoint();
-                var direction = m_spriteRendererPool.Get(person).SpriteRenderer.flipX ? Vector3.left : Vector3.right;
+                var direction = m_spriteRendererPool.Get(entity).SpriteRenderer.flipX ? Vector3.left : Vector3.right;
 
                 int layerMask = LayerMask.GetMask(LAYER_NAME);
                 RaycastHit2D hit = Physics2D.Raycast(checkerTr.position, direction, MAX_DISTANCE, layerMask);
@@ -80,7 +81,7 @@ namespace Project.Scripts.Gameplay.Systems
                             if(m_healthPool.Get(hitObject).Count <= 0)
                                 return;
                             
-                            m_hurtCommandPool.Add(hitObject).HitValue = 10;
+                            m_hitCommandPool.Add(hitObject).HitValue = 10;
                             
                             // Debug.Log("Объект обнаружен: " + hit.collider.gameObject.name);
                             

@@ -19,7 +19,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_healHealthFilter;
 
         private EcsPool<Health> m_healthPool;
-        private EcsPool<HurtCommand> m_hurtCommandPool;
+        private EcsPool<HitCommand> m_hitCommandPool;
         private EcsPool<HealCommand> m_healCommandPool;
 
         public HealthViewChangeSystem(IHealthViewService healthViewService)
@@ -31,11 +31,11 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_hitHealthFilter = m_world.Filter<Health>().Inc<HurtCommand>().End();
+            m_hitHealthFilter = m_world.Filter<Health>().Inc<HitCommand>().End();
             m_healHealthFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
 
             m_healthPool = m_world.GetPool<Health>();
-            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
+            m_hitCommandPool = m_world.GetPool<HitCommand>();
             m_healCommandPool = m_world.GetPool<HealCommand>();
         }
 
@@ -62,7 +62,7 @@ namespace Project.Scripts.Gameplay.Systems
                     m_world.DelEntity(viewEntity);
                 }
                 
-                m_hurtCommandPool.Del(entity);
+                m_hitCommandPool.Del(entity);
             }
         }
 

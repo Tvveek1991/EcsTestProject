@@ -1,11 +1,13 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Components.Input;
+using Project.Scripts.Gameplay.Data;
 
 namespace Project.Scripts.Gameplay.Systems.Input
 {
     public class CheckInputAttackSystem: IEcsInitSystem, IEcsRunSystem
     {
+        private readonly PersonData m_personData;
         private EcsWorld m_world;
     
         private EcsFilter m_inputFilter;
@@ -14,6 +16,11 @@ namespace Project.Scripts.Gameplay.Systems.Input
         
         private EcsPool<InputComponent> m_inputPool;
         private EcsPool<Attack> m_attackPool;
+
+        public CheckInputAttackSystem(PersonData personData)
+        {
+            m_personData = personData;
+        }
         
         public void Init(IEcsSystems systems)
         {
@@ -45,7 +52,10 @@ namespace Project.Scripts.Gameplay.Systems.Input
             {
                 if (!m_inputPool.Get(input).IsAttack) continue;
 
-                m_attackPool.Add(entity);
+                ref var attack = ref m_attackPool.Add(entity);
+                    
+                attack.IsActive = true;
+                attack.TimeSinceAttack = m_personData.TimeToRepeatAttack;
             }
         }
 
@@ -54,11 +64,15 @@ namespace Project.Scripts.Gameplay.Systems.Input
             foreach (var input in m_inputFilter)
             foreach (var entity in m_attackFilter)
             {
-                if (!m_inputPool.Get(input).IsAttack) continue;
+                if (!m_inputPool.Get(input).IsAttack) 
+                    continue;
 
                 ref Attack attack = ref m_attackPool.Get(entity);
-                attack.IsAnimate = true;
-                attack.TimeSinceAttack = .3f;
+
+                if (attack.TimeSinceAttack < m_personData.TimeToRepeatAttack)
+                    continue;
+                
+                attack.IsActive = true;
             }
         }
         

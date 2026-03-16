@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 906d5e62729aded49921433ae182dea9, type: 3}
   m_Name: Person Data
   m_EditorClassIdentifier: 
+  FullHealth: 100
   Speed: 4
   JumpForce: 7.5
   RollForce: 6
-  GroundSensorOffset: 0.07
+  TimeToRepeatAttack: 0.4

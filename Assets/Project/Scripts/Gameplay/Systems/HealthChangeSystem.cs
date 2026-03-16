@@ -14,7 +14,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_healHealthViewFilter;
         
         private EcsPool<Health> m_healthPool;
-        private EcsPool<HurtCommand> m_hurtCommandPool;
+        private EcsPool<HitCommand> m_hitCommandPool;
         private EcsPool<HealCommand> m_healCommandPool;
 
         public HealthChangeSystem(PersonData personData)
@@ -26,11 +26,11 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_hitHealthViewFilter = m_world.Filter<Health>().Inc<HurtCommand>().End();
+            m_hitHealthViewFilter = m_world.Filter<Health>().Inc<HitCommand>().End();
             m_healHealthViewFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
 
             m_healthPool = m_world.GetPool<Health>();
-            m_hurtCommandPool = m_world.GetPool<HurtCommand>();
+            m_hitCommandPool = m_world.GetPool<HitCommand>();
             m_healCommandPool = m_world.GetPool<HealCommand>();
         }
 
@@ -62,9 +62,9 @@ namespace Project.Scripts.Gameplay.Systems
             foreach (var entity in m_hitHealthViewFilter)
             {
                 ref Health health = ref m_healthPool.Get(entity);
-                ref HurtCommand hurtCommand = ref m_hurtCommandPool.Get(entity);
+                ref HitCommand hitCommand = ref m_hitCommandPool.Get(entity);
 
-                int hitDamageValue = hurtCommand.HitValue;
+                int hitDamageValue = hitCommand.HitValue;
 
                 health.Count -= hitDamageValue;
                 health.Count = health.Count < 0 ? 0 : health.Count;

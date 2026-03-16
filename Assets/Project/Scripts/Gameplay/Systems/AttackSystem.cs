@@ -1,5 +1,6 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Data;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -7,14 +8,13 @@ namespace Project.Scripts.Gameplay.Systems
     public class AttackSystem : IEcsInitSystem, IEcsRunSystem
     {
         private const float TIME_TO_REMOVE_COMPONENT = 2f;
-        
+
         private EcsWorld m_world;
 
         private EcsFilter m_attackFilter;
 
         private EcsPool<Attack> m_attackPool;
-        private EcsPool<AttackCheckComponent> m_attackCheckPool;
-
+        
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
@@ -22,7 +22,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_attackFilter = m_world.Filter<Person>().Inc<Attack>().End();
 
             m_attackPool = m_world.GetPool<Attack>();
-            m_attackCheckPool = m_world.GetPool<AttackCheckComponent>();
         }
 
         public void Run(IEcsSystems systems)
@@ -37,11 +36,9 @@ namespace Project.Scripts.Gameplay.Systems
                 ref Attack attack = ref m_attackPool.Get(entity);
                 attack.TimeSinceAttack += Time.deltaTime;
 
-                if (attack.IsAnimate && attack.TimeSinceAttack > 0.25f)
+                if (attack.IsActive)
                 {
                     attack.CurrentAttackIndex++;
-
-                    m_attackCheckPool.Add(entity);
 
                     if (attack.CurrentAttackIndex > 3)
                         attack.CurrentAttackIndex = 1;
