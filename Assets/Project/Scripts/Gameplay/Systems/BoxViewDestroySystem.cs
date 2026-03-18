@@ -14,8 +14,10 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsWorld m_world;
 
-        private EcsFilter m_filter;
+        private EcsFilter m_deadFilter;
+        private EcsFilter m_deadCommandFilter;
 
+        private EcsPool<Health> m_healthPool;
         private EcsPool<DeadCommand> m_deadCommandPool;
         private EcsPool<TransformKeeper> m_transformPool;
 
@@ -29,20 +31,22 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
             
-            m_filter = m_world.Filter<DeadCommand>().Inc<TransformKeeper>().Inc<ObjectViewComponent>().End();
+            m_deadFilter = m_world.Filter<Health>().Inc<Dead>().End();
+            m_deadCommandFilter = m_world.Filter<DeadCommand>().Inc<TransformKeeper>().Inc<ObjectViewComponent>().End();
 
+            m_healthPool = m_world.GetPool<Health>();
             m_deadCommandPool = m_world.GetPool<DeadCommand>();
             m_transformPool = m_world.GetPool<TransformKeeper>();
         }
 
         public void Run(IEcsSystems systems)
         {
-            foreach (var entity in m_filter)
+            foreach (var entity in m_deadCommandFilter)
             {
                 if(!m_objectsService.Views.TryGetValue(entity, out var view))
                     continue;
 
-                var deadCommand = m_deadCommandPool.Get(entity);
+                ref var deadCommand = ref m_deadCommandPool.Get(entity);
                 if(deadCommand.ObjectViewDestroyedStatus != ProcessStatus.Ready)
                     continue;
                 
@@ -56,18 +60,25 @@ namespace Project.Scripts.Gameplay.Systems
                         objectTransform.DOKill();
                         Object.Destroy(particles.gameObject);
                         Object.Destroy(view.gameObject);
-                        m_objectsService.RemoveView(entity);
 
-                        deadCommand.ObjectViewDestroyedStatus = ProcessStatus.Completed;
+                        m_deadCommandPool.Get(entity).ObjectViewDestroyedStatus = ProcessStatus.Completed;
                     });
             }
         }
         
         public void PostRun(IEcsSystems systems)
         {
-            /*foreach (var entity in m_filter)
+            /*foreach (var entity in m_deadFilter)
             {
-                // m_world.DelEntity(entity);
+                ref Health health = ref m_healthPool.Get(entity);
+                
+                if (!m_objectsService.Views.TryGetValue(health.ViewEntity, out var view))
+                    continue;
+                
+                m_objectsService.RemoveView(entity);
+                Object.Destroy(view.gameObject);
+                
+                m_world.DelEntity(entity);
             }*/
         }
     }

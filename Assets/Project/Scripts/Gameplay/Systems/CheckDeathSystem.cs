@@ -41,11 +41,11 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref var deadCommand = ref m_deadCommandPool.Get(deadEntity);
 
-                if (deadCommand.HealthViewDestroyedStatus != ProcessStatus.Completed || deadCommand.ObjectViewDestroyedStatus != ProcessStatus.Completed) 
+                if (deadCommand.ObjectViewDestroyedStatus != ProcessStatus.Completed) 
                     continue;
-                
-                m_deadPool.Add(deadEntity);
+
                 m_deadCommandPool.Del(deadEntity);
+                m_deadPool.Add(deadEntity);
             }
         }
 
@@ -58,10 +58,8 @@ namespace Project.Scripts.Gameplay.Systems
                 if (health.Count <= 0)
                 {
                     ref var commandPool = ref m_deadCommandPool.Add(entity);
-                    commandPool.HealthViewDestroyedStatus = ProcessStatus.Ready;
                     commandPool.ObjectViewDestroyedStatus = ProcessStatus.Ready;
                 }
-                    
             }
         }
     }
