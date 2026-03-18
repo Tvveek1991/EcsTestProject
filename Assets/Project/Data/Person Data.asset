@@ -16,4 +16,4 @@ MonoBehaviour:
   Speed: 4
   JumpForce: 7.5
   RollForce: 6
-  TimeToRepeatAttack: 0.4
+  TimeToRepeatAttack: 0.1

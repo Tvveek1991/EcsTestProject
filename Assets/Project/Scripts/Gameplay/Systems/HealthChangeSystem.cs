@@ -52,8 +52,6 @@ namespace Project.Scripts.Gameplay.Systems
 
                 health.Count += addHealthValue;
                 health.Count = health.Count > maxHealthValue ? maxHealthValue : health.Count;
-
-                m_healCommandPool.Del(entity);
             }
         }
 

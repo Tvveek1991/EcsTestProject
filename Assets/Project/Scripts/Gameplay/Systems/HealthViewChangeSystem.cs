@@ -47,11 +47,6 @@ namespace Project.Scripts.Gameplay.Systems
         
         public void PostRun(IEcsSystems systems)
         {
-            foreach (var entity in m_healHealthFilter)
-            {
-                m_healCommandPool.Del(entity);
-            }
-            
             foreach (var entity in m_hitHealthFilter)
             {
                 Health health = m_healthPool.Get(entity);
@@ -61,8 +56,6 @@ namespace Project.Scripts.Gameplay.Systems
                 {
                     m_world.DelEntity(viewEntity);
                 }
-                
-                m_hitCommandPool.Del(entity);
             }
         }
 
@@ -81,6 +74,8 @@ namespace Project.Scripts.Gameplay.Systems
                         if (view.HealthBar.value >= view.HealthBar.maxValue)
                             view.CanvasGroup.DOFade(0f, FADE_DURATION);
                     });
+                
+                m_healCommandPool.Del(entity);
             }
         }
 
@@ -104,6 +99,8 @@ namespace Project.Scripts.Gameplay.Systems
                     m_healthViewService.RemoveView(health.ViewEntity);
                     Object.Destroy(view.gameObject);
                 });
+                
+                m_hitCommandPool.Del(entity);
             }
         }
     }

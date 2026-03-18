@@ -16,7 +16,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_filter;
 
         private EcsPool<TransformKeeper> m_transformPool;
-        private EcsPool<ObjectViewComponent> m_objectViewRefPool;
 
         public CheckDestroyedParticlesSystem(GameObject destroyedParticles, IObjectsService objectsService)
         {
@@ -31,7 +30,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_filter = m_world.Filter<DeadCommand>().Inc<TransformKeeper>().Inc<ObjectViewComponent>().End();
 
             m_transformPool = m_world.GetPool<TransformKeeper>();
-            m_objectViewRefPool = m_world.GetPool<ObjectViewComponent>();
         }
 
         public void Run(IEcsSystems systems)
