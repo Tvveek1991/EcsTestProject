@@ -2,11 +2,10 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.HealthViewService;
-using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class HealthViewChangeSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
+    public class HealthViewChangeSystem : IEcsInitSystem, IEcsRunSystem
     {
         private const float FADE_DURATION = .15f;
         private const float SLIDER_CHANGE_DURATION = .25f;
@@ -44,27 +43,6 @@ namespace Project.Scripts.Gameplay.Systems
             ShowHeal();
             ShowHurt();
         }
-        
-        public void PostRun(IEcsSystems systems)
-        {
-            foreach (var entity in m_healHealthFilter)
-            {
-                m_healCommandPool.Del(entity);
-            }
-            
-            foreach (var entity in m_hitHealthFilter)
-            {
-                Health health = m_healthPool.Get(entity);
-                int viewEntity = health.ViewEntity;
-                
-                if (health.Count <= 0)
-                {
-                    m_world.DelEntity(viewEntity);
-                }
-                
-                m_hitCommandPool.Del(entity);
-            }
-        }
 
         private void ShowHeal()
         {
@@ -81,6 +59,8 @@ namespace Project.Scripts.Gameplay.Systems
                         if (view.HealthBar.value >= view.HealthBar.maxValue)
                             view.CanvasGroup.DOFade(0f, FADE_DURATION);
                     });
+                
+                m_healCommandPool.Del(entity);
             }
         }
 
@@ -96,14 +76,9 @@ namespace Project.Scripts.Gameplay.Systems
                 if (view.CanvasGroup.alpha <= 0)
                     view.CanvasGroup.DOFade(1f, FADE_DURATION);
 
-                view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION).OnComplete(() =>
-                {
-                    if (health.Count > 0)
-                        return;
-                    
-                    m_healthViewService.RemoveView(health.ViewEntity);
-                    Object.Destroy(view.gameObject);
-                });
+                view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION);
+                
+                m_hitCommandPool.Del(entity);
             }
         }
     }

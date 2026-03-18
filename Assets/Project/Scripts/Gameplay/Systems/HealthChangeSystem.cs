@@ -9,10 +9,10 @@ namespace Project.Scripts.Gameplay.Systems
         private readonly PersonData m_personData;
         
         private EcsWorld m_world;
-        
+
         private EcsFilter m_hitHealthViewFilter;
         private EcsFilter m_healHealthViewFilter;
-        
+
         private EcsPool<Health> m_healthPool;
         private EcsPool<HitCommand> m_hitCommandPool;
         private EcsPool<HealCommand> m_healCommandPool;
@@ -52,8 +52,6 @@ namespace Project.Scripts.Gameplay.Systems
 
                 health.Count += addHealthValue;
                 health.Count = health.Count > maxHealthValue ? maxHealthValue : health.Count;
-
-                m_healCommandPool.Del(entity);
             }
         }
 

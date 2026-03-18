@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class HealthViewInitSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
+    public class HealthViewInitSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld m_world;
 
@@ -43,17 +43,11 @@ namespace Project.Scripts.Gameplay.Systems
             CreateHealthView();
         }
 
-        public void Destroy(IEcsSystems systems)
-        {
-            /*foreach (var healthViewEntity in m_healthViewFilter)
-                Object.Destroy(m_healthViewPool.Get(healthViewEntity).HealthView);*/
-        }
-
         private void CreateHealthView()
         {
-            foreach (var readyToHealthViewEntity in m_healthFilter)
+            foreach (var entity in m_healthFilter)
             {
-                ref Health health = ref m_healthPool.Get(readyToHealthViewEntity);
+                ref Health health = ref m_healthPool.Get(entity);
                 if(health.ViewEntity != 0)
                     continue;
                 

@@ -1,37 +1,38 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using Gameplay.Services.ObjectsService;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Serializabled;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CheckDestroyedParticlesSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
+    public class BoxViewDestroySystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
-        private readonly GameObject m_destroyedParticlesPrefab;
+        private readonly GameObject m_destroyParticlesPrefab;
         private readonly IObjectsService m_objectsService;
 
         private EcsWorld m_world;
 
         private EcsFilter m_filter;
 
+        private EcsPool<DeadCommand> m_deadCommandPool;
         private EcsPool<TransformKeeper> m_transformPool;
-        private EcsPool<ObjectViewComponent> m_objectViewRefPool;
 
-        public CheckDestroyedParticlesSystem(GameObject destroyedParticles, IObjectsService objectsService)
+        public BoxViewDestroySystem(GameObject destroyParticlesPrefab, IObjectsService objectsService)
         {
             m_objectsService = objectsService;
-            m_destroyedParticlesPrefab = destroyedParticles;
+            m_destroyParticlesPrefab = destroyParticlesPrefab;
         }
-
+        
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
-
+            
             m_filter = m_world.Filter<DeadCommand>().Inc<TransformKeeper>().Inc<ObjectViewComponent>().End();
 
+            m_deadCommandPool = m_world.GetPool<DeadCommand>();
             m_transformPool = m_world.GetPool<TransformKeeper>();
-            m_objectViewRefPool = m_world.GetPool<ObjectViewComponent>();
         }
 
         public void Run(IEcsSystems systems)
@@ -40,8 +41,12 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 if(!m_objectsService.Views.TryGetValue(entity, out var view))
                     continue;
+
+                var deadCommand = m_deadCommandPool.Get(entity);
+                if(deadCommand.ObjectViewDestroyedStatus != ProcessStatus.Ready)
+                    continue;
                 
-                var particles = Object.Instantiate(m_destroyedParticlesPrefab, view.GetDestroyParticlesPoint().position, Quaternion.identity, null);
+                var particles = Object.Instantiate(m_destroyParticlesPrefab, view.GetDestroyParticlesPoint().position, Quaternion.identity, null);
 
                 var objectTransform = m_transformPool.Get(entity).ObjectTransform;
                 objectTransform.DOScale(0, .25f)
@@ -51,16 +56,18 @@ namespace Project.Scripts.Gameplay.Systems
                         Object.Destroy(particles.gameObject);
                         Object.Destroy(view.gameObject);
                         m_objectsService.RemoveView(entity);
+
+                        deadCommand.ObjectViewDestroyedStatus = ProcessStatus.Completed;
                     });
             }
         }
-
+        
         public void PostRun(IEcsSystems systems)
         {
-            foreach (var entity in m_filter)
+            /*foreach (var entity in m_filter)
             {
-                m_world.DelEntity(entity);
-            }
+                // m_world.DelEntity(entity);
+            }*/
         }
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class BoxInitSystem : IEcsInitSystem, IEcsDestroySystem
+    public class BoxViewInitSystem : IEcsInitSystem, IEcsDestroySystem
     {
         private const string BoxParentName = "Boxes";
 
@@ -25,7 +25,7 @@ namespace Project.Scripts.Gameplay.Systems
         private GameObject m_parentObject;
         private List<Transform> m_boxSpawnPoints;
 
-        public BoxInitSystem(ObjectView objectViewPrefab, IObjectsService objectsService, IGameLevelService gameLevelService)
+        public BoxViewInitSystem(ObjectView objectViewPrefab, IObjectsService objectsService, IGameLevelService gameLevelService)
         {
             m_objectsService = objectsService;
             m_objectViewPrefab = objectViewPrefab;

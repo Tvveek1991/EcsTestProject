@@ -1,24 +1,25 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Serializabled;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CheckDeathSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld m_world;
-        
-        private EcsFilter m_healthFilter;
+
+        private EcsFilter m_waitingDeadFilter;
         private EcsFilter m_afterDeadFilter;
 
         private EcsPool<Dead> m_deadPool;
         private EcsPool<Health> m_healthPool;
         private EcsPool<DeadCommand> m_deadCommandPool;
-        
+
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
 
-            m_healthFilter = m_world.Filter<Health>()
+            m_waitingDeadFilter = m_world.Filter<Health>()
                 .Exc<DeadCommand>().Exc<Dead>().End();
             m_afterDeadFilter = m_world.Filter<Health>().Inc<DeadCommand>()
                 .Exc<Dead>().End();
@@ -30,14 +31,19 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
-            AttachDeadComponent();
             CheckDeath();
+            AttachDeadComponent();
         }
 
         private void AttachDeadComponent()
         {
             foreach (var deadEntity in m_afterDeadFilter)
             {
+                ref var deadCommand = ref m_deadCommandPool.Get(deadEntity);
+
+                if (deadCommand.HealthViewDestroyedStatus != ProcessStatus.Completed || deadCommand.ObjectViewDestroyedStatus != ProcessStatus.Completed) 
+                    continue;
+                
                 m_deadPool.Add(deadEntity);
                 m_deadCommandPool.Del(deadEntity);
             }
@@ -45,12 +51,17 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void CheckDeath()
         {
-            foreach (var healthEntity in m_healthFilter)
+            foreach (var entity in m_waitingDeadFilter)
             {
-                ref Health health = ref m_healthPool.Get(healthEntity);
+                ref Health health = ref m_healthPool.Get(entity);
 
                 if (health.Count <= 0)
-                    m_deadCommandPool.Add(healthEntity);
+                {
+                    ref var commandPool = ref m_deadCommandPool.Add(entity);
+                    commandPool.HealthViewDestroyedStatus = ProcessStatus.Ready;
+                    commandPool.ObjectViewDestroyedStatus = ProcessStatus.Ready;
+                }
+                    
             }
         }
     }

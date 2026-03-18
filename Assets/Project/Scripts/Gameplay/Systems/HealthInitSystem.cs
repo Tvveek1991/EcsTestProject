@@ -33,10 +33,10 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Run(IEcsSystems systems)
         {
-            TryAttacheHealthComponent();
+            AttacheHealthComponent();
         }
 
-        private void TryAttacheHealthComponent()
+        private void AttacheHealthComponent()
         {
             foreach (var person in m_personFilter) 
                 m_addHealthPool.Add(person).Count = m_personData.FullHealth;
