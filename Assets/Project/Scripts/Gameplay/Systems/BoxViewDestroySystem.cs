@@ -46,6 +46,7 @@ namespace Project.Scripts.Gameplay.Systems
                 if(deadCommand.ObjectViewDestroyedStatus != ProcessStatus.Ready)
                     continue;
                 
+                deadCommand.ObjectViewDestroyedStatus = ProcessStatus.Started;
                 var particles = Object.Instantiate(m_destroyParticlesPrefab, view.GetDestroyParticlesPoint().position, Quaternion.identity, null);
 
                 var objectTransform = m_transformPool.Get(entity).ObjectTransform;

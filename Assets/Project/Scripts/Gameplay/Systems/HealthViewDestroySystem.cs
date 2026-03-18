@@ -46,6 +46,8 @@ namespace Project.Scripts.Gameplay.Systems
                 if(m_deadCommandPool.Get(entity).HealthViewDestroyedStatus != ProcessStatus.Ready)
                     continue;
 
+                m_deadCommandPool.Get(entity).HealthViewDestroyedStatus = ProcessStatus.Started;
+                
                 m_healthViewService.RemoveView(health.ViewEntity);
                 Object.Destroy(view.gameObject);
                 
