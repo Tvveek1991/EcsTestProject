@@ -66,8 +66,6 @@ namespace Gameplay
       builder.Register<IEcsSystem, DestroyHealthViewSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyObjectViewSystem>(Lifetime.Scoped);
       
-      builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
-      
       builder.Register<IEcsSystem, FinishViewInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, EndGameSystem>(Lifetime.Scoped);
