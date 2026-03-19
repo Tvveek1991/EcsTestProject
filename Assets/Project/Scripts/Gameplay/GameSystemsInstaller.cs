@@ -40,7 +40,6 @@ namespace Gameplay
       builder.Register<IEcsSystem, CheckInputBlockSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, BoxViewInitSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, BoxViewDestroySystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, HealthChangeSystem>(Lifetime.Scoped); 
@@ -48,7 +47,6 @@ namespace Gameplay
       builder.Register<IEcsSystem, HealthViewInitSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, HealthViewFollowSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, HealthViewChangeSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, HealthViewDestroySystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, PersonConnectSensorsInitSystem>(Lifetime.Scoped);////
       
@@ -65,6 +63,8 @@ namespace Gameplay
 
       builder.Register<IEcsSystem, CheckDeathSystem>(Lifetime.Scoped);
       
+      builder.Register<IEcsSystem, DestroyHealthViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, DestroyBoxViewSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, FinishViewInitSystem>(Lifetime.Scoped);

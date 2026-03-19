@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class HealthViewDestroySystem : IEcsInitSystem, IEcsPostRunSystem
+    public class DestroyHealthViewSystem : IEcsInitSystem, IEcsPostRunSystem
     {
         private readonly IHealthViewService m_healthViewService;
 
@@ -15,7 +15,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<Health> m_healthPool;
 
-        public HealthViewDestroySystem(IHealthViewService healthViewService)
+        public DestroyHealthViewSystem(IHealthViewService healthViewService)
         {
             m_healthViewService = healthViewService;
         }
@@ -42,7 +42,6 @@ namespace Project.Scripts.Gameplay.Systems
                 Object.Destroy(view.gameObject);
                 
                 m_world.DelEntity(health.ViewEntity);
-                m_world.DelEntity(entity);
             }
         }
     }

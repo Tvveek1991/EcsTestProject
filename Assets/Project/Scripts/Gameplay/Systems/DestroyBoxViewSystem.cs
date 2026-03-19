@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class BoxViewDestroySystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
+    public class DestroyBoxViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
         private readonly GameObject m_destroyParticlesPrefab;
         private readonly IObjectsService m_objectsService;
@@ -21,7 +21,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<DeadCommand> m_deadCommandPool;
         private EcsPool<TransformKeeper> m_transformPool;
 
-        public BoxViewDestroySystem(GameObject destroyParticlesPrefab, IObjectsService objectsService)
+        public DestroyBoxViewSystem(GameObject destroyParticlesPrefab, IObjectsService objectsService)
         {
             m_objectsService = objectsService;
             m_destroyParticlesPrefab = destroyParticlesPrefab;
@@ -59,7 +59,6 @@ namespace Project.Scripts.Gameplay.Systems
                     {
                         objectTransform.DOKill();
                         Object.Destroy(particles.gameObject);
-                        Object.Destroy(view.gameObject);
 
                         m_deadCommandPool.Get(entity).ObjectViewDestroyedStatus = ProcessStatus.Completed;
                     });
@@ -68,18 +67,16 @@ namespace Project.Scripts.Gameplay.Systems
         
         public void PostRun(IEcsSystems systems)
         {
-            /*foreach (var entity in m_deadFilter)
+            foreach (var entity in m_deadFilter)
             {
-                ref Health health = ref m_healthPool.Get(entity);
-                
-                if (!m_objectsService.Views.TryGetValue(health.ViewEntity, out var view))
+                if (!m_objectsService.Views.TryGetValue(entity, out var view))
                     continue;
-                
+
                 m_objectsService.RemoveView(entity);
                 Object.Destroy(view.gameObject);
                 
                 m_world.DelEntity(entity);
-            }*/
+            }
         }
     }
 }
