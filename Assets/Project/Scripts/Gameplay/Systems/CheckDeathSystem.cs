@@ -1,6 +1,8 @@
-﻿using Leopotam.EcsLite;
+﻿using DG.Tweening;
+using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Serializabled;
+using Project.Scripts.Gameplay.Services.HealthViewService;
 
 namespace Project.Scripts.Gameplay.Systems
 {
@@ -14,7 +16,13 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<Dead> m_deadPool;
         private EcsPool<Health> m_healthPool;
         private EcsPool<DeadCommand> m_deadCommandPool;
+        private readonly IHealthViewService m_healthViewService;
 
+        public CheckDeathSystem(IHealthViewService healthViewService)
+        {
+            m_healthViewService = healthViewService;
+        }
+        
         public void Init(IEcsSystems systems)
         {
             m_world = systems.GetWorld();
@@ -41,7 +49,7 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref var deadCommand = ref m_deadCommandPool.Get(deadEntity);
 
-                if (deadCommand.ObjectViewDestroyedStatus != ProcessStatus.Completed) 
+                if (deadCommand.Status != ProcessStatus.Completed) 
                     continue;
 
                 m_deadCommandPool.Del(deadEntity);
@@ -55,10 +63,15 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref Health health = ref m_healthPool.Get(entity);
 
-                if (health.Count <= 0)
+                if (!m_healthViewService.Views.TryGetValue(health.ViewEntity, out var view))
+                    continue;
+                
+                if (view.HealthBar.value <= 0)
                 {
-                    ref var commandPool = ref m_deadCommandPool.Add(entity);
-                    commandPool.ObjectViewDestroyedStatus = ProcessStatus.Ready;
+                    view.HealthBar.DOKill();
+                    
+                    ref var deadCommand = ref m_deadCommandPool.Add(entity);
+                    deadCommand.Status = ProcessStatus.Ready;
                 }
             }
         }

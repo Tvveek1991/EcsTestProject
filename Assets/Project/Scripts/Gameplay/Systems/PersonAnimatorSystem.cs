@@ -1,6 +1,9 @@
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Serializabled;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -40,6 +43,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<Block> m_blockPool;
         private EcsPool<Attack> m_attackPool;
         private EcsPool<Rolling> m_rollingPool;
+        private EcsPool<DeadCommand> m_deadCommandPool;
         private EcsPool<AnimatorKeeper> m_animatorPool;
         private EcsPool<WallCheck> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
@@ -84,6 +88,7 @@ namespace Project.Scripts.Gameplay.Systems
             m_blockPool = m_world.GetPool<Block>();
             m_attackPool = m_world.GetPool<Attack>();
             m_rollingPool = m_world.GetPool<Rolling>();
+            m_deadCommandPool = m_world.GetPool<DeadCommand>();
             m_animatorPool = m_world.GetPool<AnimatorKeeper>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2d>();
             m_wallCheckPool = m_world.GetPool<WallCheck>();
@@ -107,104 +112,113 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void RefreshAirSpeedY()
         {
-            foreach (var index in m_airSpeedYFilter)
+            foreach (var entity in m_airSpeedYFilter)
             {
-                m_animatorPool.Get(index).AnimatorController.SetFloat(m_airSpeedY,
-                    m_rigidbody2dPool.Get(index).Rigidbody.linearVelocity.y);
+                m_animatorPool.Get(entity).AnimatorController.SetFloat(m_airSpeedY,
+                    m_rigidbody2dPool.Get(entity).Rigidbody.linearVelocity.y);
             }
         }
 
         private void CheckFalling()
         {
-            foreach (var index in m_groundCheckFilter)
+            foreach (var entity in m_groundCheckFilter)
             {
-                if (m_groundCheckPool.Get(index).GroundSensors.Any(item => item.IsConnected))
-                    m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, true);
+                if (m_groundCheckPool.Get(entity).GroundSensors.Any(item => item.IsConnected))
+                    m_animatorPool.Get(entity).AnimatorController.SetBool(m_grounded, true);
 
-                if (!m_groundCheckPool.Get(index).GroundSensors.Any(item => item.IsConnected))
-                    m_animatorPool.Get(index).AnimatorController.SetBool(m_grounded, false);
+                if (!m_groundCheckPool.Get(entity).GroundSensors.Any(item => item.IsConnected))
+                    m_animatorPool.Get(entity).AnimatorController.SetBool(m_grounded, false);
             }
         }
 
         private void CheckRun()
         {
-            foreach (var index in m_runFilter)
-                m_animatorPool.Get(index).AnimatorController.SetInteger(m_animState, 1);
+            foreach (var entity in m_runFilter)
+                m_animatorPool.Get(entity).AnimatorController.SetInteger(m_animState, 1);
 
-            foreach (var index in m_outOfRunFilter)
-                m_animatorPool.Get(index).AnimatorController.SetInteger(m_animState, 0);
+            foreach (var entity in m_outOfRunFilter)
+                m_animatorPool.Get(entity).AnimatorController.SetInteger(m_animState, 0);
         }
 
         private void CheckJump()
         {
-            foreach (var jumper in m_jumperFilter)
+            foreach (var entity in m_jumperFilter)
             {
-                m_animatorPool.Get(jumper).AnimatorController.SetTrigger(m_jump);
-                m_animatorPool.Get(jumper).AnimatorController.SetBool(m_grounded, false);
+                m_animatorPool.Get(entity).AnimatorController.SetTrigger(m_jump);
+                m_animatorPool.Get(entity).AnimatorController.SetBool(m_grounded, false);
             }
         }
 
         private void CheckRolling()
         {
-            foreach (var roller in m_rollingFilter)
+            foreach (var entity in m_rollingFilter)
             {
-                if (!m_rollingPool.Get(roller).IsAnimate) continue;
+                if (!m_rollingPool.Get(entity).IsAnimate) continue;
 
-                m_rollingPool.Get(roller).IsAnimate = false;
-                m_animatorPool.Get(roller).AnimatorController.SetTrigger(m_roll);
+                m_rollingPool.Get(entity).IsAnimate = false;
+                m_animatorPool.Get(entity).AnimatorController.SetTrigger(m_roll);
             }
         }
 
         private void CheckBlock()
         {
-            foreach (var index in m_blockFilter)
+            foreach (var entity in m_blockFilter)
             {
-                if (!m_blockPool.Get(index).IsAnimate) continue;
+                if (!m_blockPool.Get(entity).IsAnimate) continue;
 
-                m_blockPool.Get(index).IsAnimate = false;
-                m_animatorPool.Get(index).AnimatorController.SetTrigger(m_block);
-                m_animatorPool.Get(index).AnimatorController.SetBool(m_idleBlock, true);
+                m_blockPool.Get(entity).IsAnimate = false;
+                m_animatorPool.Get(entity).AnimatorController.SetTrigger(m_block);
+                m_animatorPool.Get(entity).AnimatorController.SetBool(m_idleBlock, true);
             }
 
-            foreach (var index in m_outOfBlockFilter)
+            foreach (var entity in m_outOfBlockFilter)
             {
-                m_animatorPool.Get(index).AnimatorController.SetBool(m_idleBlock, false);
+                m_animatorPool.Get(entity).AnimatorController.SetBool(m_idleBlock, false);
             }
         }
 
         private void CheckAttack()
         {
-            foreach (var personIndex in m_attackFilter)
+            foreach (var personEntity in m_attackFilter)
             {
-                if (!m_attackPool.Get(personIndex).IsActive) continue;
+                if (!m_attackPool.Get(personEntity).IsActive) continue;
 
-                m_animatorPool.Get(personIndex).AnimatorController.SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personIndex).CurrentAttackIndex}");
-                m_attackPool.Get(personIndex).IsActive = false;
+                m_animatorPool.Get(personEntity).AnimatorController.SetTrigger($"{ATTACK_KEY}{m_attackPool.Get(personEntity).CurrentAttackIndex}");
+                m_attackPool.Get(personEntity).IsActive = false;
             }
         }
 
         private void CheckSliding()
         {
-            foreach (var wallIndex in m_wallCheckFilter)
+            foreach (var wallEntity in m_wallCheckFilter)
             {
-                if (m_wallCheckPool.Get(wallIndex).WallSensors != null)
-                    m_animatorPool.Get(wallIndex).AnimatorController.SetBool(m_wallSliding, m_wallCheckPool.Get(wallIndex).WallSensors.Any(item => item.IsConnected));
+                if (m_wallCheckPool.Get(wallEntity).WallSensors != null)
+                    m_animatorPool.Get(wallEntity).AnimatorController.SetBool(m_wallSliding, m_wallCheckPool.Get(wallEntity).WallSensors.Any(item => item.IsConnected));
             }
         }
-        
+
         private void CheckHurtAnimation()
         {
-            foreach (var index in m_hitCommandFilter)
+            foreach (var entity in m_hitCommandFilter)
             {
-                m_animatorPool.Get(index).AnimatorController.SetTrigger(m_hurt);
+                m_animatorPool.Get(entity).AnimatorController.SetTrigger(m_hurt);
             }
         }
 
         private void CheckDeadAnimation()
         {
-            foreach (var index in m_deadCommandFilter)
+            foreach (var entity in m_deadCommandFilter)
             {
-                m_animatorPool.Get(index).AnimatorController.SetTrigger(m_death);
+                ref var deadCommand = ref m_deadCommandPool.Get(entity);
+
+                if (deadCommand.Status != ProcessStatus.Ready)
+                    continue;
+
+                deadCommand.Status = ProcessStatus.Started;
+
+                m_animatorPool.Get(entity).AnimatorController.SetTrigger(m_death);
+
+                deadCommand.Status = ProcessStatus.Completed;
             }
         }
     }

@@ -29,8 +29,6 @@ namespace Gameplay
       
       builder.Register<IEcsSystem, CreateTutorialViewSystem>(Lifetime.Scoped);
 
-      builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);////////
-
       builder.Register<IEcsSystem, InputSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CheckInputJumpSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CheckInputRollSystem>(Lifetime.Scoped);
@@ -38,7 +36,9 @@ namespace Gameplay
       builder.Register<IEcsSystem, CheckInputHurtSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CheckInputAttackSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CheckInputBlockSystem>(Lifetime.Scoped);
-      
+
+      builder.Register<IEcsSystem, PlayerInitSystem>(Lifetime.Scoped);////////
+                                                                      
       builder.Register<IEcsSystem, BoxViewInitSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
@@ -64,7 +64,8 @@ namespace Gameplay
       builder.Register<IEcsSystem, CheckDeathSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, DestroyHealthViewSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, DestroyBoxViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, DestroyObjectViewSystem>(Lifetime.Scoped);
+      
       builder.Register<IEcsSystem, DestroyJumpSystem>(Lifetime.Scoped);
       
       builder.Register<IEcsSystem, FinishViewInitSystem>(Lifetime.Scoped);

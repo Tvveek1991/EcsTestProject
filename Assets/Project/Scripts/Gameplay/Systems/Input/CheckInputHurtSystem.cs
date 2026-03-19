@@ -11,6 +11,7 @@ namespace Project.Scripts.Gameplay.Systems.Input
         private EcsFilter m_hitFilter;
         private EcsFilter m_inputFilter;
 
+        private EcsPool<Health> m_healthPool;
         private EcsPool<InputComponent> m_inputPool;
         private EcsPool<HitCommand> m_hitCommandPool;
 
@@ -22,6 +23,7 @@ namespace Project.Scripts.Gameplay.Systems.Input
             m_hitFilter = m_world.Filter<Player>().Inc<Health>()
                 .Exc<HitCommand>().End(1);
 
+            m_healthPool = m_world.GetPool<Health>();
             m_inputPool = m_world.GetPool<InputComponent>();
             m_hitCommandPool = m_world.GetPool<HitCommand>();
         }
@@ -39,7 +41,7 @@ namespace Project.Scripts.Gameplay.Systems.Input
             foreach (var input in m_inputFilter)
             foreach (var hitEntity in m_hitFilter)
             {
-                if (m_inputPool.Get(input).IsHurt) 
+                if (m_inputPool.Get(input).IsHurt && m_healthPool.Get(hitEntity).Count > 0) 
                     m_hitCommandPool.Add(hitEntity).HitValue = 25;
             }
         }

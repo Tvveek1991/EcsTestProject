@@ -4,6 +4,6 @@ namespace Project.Scripts.Gameplay.Components
 {
     public struct DeadCommand
     {
-        public ProcessStatus ObjectViewDestroyedStatus;
+        public ProcessStatus Status;
     }
 }
