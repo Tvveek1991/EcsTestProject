@@ -2,6 +2,7 @@ using Leopotam.EcsLite;
 using Project.Scripts.Gameplay;
 using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Systems.Input;
+using Project.Scripts.Gameplay.Systems.PersonAnimations;
 using VContainer;
 using VContainer.Unity;
 
@@ -59,7 +60,16 @@ namespace Gameplay
       
       builder.Register<IEcsSystem, CheckHitSystem>(Lifetime.Scoped);
       
-      builder.Register<IEcsSystem, PersonAnimatorSystem>(Lifetime.Scoped);////
+      builder.Register<IEcsSystem, PersonAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonMoveAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonFallingAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonJumpAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonRollingAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonBlockAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonAttackAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonSlidingAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonHurtAnimatorSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, PersonDeadAnimatorSystem>(Lifetime.Scoped);
 
       builder.Register<IEcsSystem, CheckDeathSystem>(Lifetime.Scoped);
       
