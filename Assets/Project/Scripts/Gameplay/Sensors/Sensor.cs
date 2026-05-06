@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
-using DG.Tweening;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Sensors
@@ -11,16 +10,8 @@ namespace Project.Scripts.Gameplay.Sensors
         
         private bool m_isConnected;
         private float m_disableTimer;
-        
-        private Tween m_disconnectTween;
-        
-        public bool IsConnected => m_disableTimer <= 0 && m_isConnected;
 
-        private void OnDestroy()
-        {
-            m_disconnectTween?.Kill();
-            m_disconnectTween = null;
-        }
+        public bool IsConnected => m_disableTimer <= 0 && m_isConnected;
 
         private void OnEnable()
         {
@@ -30,12 +21,11 @@ namespace Project.Scripts.Gameplay.Sensors
         private void OnTriggerEnter2D(Collider2D other)
         {
             m_isConnected = true;
-            m_disconnectTween?.Kill();
         }
 
         private async void OnTriggerExit2D(Collider2D other)
         {
-            await Task.Delay(TimeSpan.FromSeconds(DISABLE_DELAY));
+            await UniTask.Delay(TimeSpan.FromSeconds(DISABLE_DELAY));
             
             m_isConnected = false;
         }

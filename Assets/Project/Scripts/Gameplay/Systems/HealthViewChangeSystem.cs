@@ -5,7 +5,7 @@ using Project.Scripts.Gameplay.Services.HealthViewService;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class HealthViewChangeSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
+    public class HealthViewChangeSystem : IEcsInitSystem, IEcsRunSystem
     {
         private const float FADE_DURATION = .15f;
         private const float SLIDER_CHANGE_DURATION = .25f;
@@ -42,17 +42,6 @@ namespace Project.Scripts.Gameplay.Systems
         {
             ShowHeal();
             ShowHurt();
-        }
-
-        public void PostRun(IEcsSystems systems)
-        {
-            foreach (var entity in m_healHealthFilter)
-            {
-            }
-            
-            foreach (var entity in m_hitHealthFilter)
-            {
-            }
         }
 
         private void ShowHeal()

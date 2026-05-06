@@ -83,7 +83,7 @@ namespace Gameplay
 
       m_destroyedParticlesPrefab = await _assetProvider.Load<GameObject>(DestroyedParticlesAddress);
 
-      _camera = (Object.Instantiate(await _assetProvider.Load<GameObject>(CameraAddress))).GetComponentInChildren<Camera>();
+      _camera = Camera.main == null ? (Object.Instantiate(await _assetProvider.Load<GameObject>(CameraAddress))).GetComponentInChildren<Camera>() : Camera.main;
     }
 
     public void Install(IContainerBuilder builder)
@@ -133,7 +133,7 @@ namespace Gameplay
       
       _assetProvider.Release(ConnectSensorAddress);
 
-      Object.Destroy(_camera.gameObject);
+      // Object.Destroy(_camera.gameObject);
       _assetProvider.Release(CameraAddress);
     }
   }

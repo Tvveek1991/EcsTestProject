@@ -3,6 +3,8 @@ using Application.StateMachine.Interfaces;
 using Application.StateMachine.States;
 using AssetProvider;
 using Project.Scripts.Application;
+using Project.Scripts.Gameplay.Services.LoadScreenService;
+using Project.Scripts.Gameplay.Services.ReactionService;
 // using Gameplay.Services.VibrationService;
 using VContainer;
 using VContainer.Unity;
@@ -17,6 +19,8 @@ namespace Application.StateMachine.ApplicationDependenciesInstaller
       builder.Register<IDependenciesContainer, DependenciesContainer>(Lifetime.Singleton);
 
       // builder.Register<IVibrationService, VibrationService>(Lifetime.Singleton);
+      builder.Register<IReactionService, ReactionService>(Lifetime.Singleton);
+      builder.Register<ILoadScreenService, LoadScreenService>(Lifetime.Singleton);
 
       RegisterEntryPoint(builder);
     }

@@ -5,7 +5,6 @@ using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Services.FinishViewService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Project.Scripts.Gameplay.Systems
 {
@@ -27,6 +26,7 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<CoinsCounter> m_coinsCounterPool;
         private EcsPool<FinishViewComponent> m_finishViewRefPool;
         private EcsPool<EndGame> m_endGamePool;
+        private EcsPool<ReactionComponent> m_reactionPool;
         
         private int m_coinsTotalCount;
 
@@ -48,6 +48,7 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_endGamePool = m_world.GetPool<EndGame>();
             m_coinsCounterPool = m_world.GetPool<CoinsCounter>();
+            m_reactionPool = m_world.GetPool<ReactionComponent>();
             m_finishViewRefPool = m_world.GetPool<FinishViewComponent>();
 
             m_coinsTotalCount = m_coinViewRefFilter.GetEntitiesCount();
@@ -95,9 +96,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_finishViewService.View.RestartButton.onClick.AddListener(() =>
             {
-                DOTween.KillAll();
-                m_world.Destroy();
-                SceneManager.LoadSceneAsync("Main");
+                var entity = m_world.NewEntity();
+                m_reactionPool.Add(entity).Type = ReactionType.CompleteState;
             });
         }
 

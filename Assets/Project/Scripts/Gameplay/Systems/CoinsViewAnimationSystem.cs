@@ -75,10 +75,10 @@ namespace Project.Scripts.Gameplay.Systems
         
         public void Destroy(IEcsSystems systems)
         {
-            m_sequences.ForEach(item =>
+            /*m_sequences.ForEach(item =>
             {
                 item?.Kill();
-            });
+            });*/
         }
     }
 }

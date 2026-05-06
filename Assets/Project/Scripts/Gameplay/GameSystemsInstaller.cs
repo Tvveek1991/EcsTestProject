@@ -12,6 +12,8 @@ namespace Gameplay
   {
     public void Install(IContainerBuilder builder)
     {
+      builder.Register<IEcsSystem, ReactionSystem>(Lifetime.Scoped);
+      
       builder.Register<IEcsSystem, CanvasInitSystem>(Lifetime.Scoped);
 
       builder.Register<IEcsSystem, CreateGameLevelViewSystem>(Lifetime.Scoped);

@@ -1,6 +1,5 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.CameraService;
 using Project.Scripts.Gameplay.Services.GameLevelService;
 using UnityEngine;
