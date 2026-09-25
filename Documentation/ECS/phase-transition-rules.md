@@ -20,7 +20,9 @@
    intent-компоненты, доступные Simulation в этом же кадре.
 4. Simulation читает input intents, изменяет gameplay-state и создаёт
    намерения для Physics. Она не обращается к Unity view, UI, Animator,
-   Rigidbody2D или DOTween.
+   Rigidbody2D или DOTween. `CheckHitSystem` временно является legacy-
+   исключением: он использует raycast, но исполняется в Simulation, чтобы
+   `HitCommand` был обработан в том же кадре.
 5. Physics читает намерения Simulation и Unity physics, а результат публикует
    как data/event для **следующего** Simulation tick. Physics не удаляет
    команду до её consumer.
@@ -39,7 +41,7 @@
 | `Jump` | `CheckInputJumpSystem` | `JumpSystem` | Intent текущего кадра; `JumpSystem.PostRun` удаляет его после physics-действия. |
 | `Run`, `Rolling`, `Block`, `Attack` | `CheckInput*` | соответствующие movement systems | Это краткоживущие gameplay-state, а не универсальные команды. Их владелец удаляет компонент по собственному condition. |
 | `HitCommand` от `Q` | `CheckInputHurtSystem` | `HealthChangeSystem` | Должен быть доступен Simulation в тот же кадр и очищаться единым cleanup после UI/animation consumers. Сейчас его удаляет `HealthViewChangeSystem`; это legacy-исключение. |
-| `HitCommand` от raycast | `CheckHitSystem` (Physics) | `HealthChangeSystem` (Simulation) | Должен жить до следующей Simulation-фазы. Текущая реализация нарушает это правило, см. ниже. |
+| `HitCommand` от raycast | `CheckHitSystem` (Simulation, временно) | `HealthChangeSystem` | Создаётся после `AttackSystem` и до `HealthChangeSystem`, поэтому обрабатывается в том же `Update`; удаляется presentation consumer после отображения. |
 | `HealCommand` | future Simulation/bridge producer | `HealthChangeSystem` | Аналогичен `HitCommand`; очистка не должна происходить в Presentation. |
 | `CoinsCounterChange` | bridge после завершения coin animation | `CoinsCounterChangeSystem` | Однокадровая Simulation-команда; удаляется consumer в `PostRun`. Callback DOTween пока пишет её напрямую — legacy-нарушение. |
 | `CoinViewFlyAwayAnimation` | `CoinsViewCheckSystem` | `CoinsViewAnimationSystem` | Presentation request. После старта анимации entity удаляется `CoinsViewAnimationSystem.PostRun`; callback не должен создавать gameplay-команды напрямую. |
@@ -52,7 +54,8 @@
 | --- | --- | --- |
 | Input → Simulation | Input intent создан в `CheckInput*` и читается Simulation в том же `Update`. | Используется для `HitCommand` от `Q`; допустимо до ввода отдельного input snapshot adapter. |
 | Simulation → Physics | Simulation публикует `Jump`, `Run`, `Rolling`, `Block`, `Attack`; Physics применяет их к `Rigidbody2D`/raycast. | Группы уже разделены, но всё ещё работают в одном `Update`. |
-| Physics → Simulation (next tick) | Результат physics живёт до следующей Simulation-фазы. | **Нарушено:** `CheckHitSystem` создаёт `HitCommand` в Physics после `HealthChangeSystem`, а `HealthViewChangeSystem` удаляет его в Presentation до следующего кадра. Поэтому попадание не уменьшает здоровье ящика. |
+| Simulation → Simulation | Временный legacy-adapter может опубликовать команду для следующей системы той же фазы. | `CheckHitSystem` работает после `AttackSystem` и до `HealthChangeSystem`; регрессионный тест закрепляет этот порядок до переноса physics-группы в `FixedUpdate`. |
+| Physics → Simulation (next tick) | Результат physics живёт до следующей Simulation-фазы. | Пока нет systems, публикующих physics-результат. При их добавлении запрещено очищать результат в Presentation до consumer следующего tick. |
 | Presentation → Simulation (next tick) | UI/tween публикует typed `*BridgeEvent`, а bridge добавляет gameplay-команду в начале следующей Simulation. | **Нарушено:** Finish UI создаёт `ReactionComponent`, а coin DOTween callback создаёт `CoinsCounterChange` прямо через `EcsWorld`. |
 | Cleanup → session teardown | Сначала останавливаются ticks и отменяются внешние операции; затем systems, world и scope. | `GameSession` уже отменяет token перед `EcsSystems.Destroy()` и `EcsWorld.Destroy()`; ownership tween ещё предстоит внедрить. |
 

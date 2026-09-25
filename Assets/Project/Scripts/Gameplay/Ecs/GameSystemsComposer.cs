@@ -36,17 +36,17 @@ namespace Project.Scripts.Gameplay.Ecs
             // Simulation
             typeof(ReactionSystem),
             typeof(HealthInitSystem),
-            typeof(HealthChangeSystem),
             typeof(CoinsCounterChangeSystem),
             typeof(CoinsViewCheckSystem),
             typeof(AttackSystem),
+            typeof(CheckHitSystem),
+            typeof(HealthChangeSystem),
 
             // Physics
             typeof(JumpSystem),
             typeof(BlockSystem),
             typeof(RunSystem),
             typeof(RollingSystem),
-            typeof(CheckHitSystem),
 
             // Presentation
             typeof(CameraFollowSystem),
@@ -74,6 +74,20 @@ namespace Project.Scripts.Gameplay.Ecs
             typeof(DestroyHealthViewSystem),
             typeof(DestroyObjectViewSystem)
         };
+
+        public static int GetOrderIndex(Type systemType)
+        {
+            if (systemType == null)
+                throw new ArgumentNullException(nameof(systemType));
+
+            for (int index = 0; index < OrderedSystemTypes.Length; index++)
+            {
+                if (OrderedSystemTypes[index] == systemType)
+                    return index;
+            }
+
+            return -1;
+        }
 
         public IReadOnlyList<IEcsSystem> Compose(IEnumerable<IEcsSystem> registeredSystems)
         {

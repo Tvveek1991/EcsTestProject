@@ -55,10 +55,11 @@ namespace Gameplay
       builder.Register<IEcsSystem, ReactionSystem>(Lifetime.Scoped);
 
       builder.Register<IEcsSystem, HealthInitSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, HealthChangeSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CoinsCounterChangeSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, CoinsViewCheckSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, AttackSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, CheckHitSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, HealthChangeSystem>(Lifetime.Scoped);
     }
 
     private void RegisterPhysicsSystems(IContainerBuilder builder)
@@ -67,7 +68,6 @@ namespace Gameplay
       builder.Register<IEcsSystem, BlockSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, RunSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, RollingSystem>(Lifetime.Scoped);
-      builder.Register<IEcsSystem, CheckHitSystem>(Lifetime.Scoped);
     }
 
     private void RegisterPresentationSystems(IContainerBuilder builder)
