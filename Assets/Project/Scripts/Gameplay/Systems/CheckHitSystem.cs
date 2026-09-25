@@ -1,15 +1,14 @@
-using Gameplay.Services.ObjectsService;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Services.PersonService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CheckHitSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private readonly IPersonViewService m_personViewService;
-        private readonly IObjectsService m_objectsService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
 
         private const float MAX_DISTANCE = 1.3f;
         private const string LAYER_NAME = "InteractiveObject";
@@ -24,10 +23,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<HitCommand> m_hitCommandPool;
         private EcsPool<SpriteRendererKeeper> m_spriteRendererPool;
 
-        public CheckHitSystem(IPersonViewService personViewService, IObjectsService objectsService)
+        public CheckHitSystem(IEntityViewRegistry entityViewRegistry)
         {
-            m_objectsService = objectsService;
-            m_personViewService = personViewService;
+            m_entityViewRegistry = entityViewRegistry;
         }
         
         public void Init(IEcsSystems systems)
@@ -56,9 +54,7 @@ namespace Project.Scripts.Gameplay.Systems
                 if(!m_attackPool.Get(entity).IsActive)
                     continue;
                 
-                var personView = m_personViewService.GetPersonViewByEntity(entity);
-                
-                if(personView == null)
+                if (!m_entityViewRegistry.TryGet(entity, out PersonView personView))
                     continue;
                 
                 var checkerTr = personView.GetCheckerSpawnPoint();
@@ -73,7 +69,7 @@ namespace Project.Scripts.Gameplay.Systems
                 {
                     foreach (var hitObject in m_hitFilter)
                     {
-                        if(!m_objectsService.Views.TryGetValue(hitObject, out var view))
+                        if(!m_entityViewRegistry.TryGet(hitObject, out ObjectView view))
                             continue;
                         
                         if (view.gameObject == hit.collider.gameObject)

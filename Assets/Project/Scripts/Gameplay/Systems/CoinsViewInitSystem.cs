@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.CoinsService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private readonly CoinView m_coinViewPrefab;
         private readonly ICoinsService m_coinsService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
@@ -26,17 +28,16 @@ namespace Project.Scripts.Gameplay.Systems
         private GameObject m_parentObject;
         private List<Transform> m_coinSpawnPoints;
 
-        public CoinsViewInitSystem(CoinView coinViewPrefab, ICoinsService coinsService, IGameLevelService gameLevelService)
+        public CoinsViewInitSystem(CoinView coinViewPrefab, ICoinsService coinsService, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
         {
             m_coinsService = coinsService;
+            m_entityViewRegistry = entityViewRegistry;
             m_coinViewPrefab = coinViewPrefab;
             m_gameLevelService = gameLevelService;
         }
 
         public void Init(IEcsSystems systems)
         {
-            m_coinsService.Clear();
-            
             m_world = systems.GetWorld();
 
             m_coinViewFilter = m_world.Filter<CoinViewKeeper>().Inc<TransformKeeper>().End();
@@ -50,8 +51,6 @@ namespace Project.Scripts.Gameplay.Systems
         
         public void Destroy(IEcsSystems systems)
         {
-            m_coinsService.Clear();
-            
             Object.Destroy(m_parentObject);
         }
 
@@ -65,7 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
                 var newEntity = m_world.NewEntity();
                 var coinView = Object.Instantiate(m_coinViewPrefab, m_parentObject.transform);
 
-                m_coinsService.AddCoinView(newEntity, coinView);
+                m_entityViewRegistry.Register(newEntity, coinView);
                 
                 AttachComponents(newEntity, coinView);
             }

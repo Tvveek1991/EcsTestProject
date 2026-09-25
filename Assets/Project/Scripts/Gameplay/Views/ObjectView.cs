@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Views
 {
-    public class ObjectView : MonoBehaviour
+    public class ObjectView : EntityView
     {
         [SerializeField] private Transform m_healthSpawnPoint;
         [SerializeField] private Transform m_destroyParticlesSpawnPoint;

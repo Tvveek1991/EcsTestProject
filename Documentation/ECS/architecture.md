@@ -34,6 +34,19 @@ Unity-ссылки в ECS допустимы только как явно наз
 `*ViewRef`, `*Binding` или `*Bridge`. Обычный компонент хранит только игровое
 состояние и данные, нужные simulation-системам.
 
+## Entity view registry
+
+`EntityView` — базовый MonoBehaviour для view, принадлежащих ECS-сущностям.
+При первой регистрации он получает `EntityLink`; link хранит entity и
+идентификатор scoped registry. `IEntityViewRegistry` является частью игровой
+сессии и предоставляет только typed `Register`, `TryGet`, `TryGetEntity` и
+`Unregister`: gameplay-системы не получают mutable dictionary view.
+
+Повторная регистрация entity, попытка использовать view другой сессии и
+устаревший или уничтоженный view не возвращают произвольную ссылку. При
+teardown scoped registry очищает связи; системы удаления сначала снимают
+регистрацию, затем уничтожают GameObject и ECS-entity.
+
 ## Фазы игрового цикла
 
 ```text

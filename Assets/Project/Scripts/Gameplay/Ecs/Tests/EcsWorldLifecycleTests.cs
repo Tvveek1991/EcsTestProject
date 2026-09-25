@@ -2,7 +2,9 @@ using Leopotam.EcsLite;
 using NUnit.Framework;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Systems;
+using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Ecs.Tests
@@ -112,6 +114,61 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 systems.Destroy();
                 world.Destroy();
                 Object.DestroyImmediate(personData);
+            }
+        }
+
+        [Test]
+        public void EntityViewRegistry_RegistersAndUnregistersLinkedView()
+        {
+            var gameObject = new GameObject("Registry test view");
+            var registry = new EntityViewRegistry();
+            var personView = gameObject.AddComponent<PersonView>();
+
+            try
+            {
+                registry.Register(1, personView);
+
+                Assert.That(registry.TryGet(1, out PersonView registeredView), Is.True);
+                Assert.That(registeredView, Is.SameAs(personView));
+                Assert.That(registry.TryGetEntity(personView, out int entity), Is.True);
+                Assert.That(entity, Is.EqualTo(1));
+
+                Assert.That(registry.Unregister(1), Is.True);
+                Assert.That(registry.TryGet(1, out PersonView _), Is.False);
+                Assert.That(personView.Link.IsLinked, Is.False);
+            }
+            finally
+            {
+                registry.Dispose();
+                Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void EntityViewRegistry_DoesNotReuseViewFromAnotherSession()
+        {
+            var gameObject = new GameObject("Session registry test view");
+            var firstRegistry = new EntityViewRegistry();
+            var secondRegistry = new EntityViewRegistry();
+            var personView = gameObject.AddComponent<PersonView>();
+
+            try
+            {
+                firstRegistry.Register(1, personView);
+
+                Assert.Throws<System.InvalidOperationException>(() => secondRegistry.Register(1, personView));
+
+                firstRegistry.Clear();
+                secondRegistry.Register(1, personView);
+
+                Assert.That(secondRegistry.TryGet(1, out PersonView registeredView), Is.True);
+                Assert.That(registeredView, Is.SameAs(personView));
+            }
+            finally
+            {
+                firstRegistry.Dispose();
+                secondRegistry.Dispose();
+                Object.DestroyImmediate(gameObject);
             }
         }
 

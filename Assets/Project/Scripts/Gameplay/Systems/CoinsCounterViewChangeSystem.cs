@@ -1,10 +1,8 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Services.CoinsCounterService;
 using Project.Scripts.Gameplay.Services.CoinsService;
 using Project.Scripts.Gameplay.Views;
-using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {

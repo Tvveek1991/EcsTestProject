@@ -1,7 +1,8 @@
 ﻿using DG.Tweening;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Services.HealthViewService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Views;
 
 namespace Project.Scripts.Gameplay.Systems
 {
@@ -10,7 +11,7 @@ namespace Project.Scripts.Gameplay.Systems
         private const float FADE_DURATION = .15f;
         private const float SLIDER_CHANGE_DURATION = .25f;
         
-        private readonly IHealthViewService m_healthViewService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
 
         private EcsWorld m_world;
 
@@ -21,9 +22,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<HitCommand> m_hitCommandPool;
         private EcsPool<HealCommand> m_healCommandPool;
 
-        public HealthViewChangeSystem(IHealthViewService healthViewService)
+        public HealthViewChangeSystem(IEntityViewRegistry entityViewRegistry)
         {
-            m_healthViewService = healthViewService;
+            m_entityViewRegistry = entityViewRegistry;
         }
         
         public void Init(IEcsSystems systems)
@@ -50,7 +51,7 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref Health health = ref m_healthPool.Get(entity);
                 
-                if(!m_healthViewService.Views.TryGetValue(health.ViewEntity, out var view))
+                if(!m_entityViewRegistry.TryGet(health.ViewEntity, out HealthView view))
                     continue;
 
                 view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
@@ -70,7 +71,7 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 Health health = m_healthPool.Get(entity);
                 
-                if(!m_healthViewService.Views.TryGetValue(health.ViewEntity, out var view))
+                if(!m_entityViewRegistry.TryGet(health.ViewEntity, out HealthView view))
                     continue;
 
                 if (view.CanvasGroup.alpha <= 0)

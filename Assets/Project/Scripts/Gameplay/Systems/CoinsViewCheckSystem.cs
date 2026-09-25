@@ -1,13 +1,13 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Services.CoinsService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Views;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CoinsViewCheckSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private readonly ICoinsService m_coinsService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
         
         private EcsWorld m_world;
 
@@ -15,9 +15,9 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<CoinViewFlyAwayAnimation> m_coinViewFlyAwayAnimationPool;
 
-        public CoinsViewCheckSystem(ICoinsService coinsService)
+        public CoinsViewCheckSystem(IEntityViewRegistry entityViewRegistry)
         {
-            m_coinsService = coinsService;
+            m_entityViewRegistry = entityViewRegistry;
         }
 
         public void Init(IEcsSystems systems)
@@ -33,7 +33,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var coinView in m_coinViewFilter)
             {
-                if(!m_coinsService.Views.TryGetValue(coinView, out var view))
+                if(!m_entityViewRegistry.TryGet(coinView, out CoinView view))
                     continue;
                 
                 if (view.Sensor.IsConnected)

@@ -1,13 +1,14 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Services.HealthViewService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class DestroyHealthViewSystem : IEcsInitSystem, IEcsPostRunSystem
     {
-        private readonly IHealthViewService m_healthViewService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
 
         private EcsWorld m_world;
 
@@ -15,9 +16,9 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsPool<Health> m_healthPool;
 
-        public DestroyHealthViewSystem(IHealthViewService healthViewService)
+        public DestroyHealthViewSystem(IEntityViewRegistry entityViewRegistry)
         {
-            m_healthViewService = healthViewService;
+            m_entityViewRegistry = entityViewRegistry;
         }
 
         public void Init(IEcsSystems systems)
@@ -35,10 +36,10 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref Health health = ref m_healthPool.Get(entity);
                 
-                if (!m_healthViewService.Views.TryGetValue(health.ViewEntity, out var view))
+                if (!m_entityViewRegistry.TryGet(health.ViewEntity, out HealthView view))
                     continue;
                 
-                m_healthViewService.RemoveView(health.ViewEntity);
+                m_entityViewRegistry.Unregister(health.ViewEntity);
                 Object.Destroy(view.gameObject);
                 
                 m_world.DelEntity(health.ViewEntity);

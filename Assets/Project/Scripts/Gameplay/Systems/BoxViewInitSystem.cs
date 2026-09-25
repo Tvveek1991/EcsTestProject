@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using Gameplay.Services.ObjectsService;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.GameLevelService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
         private const string BoxParentName = "Boxes";
 
         private readonly ObjectView m_objectViewPrefab;
-        private readonly IObjectsService m_objectsService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
@@ -25,17 +25,15 @@ namespace Project.Scripts.Gameplay.Systems
         private GameObject m_parentObject;
         private List<Transform> m_boxSpawnPoints;
 
-        public BoxViewInitSystem(ObjectView objectViewPrefab, IObjectsService objectsService, IGameLevelService gameLevelService)
+        public BoxViewInitSystem(ObjectView objectViewPrefab, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
         {
-            m_objectsService = objectsService;
+            m_entityViewRegistry = entityViewRegistry;
             m_objectViewPrefab = objectViewPrefab;
             m_gameLevelService = gameLevelService;
         }
 
         public void Init(IEcsSystems systems)
         {
-            m_objectsService.Clear();
-            
             m_world = systems.GetWorld();
 
             m_boxTransformFilter = m_world.Filter<PlayableObject>().Inc<TransformKeeper>().End();
@@ -49,8 +47,6 @@ namespace Project.Scripts.Gameplay.Systems
 
         public void Destroy(IEcsSystems systems)
         {
-            m_objectsService.Clear();
-            
             Object.Destroy(m_parentObject);
         }
 
@@ -64,7 +60,7 @@ namespace Project.Scripts.Gameplay.Systems
                 var entity = m_world.NewEntity();
                 var view = Object.Instantiate(m_objectViewPrefab, m_parentObject.transform);
                 
-                m_objectsService.AddObjectView(entity, view);
+                m_entityViewRegistry.Register(entity, view);
                 
                 AttachComponents(entity, view);
             }

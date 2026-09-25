@@ -1,7 +1,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.GameLevelService;
-using Project.Scripts.Gameplay.Services.PersonService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ namespace Project.Scripts.Gameplay.Systems
         private const string PlayerParentName = "Hero";
         
         private readonly PersonView m_personViewPrefab;
-        private readonly IPersonViewService m_personViewService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
@@ -23,11 +23,11 @@ namespace Project.Scripts.Gameplay.Systems
         
         private GameObject m_parentObject;
         
-        public PlayerInitSystem(PersonView personViewPrefab, IPersonViewService personViewService, IGameLevelService gameLevelService)
+        public PlayerInitSystem(PersonView personViewPrefab, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
         {
             m_personViewPrefab = personViewPrefab;
             m_gameLevelService = gameLevelService;
-            m_personViewService = personViewService;
+            m_entityViewRegistry = entityViewRegistry;
         }
 
         public void Init(IEcsSystems systems)
@@ -58,7 +58,7 @@ namespace Project.Scripts.Gameplay.Systems
 
         private void AttachComponents(int playerEntity, PersonView view)
         {
-            m_personViewService.AddPerson(playerEntity, view);
+            m_entityViewRegistry.Register(playerEntity, view);
             
             m_world.GetPool<PersonViewComponent>().Add(playerEntity);
 

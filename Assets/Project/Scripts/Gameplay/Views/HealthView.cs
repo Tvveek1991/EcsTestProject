@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace Project.Scripts.Gameplay.Views
 {
-    public class HealthView : MonoBehaviour
+    public class HealthView : EntityView
     {
         [SerializeField] private Slider m_healthBar;
         [SerializeField] private CanvasGroup m_canvasGroup;

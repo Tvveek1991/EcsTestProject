@@ -2,7 +2,8 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Serializabled;
-using Project.Scripts.Gameplay.Services.HealthViewService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Views;
 
 namespace Project.Scripts.Gameplay.Systems
 {
@@ -16,11 +17,11 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<Dead> m_deadPool;
         private EcsPool<Health> m_healthPool;
         private EcsPool<DeadCommand> m_deadCommandPool;
-        private readonly IHealthViewService m_healthViewService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
 
-        public CheckDeathSystem(IHealthViewService healthViewService)
+        public CheckDeathSystem(IEntityViewRegistry entityViewRegistry)
         {
-            m_healthViewService = healthViewService;
+            m_entityViewRegistry = entityViewRegistry;
         }
         
         public void Init(IEcsSystems systems)
@@ -63,7 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 ref Health health = ref m_healthPool.Get(entity);
 
-                if (!m_healthViewService.Views.TryGetValue(health.ViewEntity, out var view))
+                if (!m_entityViewRegistry.TryGet(health.ViewEntity, out HealthView view))
                     continue;
                 
                 if (view.HealthBar.value <= 0)

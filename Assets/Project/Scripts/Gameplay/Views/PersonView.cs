@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Views
 {
-    public class PersonView : MonoBehaviour
+    public class PersonView : EntityView
     {
         [SerializeField] private Transform m_healthSpawnPoint;
         [SerializeField] private Transform m_checkerSpawnPoint;

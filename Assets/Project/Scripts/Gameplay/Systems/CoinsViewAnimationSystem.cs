@@ -2,14 +2,15 @@ using System.Collections.Generic;
 using DG.Tweening;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
-using Project.Scripts.Gameplay.Services.CoinsService;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CoinsViewAnimationSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem, IEcsPostRunSystem
     {
-        private readonly ICoinsService m_coinsService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly List<Sequence> m_sequences = new();
         
         private EcsWorld m_world;
@@ -19,9 +20,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<TransformKeeper> m_transformPool;
         private EcsPool<CoinsCounterChange> m_coinsCounterChangePool;
 
-        public CoinsViewAnimationSystem(ICoinsService coinsService)
+        public CoinsViewAnimationSystem(IEntityViewRegistry entityViewRegistry)
         {
-            m_coinsService = coinsService;
+            m_entityViewRegistry = entityViewRegistry;
         }
         
         public void Init(IEcsSystems systems)
@@ -55,11 +56,11 @@ namespace Project.Scripts.Gameplay.Systems
                         sequence.Kill();
                         sequence = null;
 
-                        if (!m_coinsService.Views.TryGetValue(coinView, out var view)) 
+                        if (!m_entityViewRegistry.TryGet(coinView, out CoinView view))
                             return;
                         
                         Object.Destroy(view.gameObject);
-                        m_coinsService.RemoveView(coinView);
+                        m_entityViewRegistry.Unregister(coinView);
                     });
                 m_sequences.Add(sequence);
             }

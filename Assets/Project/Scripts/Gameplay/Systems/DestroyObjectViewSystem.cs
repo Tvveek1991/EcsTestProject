@@ -1,8 +1,9 @@
 ﻿using DG.Tweening;
-using Gameplay.Services.ObjectsService;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Serializabled;
+using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -10,7 +11,7 @@ namespace Project.Scripts.Gameplay.Systems
     public class DestroyObjectViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
         private readonly GameObject m_destroyParticlesPrefab;
-        private readonly IObjectsService m_objectsService;
+        private readonly IEntityViewRegistry m_entityViewRegistry;
 
         private EcsWorld m_world;
 
@@ -20,9 +21,9 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<DeadCommand> m_deadCommandPool;
         private EcsPool<TransformKeeper> m_transformPool;
 
-        public DestroyObjectViewSystem(GameObject destroyParticlesPrefab, IObjectsService objectsService)
+        public DestroyObjectViewSystem(GameObject destroyParticlesPrefab, IEntityViewRegistry entityViewRegistry)
         {
-            m_objectsService = objectsService;
+            m_entityViewRegistry = entityViewRegistry;
             m_destroyParticlesPrefab = destroyParticlesPrefab;
         }
         
@@ -41,7 +42,7 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var entity in m_deadCommandFilter)
             {
-                if(!m_objectsService.Views.TryGetValue(entity, out var view))
+                if(!m_entityViewRegistry.TryGet(entity, out ObjectView view))
                     continue;
 
                 ref var deadCommand = ref m_deadCommandPool.Get(entity);
@@ -67,10 +68,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var entity in m_deadFilter)
             {
-                if (!m_objectsService.Views.TryGetValue(entity, out var view))
+                if (!m_entityViewRegistry.TryGet(entity, out ObjectView view))
                     continue;
 
-                m_objectsService.RemoveView(entity);
+                m_entityViewRegistry.Unregister(entity);
                 Object.Destroy(view.gameObject);
                 
                 m_world.DelEntity(entity);

@@ -127,8 +127,8 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 **Задачи**
 
-1. Ввести `EntityView` / `EntityLink` и registry с безопасной проверкой валидности сущности и текущей сессии.
-2. Заменить прямую работу gameplay-систем с dictionary view на typed bridge-интерфейсы либо компоненты-ссылки с чётким владельцем.
+1. [x] Введены `EntityView` / `EntityLink` и scoped registry с проверкой entity, типа view и идентификатора текущей сессии.
+2. [x] Gameplay-системы переведены с прямых dictionary view на typed `IEntityViewRegistry`; прежние специализированные view-сервисы удалены.
 3. Ввести фабрики view для игрока, объектов, UI, датчиков и эффектов; вынести `Instantiate` из simulation-систем.
 4. Все DOTween sequence/tween привязывать к session owner; гарантированно `Kill`/dispose их при teardown. Callback должен проверять актуальность сессии до записи в ECS.
 5. Переделать `Sensor`: хранить множество или счётчик пересекающихся коллайдеров, отменять pending exit при новом enter и освобождать операции при уничтожении view.
