@@ -129,7 +129,7 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 1. [x] Введены `EntityView` / `EntityLink` и scoped registry с проверкой entity, типа view и идентификатора текущей сессии.
 2. [x] Gameplay-системы переведены с прямых dictionary view на typed `IEntityViewRegistry`; прежние специализированные view-сервисы удалены.
-3. [~] Введена `IGameplayViewFactory` для игрока, объектов, монет и health UI; создание finish/tutorial UI, датчиков и эффектов переносится отдельными bridge-фабриками.
+3. [x] `IGameplayViewFactory` создаёт prefab views, а finish/tutorial UI, датчики и эффекты создаются отдельными bridge-фабриками; в ECS-системах больше нет `Instantiate`.
 4. [x] Все gameplay DOTween sequence/tween привязаны к session-owned registry; teardown гарантированно вызывает `Kill`, а callbacks, пишущие в ECS, защищены `TryExecute`.
 5. [x] `Sensor` хранит множество пересекающихся коллайдеров, отменяет pending exit при новом enter и освобождает операции при уничтожении view.
 6. Перевести игровой ввод на `InputAction` asset: Unity слой обновляет один input snapshot, ECS генерирует из него команды.

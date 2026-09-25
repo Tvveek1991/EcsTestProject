@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Serializabled;
+using Project.Scripts.Gameplay.Services.BridgeFactory;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Views;
@@ -11,7 +12,7 @@ namespace Project.Scripts.Gameplay.Systems
 {
     public class DestroyObjectViewSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
-        private readonly GameObject m_destroyParticlesPrefab;
+        private readonly IGameplayEffectsBridgeFactory m_gameplayEffectsBridgeFactory;
         private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly IGameplayTweenRegistry m_gameplayTweenRegistry;
 
@@ -23,11 +24,12 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<DeadCommand> m_deadCommandPool;
         private EcsPool<TransformKeeper> m_transformPool;
 
-        public DestroyObjectViewSystem(GameObject destroyParticlesPrefab, IEntityViewRegistry entityViewRegistry, IGameplayTweenRegistry gameplayTweenRegistry)
+        public DestroyObjectViewSystem(IGameplayEffectsBridgeFactory gameplayEffectsBridgeFactory, IEntityViewRegistry entityViewRegistry,
+            IGameplayTweenRegistry gameplayTweenRegistry)
         {
             m_entityViewRegistry = entityViewRegistry;
             m_gameplayTweenRegistry = gameplayTweenRegistry;
-            m_destroyParticlesPrefab = destroyParticlesPrefab;
+            m_gameplayEffectsBridgeFactory = gameplayEffectsBridgeFactory;
         }
         
         public void Init(IEcsSystems systems)
@@ -53,7 +55,7 @@ namespace Project.Scripts.Gameplay.Systems
                     continue;
                 
                 deadCommand.Status = ProcessStatus.Started;
-                var particles = Object.Instantiate(m_destroyParticlesPrefab, view.GetDestroyParticlesPoint().position, Quaternion.identity, null);
+                var particles = m_gameplayEffectsBridgeFactory.CreateDestroyedParticles(view.GetDestroyParticlesPoint().position);
 
                 var objectTransform = m_transformPool.Get(entity).ObjectTransform;
                 m_gameplayTweenRegistry.Track(objectTransform.DOScale(0, .25f))
@@ -62,7 +64,7 @@ namespace Project.Scripts.Gameplay.Systems
                         m_gameplayTweenRegistry.TryExecute(() =>
                         {
                             objectTransform.DOKill();
-                            Object.Destroy(particles.gameObject);
+                            Object.Destroy(particles);
 
                             m_deadCommandPool.Get(entity).Status = ProcessStatus.Completed;
                         });

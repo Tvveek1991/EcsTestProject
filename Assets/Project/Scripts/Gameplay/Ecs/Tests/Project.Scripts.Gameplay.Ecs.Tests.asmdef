@@ -4,6 +4,7 @@
     "references": [
         "GUID:f05a540b3ed99964caa7e2894f38971b",
         "Leopotam.EcsLite",
+        "Unity.TextMeshPro",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

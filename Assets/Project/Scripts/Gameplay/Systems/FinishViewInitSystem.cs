@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.CanvasService;
+using Project.Scripts.Gameplay.Services.BridgeFactory;
 using Project.Scripts.Gameplay.Services.FinishViewService;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Views;
@@ -13,7 +14,7 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private const float FADE_DURATION = .5f;
         
-        private readonly FinishView m_finishViewPrefab;
+        private readonly IGameplayUiBridgeFactory m_gameplayUiBridgeFactory;
         private readonly IFinishViewService m_finishViewService;
         private readonly ICanvasService m_canvasService;
         private readonly IGameplayTweenRegistry m_gameplayTweenRegistry;
@@ -32,10 +33,11 @@ namespace Project.Scripts.Gameplay.Systems
         
         private int m_coinsTotalCount;
 
-        public FinishViewInitSystem(FinishView finishViewPrefab, IFinishViewService finishViewService, ICanvasService canvasService, IGameplayTweenRegistry gameplayTweenRegistry)
+        public FinishViewInitSystem(IGameplayUiBridgeFactory gameplayUiBridgeFactory, IFinishViewService finishViewService, ICanvasService canvasService,
+            IGameplayTweenRegistry gameplayTweenRegistry)
         {
             m_canvasService = canvasService;
-            m_finishViewPrefab = finishViewPrefab;
+            m_gameplayUiBridgeFactory = gameplayUiBridgeFactory;
             m_finishViewService = finishViewService;
             m_gameplayTweenRegistry = gameplayTweenRegistry;
         }
@@ -87,7 +89,7 @@ namespace Project.Scripts.Gameplay.Systems
                 
             var spawnPoint = m_canvasService.Canvas.transform;
 
-            var view = Object.Instantiate(m_finishViewPrefab, spawnPoint);
+            var view = m_gameplayUiBridgeFactory.CreateFinish(spawnPoint);
             m_finishViewService.Construct(newEntity, view);
 
             AddListeners();

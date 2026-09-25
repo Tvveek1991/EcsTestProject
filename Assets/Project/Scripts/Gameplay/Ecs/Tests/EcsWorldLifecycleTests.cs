@@ -5,6 +5,7 @@ using System.Reflection;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.BridgeFactory;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Sensors;
@@ -12,6 +13,7 @@ using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 using UnityEngine.TestTools;
+using TMPro;
 
 namespace Project.Scripts.Gameplay.Ecs.Tests
 {
@@ -214,18 +216,27 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             var boxPrefab = new GameObject("Box prefab");
             var coinPrefab = new GameObject("Coin prefab");
             var healthPrefab = new GameObject("Health prefab");
+            var canvasPrefab = new GameObject("Canvas prefab");
+            var levelPrefab = new GameObject("Level prefab");
+            var counterPrefab = new GameObject("Counter prefab");
             var parent = new GameObject("View parent");
 
             playerPrefab.AddComponent<PersonView>();
             boxPrefab.AddComponent<ObjectView>();
             coinPrefab.AddComponent<CoinView>();
             healthPrefab.AddComponent<HealthView>();
+            canvasPrefab.AddComponent<Canvas>();
+            levelPrefab.AddComponent<GameLevelView>();
+            counterPrefab.AddComponent<CoinsCounterView>();
 
             var factory = new GameplayViewFactory(
+                canvasPrefab.GetComponent<Canvas>(),
                 playerPrefab.GetComponent<PersonView>(),
                 boxPrefab.GetComponent<ObjectView>(),
                 coinPrefab.GetComponent<CoinView>(),
-                healthPrefab.GetComponent<HealthView>());
+                healthPrefab.GetComponent<HealthView>(),
+                levelPrefab.GetComponent<GameLevelView>(),
+                counterPrefab.GetComponent<CoinsCounterView>());
 
             try
             {
@@ -233,12 +244,20 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 ObjectView box = factory.CreateBox(parent.transform);
                 CoinView coin = factory.CreateCoin(parent.transform);
                 HealthView health = factory.CreateHealth(parent.transform);
+                Canvas canvas = factory.CreateCanvas();
+                GameLevelView level = factory.CreateGameLevel(parent.transform);
+                CoinsCounterView counter = factory.CreateCoinsCounter(parent.transform);
 
                 Assert.That(player.transform.parent, Is.EqualTo(parent.transform));
                 Assert.That(box.transform.parent, Is.EqualTo(parent.transform));
                 Assert.That(coin.transform.parent, Is.EqualTo(parent.transform));
                 Assert.That(health.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(level.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(counter.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(canvas.gameObject, Is.Not.SameAs(canvasPrefab));
                 Assert.That(player.gameObject, Is.Not.SameAs(playerPrefab));
+
+                Object.DestroyImmediate(canvas.gameObject);
             }
             finally
             {
@@ -247,6 +266,50 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 Object.DestroyImmediate(boxPrefab);
                 Object.DestroyImmediate(coinPrefab);
                 Object.DestroyImmediate(healthPrefab);
+                Object.DestroyImmediate(canvasPrefab);
+                Object.DestroyImmediate(levelPrefab);
+                Object.DestroyImmediate(counterPrefab);
+            }
+        }
+
+        [Test]
+        public void BridgeFactories_CreateUiSensorsAndEffectsOutsideEcsSystems()
+        {
+            var finishPrefab = new GameObject("Finish prefab");
+            var tutorialPrefab = new GameObject("Tutorial prefab");
+            var sensorPrefab = new GameObject("Sensor prefab");
+            var particlesPrefab = new GameObject("Particles prefab");
+            var parent = new GameObject("Bridge parent");
+
+            finishPrefab.AddComponent<FinishView>();
+            tutorialPrefab.AddComponent<TextMeshProUGUI>();
+            sensorPrefab.AddComponent<Sensor>();
+
+            var uiFactory = new GameplayUiBridgeFactory(
+                finishPrefab.GetComponent<FinishView>(),
+                tutorialPrefab.GetComponent<TextMeshProUGUI>());
+            var sensorFactory = new GameplaySensorBridgeFactory(sensorPrefab.GetComponent<Sensor>());
+            var effectsFactory = new GameplayEffectsBridgeFactory(particlesPrefab);
+
+            try
+            {
+                FinishView finish = uiFactory.CreateFinish(parent.transform);
+                GameObject tutorial = uiFactory.CreateTutorial(parent.transform);
+                Sensor sensor = sensorFactory.CreateSensor(parent.transform, new Vector2(1, 2));
+                GameObject particles = effectsFactory.CreateDestroyedParticles(new Vector3(3, 4, 0));
+
+                Assert.That(finish.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(tutorial.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(sensor.transform.localPosition, Is.EqualTo(new Vector3(1, 2, 0)));
+                Assert.That(particles.transform.position, Is.EqualTo(new Vector3(3, 4, 0)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(parent);
+                Object.DestroyImmediate(finishPrefab);
+                Object.DestroyImmediate(tutorialPrefab);
+                Object.DestroyImmediate(sensorPrefab);
+                Object.DestroyImmediate(particlesPrefab);
             }
         }
 

@@ -1,4 +1,5 @@
 using Project.Scripts.Gameplay.Services.CameraService;
+using Project.Scripts.Gameplay.Services.BridgeFactory;
 using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Services.CoinsCounterService;
 using Project.Scripts.Gameplay.Services.CoinsService;
@@ -23,6 +24,9 @@ namespace Gameplay
       builder.Register<IEntityViewRegistry, EntityViewRegistry>(Lifetime.Scoped);
       builder.Register<GameplayTweenRegistry>(Lifetime.Scoped).AsImplementedInterfaces();
       builder.Register<IGameplayViewFactory, GameplayViewFactory>(Lifetime.Scoped);
+      builder.Register<IGameplayUiBridgeFactory, GameplayUiBridgeFactory>(Lifetime.Scoped);
+      builder.Register<IGameplaySensorBridgeFactory, GameplaySensorBridgeFactory>(Lifetime.Scoped);
+      builder.Register<IGameplayEffectsBridgeFactory, GameplayEffectsBridgeFactory>(Lifetime.Scoped);
 
       builder.Register<ICoinsService, CoinsService>(Lifetime.Scoped);
       builder.Register<IGameLevelService, GameLevelService>(Lifetime.Scoped);

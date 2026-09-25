@@ -1,6 +1,7 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.GameLevelService;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace Project.Scripts.Gameplay
     {
         private const string GameLevelParentName = "Level";
         
-        private readonly GameLevelView m_gameLevelViewPrefab;
+        private readonly IGameplayViewFactory m_gameplayViewFactory;
         private readonly IGameLevelService m_gameLevelService;
 
         private EcsWorld m_world;
@@ -19,10 +20,10 @@ namespace Project.Scripts.Gameplay
         
         private GameObject m_parentObject;
         
-        public CreateGameLevelViewSystem(GameLevelView gameLevelViewPrefab, IGameLevelService gameLevelService)
+        public CreateGameLevelViewSystem(IGameplayViewFactory gameplayViewFactory, IGameLevelService gameLevelService)
         {
             m_gameLevelService = gameLevelService;
-            m_gameLevelViewPrefab = gameLevelViewPrefab;
+            m_gameplayViewFactory = gameplayViewFactory;
         }
         
         public void Init(IEcsSystems systems)
@@ -41,7 +42,7 @@ namespace Project.Scripts.Gameplay
             var entity = m_world.NewEntity();
             m_gameLevelPool.Add(entity);
 
-            var levelView = Object.Instantiate(m_gameLevelViewPrefab, m_parentObject.transform);
+            var levelView = m_gameplayViewFactory.CreateGameLevel(m_parentObject.transform);
             m_gameLevelService.Construct(entity, levelView);
         }
         

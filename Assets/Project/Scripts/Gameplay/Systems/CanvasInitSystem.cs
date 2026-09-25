@@ -1,22 +1,22 @@
 ﻿using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.CanvasService;
-using UnityEngine;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 
 namespace Project.Scripts.Gameplay.Systems
 {
     public class CanvasInitSystem : IEcsInitSystem, IEcsDestroySystem
     {
-        private readonly Canvas m_canvasPrefab;
+        private readonly IGameplayViewFactory m_gameplayViewFactory;
         private readonly ICanvasService m_canvasService;
 
         private EcsWorld m_world;
 
         private EcsPool<CanvasKeeper> m_canvasPool;
 
-        public CanvasInitSystem(Canvas canvasPrefab, ICanvasService canvasService)
+        public CanvasInitSystem(IGameplayViewFactory gameplayViewFactory, ICanvasService canvasService)
         {
-            m_canvasPrefab = canvasPrefab;
+            m_gameplayViewFactory = gameplayViewFactory;
             m_canvasService = canvasService;
         }
 
@@ -34,7 +34,7 @@ namespace Project.Scripts.Gameplay.Systems
             var canvasEntity = m_world.NewEntity();
             m_canvasPool.Add(canvasEntity);
             
-            var canvas = Object.Instantiate(m_canvasPrefab);
+            var canvas = m_gameplayViewFactory.CreateCanvas();
             m_canvasService.Construct(canvasEntity, canvas);
         }
 

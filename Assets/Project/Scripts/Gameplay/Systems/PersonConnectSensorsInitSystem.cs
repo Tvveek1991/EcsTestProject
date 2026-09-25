@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
+using Project.Scripts.Gameplay.Services.BridgeFactory;
 using Project.Scripts.Gameplay.Sensors;
-using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
@@ -19,12 +19,12 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<TransformKeeper> m_transformPool;
 
         private readonly SensorsData m_sensorsData;
-        private readonly Sensor m_connectSensorPrefab;
+        private readonly IGameplaySensorBridgeFactory m_gameplaySensorBridgeFactory;
 
-        public PersonConnectSensorsInitSystem(SensorsData sensorsData, Sensor connectSensorPrefab)
+        public PersonConnectSensorsInitSystem(SensorsData sensorsData, IGameplaySensorBridgeFactory gameplaySensorBridgeFactory)
         {
             m_sensorsData = sensorsData;
-            m_connectSensorPrefab = connectSensorPrefab;
+            m_gameplaySensorBridgeFactory = gameplaySensorBridgeFactory;
         }
         
         public void Init(IEcsSystems systems)
@@ -57,8 +57,7 @@ namespace Project.Scripts.Gameplay.Systems
                 m_groundCheckPool.Get(item).GroundSensors = new List<Sensor>();
                 foreach (var sensorPosition in m_sensorsData.GroundSensorPosition)
                 {
-                    var groundSensor = Object.Instantiate(m_connectSensorPrefab, m_transformPool.Get(item).ObjectTransform).GetComponent<Sensor>();
-                    groundSensor.transform.localPosition = sensorPosition;
+                    var groundSensor = m_gameplaySensorBridgeFactory.CreateSensor(m_transformPool.Get(item).ObjectTransform, sensorPosition);
                     m_groundCheckPool.Get(item).GroundSensors.Add(groundSensor);
                 }
             }
@@ -71,8 +70,7 @@ namespace Project.Scripts.Gameplay.Systems
                 m_wallCheckPool.Get(item).WallSensors = new List<Sensor>();
                 foreach (var sensorPosition in m_sensorsData.WallSensorsPosition)
                 {
-                    var wallSensor = Object.Instantiate(m_connectSensorPrefab, m_transformPool.Get(item).ObjectTransform).GetComponent<Sensor>();
-                    wallSensor.transform.localPosition = sensorPosition;
+                    var wallSensor = m_gameplaySensorBridgeFactory.CreateSensor(m_transformPool.Get(item).ObjectTransform, sensorPosition);
                     m_wallCheckPool.Get(item).WallSensors.Add(wallSensor);
                 }
             }
