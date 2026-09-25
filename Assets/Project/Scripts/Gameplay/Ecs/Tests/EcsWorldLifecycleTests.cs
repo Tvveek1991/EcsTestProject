@@ -1,13 +1,17 @@
 using Leopotam.EcsLite;
 using NUnit.Framework;
+using System.Collections;
+using System.Reflection;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Services.ViewFactory;
+using Project.Scripts.Gameplay.Sensors;
 using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Project.Scripts.Gameplay.Ecs.Tests
 {
@@ -246,6 +250,86 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             }
         }
 
+        [Test]
+        public void Sensor_StaysConnectedUntilAllCollidersExit()
+        {
+            var sensorObject = new GameObject("Sensor");
+            var firstColliderObject = new GameObject("First collider");
+            var secondColliderObject = new GameObject("Second collider");
+            var sensor = sensorObject.AddComponent<Sensor>();
+            var firstCollider = firstColliderObject.AddComponent<BoxCollider2D>();
+            var secondCollider = secondColliderObject.AddComponent<BoxCollider2D>();
+
+            try
+            {
+                InvokeSensorTrigger(sensor, "OnTriggerEnter2D", firstCollider);
+                InvokeSensorTrigger(sensor, "OnTriggerEnter2D", secondCollider);
+                InvokeSensorTrigger(sensor, "OnTriggerExit2D", firstCollider);
+
+                Assert.That(sensor.IsConnected, Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(sensorObject);
+                Object.DestroyImmediate(firstColliderObject);
+                Object.DestroyImmediate(secondColliderObject);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Sensor_ReenterCancelsPendingExit()
+        {
+            var sensorObject = new GameObject("Sensor");
+            var colliderObject = new GameObject("Collider");
+            var sensor = sensorObject.AddComponent<Sensor>();
+            var collider = colliderObject.AddComponent<BoxCollider2D>();
+
+            try
+            {
+                InvokeSensorTrigger(sensor, "OnTriggerEnter2D", collider);
+                InvokeSensorTrigger(sensor, "OnTriggerExit2D", collider);
+                InvokeSensorTrigger(sensor, "OnTriggerEnter2D", collider);
+
+                yield return new WaitForSecondsRealtime(0.2f);
+
+                Assert.That(sensor.IsConnected, Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(sensorObject);
+                Object.DestroyImmediate(colliderObject);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Sensor_DestroyingViewCancelsPendingExit()
+        {
+            var sensorObject = new GameObject("Sensor");
+            var colliderObject = new GameObject("Collider");
+            var sensor = sensorObject.AddComponent<Sensor>();
+            var collider = colliderObject.AddComponent<BoxCollider2D>();
+
+            try
+            {
+                InvokeSensorTrigger(sensor, "OnTriggerEnter2D", collider);
+                InvokeSensorTrigger(sensor, "OnTriggerExit2D", collider);
+
+                InvokeSensorLifecycle(sensor, "OnDestroy");
+                Object.DestroyImmediate(sensorObject);
+
+                Assert.That(GetPendingExitCancellationTokenSource(sensor), Is.Null);
+
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
+            finally
+            {
+                if (sensorObject != null)
+                    Object.DestroyImmediate(sensorObject);
+
+                Object.DestroyImmediate(colliderObject);
+            }
+        }
+
         private sealed class LifecycleProbeSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
         {
             public int InitCallCount { get; private set; }
@@ -271,6 +355,24 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 DestroyCallCount++;
                 WorldWasAliveDuringDestroy = systems.GetWorld().IsAlive();
             }
+        }
+
+        private static void InvokeSensorTrigger(Sensor sensor, string methodName, Collider2D collider)
+        {
+            var method = typeof(Sensor).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(sensor, new object[] { collider });
+        }
+
+        private static object GetPendingExitCancellationTokenSource(Sensor sensor)
+        {
+            var field = typeof(Sensor).GetField("m_pendingExitCancellationTokenSource", BindingFlags.Instance | BindingFlags.NonPublic);
+            return field.GetValue(sensor);
+        }
+
+        private static void InvokeSensorLifecycle(Sensor sensor, string methodName)
+        {
+            var method = typeof(Sensor).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(sensor, null);
         }
 
         private sealed class SessionLifecycleProbeSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
