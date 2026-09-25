@@ -77,8 +77,10 @@ view registry и cancellation token. При завершении сессии п
 Текущая точка владения — `GameEcsLoop` и созданный им `GameSession`.
 `GameSession` создаёт `EcsWorld`/`EcsSystems`, публикует token отмены, запускает
 системы и при dispose отменяет token до `EcsSystems.Destroy()` и
-`EcsWorld.Destroy()`. Перевод тиков на Unity lifecycle и разделение на фазы
-остаются следующими шагами миграции.
+`EcsWorld.Destroy()`. `ApplicationState` реализует VContainer `ITickable`,
+поэтому текущий общий ECS tick вызывается Unity `Update`, а не
+`Observable.EveryUpdate()`. Разделение тиков на fixed/late-фазы остаётся
+следующим шагом миграции.
 
 DOTween callback обязан принадлежать конкретной сессии и перед записью в ECS
 проверять, что сессия активна, а entity ещё валидна. Callback не может замыкать

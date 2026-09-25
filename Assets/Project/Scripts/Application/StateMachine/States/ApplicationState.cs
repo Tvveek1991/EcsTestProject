@@ -5,11 +5,11 @@ using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Ecs;
 using Project.Scripts.Gameplay.Services.LoadScreenService;
 using Project.Scripts.Gameplay.Services.ReactionService;
-using UniRx;
+using VContainer.Unity;
 
 namespace Application.StateMachine.States
 {  
-  public sealed class ApplicationState : IApplicationState
+  public sealed class ApplicationState : IApplicationState, ITickable
   {
     private readonly IReactionService m_reactionService;
     private readonly ILoadScreenService m_loadScreenService;
@@ -21,8 +21,6 @@ namespace Application.StateMachine.States
 
     private GameEcsLoop m_gameEcsLoop;
     
-    private CompositeDisposable m_disposables;
-
     public ApplicationState(IDependenciesContainer dependenciesContainer, IReactionService reactionService, IApplicationStateMachine applicationStateMachine,
       ILoadScreenService loadScreenService)
     {
@@ -37,19 +35,13 @@ namespace Application.StateMachine.States
       await m_dependenciesContainer.CreateApplicationStateDependencies();
       m_ecsSystems = m_dependenciesContainer.ResolveSystems();
       
-      m_disposables = new CompositeDisposable();
-      
       LaunchEcs();
-      Observable.EveryUpdate().Subscribe(_ => Update()).AddTo(m_disposables);
       
       m_loadScreenService.SetComplete();
     }
 
     public void Exit()
     {
-      m_disposables?.Dispose();
-      m_disposables = null;
-
       m_reactionService.OnRestartGame -= Restart;
       DestroyEcs();
 
@@ -70,7 +62,7 @@ namespace Application.StateMachine.States
       m_reactionService.OnRestartGame += Restart;
     }
 
-    private void Update() => 
+    public void Tick() =>
       m_gameEcsLoop?.Tick();
 
     private void DestroyEcs()

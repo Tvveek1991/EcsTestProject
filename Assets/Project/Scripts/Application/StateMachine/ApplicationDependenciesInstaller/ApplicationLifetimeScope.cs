@@ -31,7 +31,7 @@ namespace Application.StateMachine.ApplicationDependenciesInstaller
       
       builder.Register<IApplicationStateMachine, ApplicationStateMachine>(Lifetime.Singleton);
       
-      builder.Register<ApplicationState>(Lifetime.Singleton);
+      builder.RegisterEntryPoint<ApplicationState>(Lifetime.Singleton).AsSelf();
       builder.Register<StartupState>(Lifetime.Singleton);
       builder.Register<RestartGameState>(Lifetime.Singleton);
     }
