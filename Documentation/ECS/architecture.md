@@ -74,6 +74,12 @@ view registry и cancellation token. При завершении сессии п
 4. Освободить view и bridge-ресурсы.
 5. Уничтожить `EcsWorld` и scoped DI-container.
 
+Текущая точка владения — `GameEcsLoop` и созданный им `GameSession`.
+`GameSession` создаёт `EcsWorld`/`EcsSystems`, публикует token отмены, запускает
+системы и при dispose отменяет token до `EcsSystems.Destroy()` и
+`EcsWorld.Destroy()`. Перевод тиков на Unity lifecycle и разделение на фазы
+остаются следующими шагами миграции.
+
 DOTween callback обязан принадлежать конкретной сессии и перед записью в ECS
 проверять, что сессия активна, а entity ещё валидна. Callback не может замыкать
 мир, который переживёт teardown. Временный `GameObject` и каждый tween имеют

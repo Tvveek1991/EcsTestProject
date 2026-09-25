@@ -109,7 +109,7 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 **Задачи**
 
-1. Ввести `GameEcsLoop` / `GameSession`, владеющий `EcsWorld`, системами и отменой сессии.
+1. [x] Введены `GameEcsLoop` / `GameSession`, владеющие `EcsWorld`, системами и cancellation token сессии; порядок teardown проверяется EditMode-тестом.
 2. Заменить `Observable.EveryUpdate()` на Unity lifecycle: `Update`, `FixedUpdate`, `LateUpdate` или эквивалентные VContainer entry points.
 3. Разделить регистрацию на явные группы: `InitializationSystems`, `InputSystems`, `SimulationSystems`, `PhysicsSystems`, `PresentationSystems`, `CleanupSystems`.
 4. Вынести порядок систем из неявного `IEnumerable<IEcsSystem>` в один декларативный composer/installer.

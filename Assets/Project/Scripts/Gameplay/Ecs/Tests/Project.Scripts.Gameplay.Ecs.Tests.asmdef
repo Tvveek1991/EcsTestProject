@@ -2,6 +2,7 @@
     "name": "Project.Scripts.Gameplay.Ecs.Tests",
     "rootNamespace": "Project.Scripts.Gameplay.Ecs.Tests",
     "references": [
+        "GUID:f05a540b3ed99964caa7e2894f38971b",
         "Leopotam.EcsLite",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

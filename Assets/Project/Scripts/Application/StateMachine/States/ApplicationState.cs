@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Application.ContainerMediator;
 using Application.StateMachine.Interfaces;
-using DG.Tweening;
 using Leopotam.EcsLite;
+using Project.Scripts.Gameplay.Ecs;
 using Project.Scripts.Gameplay.Services.LoadScreenService;
 using Project.Scripts.Gameplay.Services.ReactionService;
 using UniRx;
@@ -19,8 +19,7 @@ namespace Application.StateMachine.States
     
     private IEnumerable<IEcsSystem> m_ecsSystems;
 
-    private EcsWorld m_world;
-    private IEcsSystems m_systems;
+    private GameEcsLoop m_gameEcsLoop;
     
     private CompositeDisposable m_disposables;
 
@@ -48,7 +47,10 @@ namespace Application.StateMachine.States
 
     public void Exit()
     {
-      m_disposables.Dispose();
+      m_disposables?.Dispose();
+      m_disposables = null;
+
+      m_reactionService.OnRestartGame -= Restart;
       DestroyEcs();
 
       m_dependenciesContainer.CleanupApplicationStateDependencies();
@@ -56,57 +58,34 @@ namespace Application.StateMachine.States
 
     private void LaunchEcs()
     {
-      m_world = new EcsWorld();
+      var systems = new List<IEcsSystem>(m_ecsSystems);
 
-      m_systems = new EcsSystems(m_world);
-    
-      foreach (IEcsSystem ecsSystem in m_ecsSystems)
-        m_systems.Add(ecsSystem);
-      
-      m_systems
 #if UNITY_EDITOR
-        .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
+      systems.Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem());
 #endif
-        .Init();
+
+      m_gameEcsLoop = new GameEcsLoop();
+      m_gameEcsLoop.Start(systems);
 
       m_reactionService.OnRestartGame += Restart;
     }
 
     private void Update() => 
-      m_systems?.Run();
+      m_gameEcsLoop?.Tick();
 
     private void DestroyEcs()
     {
-      CleanupSystems();
-      CleanupWorlds();
+      m_gameEcsLoop?.Dispose();
+      m_gameEcsLoop = null;
     }
 
     private void Restart()
     {
-      // DOTween.KillAll();
       m_reactionService.OnRestartGame -= Restart;
       m_loadScreenService.ShowLoadScreen(() =>
       {
         m_applicationStateMachine.Enter<RestartGameState>();
       });
-    }
-
-    private void CleanupSystems()
-    {
-      if (m_systems == null)
-        return;
-
-      m_systems.Destroy();
-      m_systems = null;
-    }
-
-    private void CleanupWorlds()
-    {
-      if (m_world == null)
-        return;
-
-      m_world.Destroy();
-      m_world = null;
     }
   }
 }

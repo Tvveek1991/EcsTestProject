@@ -52,6 +52,24 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             Assert.That(m_world.IsAlive(), Is.False);
         }
 
+        [Test]
+        public void GameSession_CancelsBeforeDestroyingSystemsAndWorld()
+        {
+            var probeSystem = new SessionLifecycleProbeSystem();
+            using var session = new GameSession(new IEcsSystem[] { probeSystem });
+
+            probeSystem.SetCancellationToken(session.CancellationToken);
+            session.Start();
+            session.Tick();
+            session.Dispose();
+
+            Assert.That(probeSystem.InitCallCount, Is.EqualTo(1));
+            Assert.That(probeSystem.RunCallCount, Is.EqualTo(1));
+            Assert.That(probeSystem.DestroyCallCount, Is.EqualTo(1));
+            Assert.That(probeSystem.CancellationWasRequestedDuringDestroy, Is.True);
+            Assert.That(probeSystem.WorldWasAliveDuringDestroy, Is.True);
+        }
+
         private sealed class LifecycleProbeSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
         {
             public int InitCallCount { get; private set; }
@@ -75,6 +93,43 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             public void Destroy(IEcsSystems systems)
             {
                 DestroyCallCount++;
+                WorldWasAliveDuringDestroy = systems.GetWorld().IsAlive();
+            }
+        }
+
+        private sealed class SessionLifecycleProbeSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
+        {
+            private System.Threading.CancellationToken m_cancellationToken;
+
+            public int InitCallCount { get; private set; }
+
+            public int RunCallCount { get; private set; }
+
+            public int DestroyCallCount { get; private set; }
+
+            public bool CancellationWasRequestedDuringDestroy { get; private set; }
+
+            public bool WorldWasAliveDuringDestroy { get; private set; }
+
+            public void SetCancellationToken(System.Threading.CancellationToken cancellationToken)
+            {
+                m_cancellationToken = cancellationToken;
+            }
+
+            public void Init(IEcsSystems systems)
+            {
+                InitCallCount++;
+            }
+
+            public void Run(IEcsSystems systems)
+            {
+                RunCallCount++;
+            }
+
+            public void Destroy(IEcsSystems systems)
+            {
+                DestroyCallCount++;
+                CancellationWasRequestedDuringDestroy = m_cancellationToken.IsCancellationRequested;
                 WorldWasAliveDuringDestroy = systems.GetWorld().IsAlive();
             }
         }
