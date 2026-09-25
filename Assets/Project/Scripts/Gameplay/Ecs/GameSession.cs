@@ -10,11 +10,12 @@ namespace Project.Scripts.Gameplay.Ecs
         private readonly CancellationTokenSource m_cancellationTokenSource;
         private readonly EcsWorld m_world;
         private readonly IEcsSystems m_systems;
+        private readonly List<IGameSessionOperation> m_sessionOperations;
 
         private bool m_isStarted;
         private bool m_isDisposed;
 
-        public GameSession(IEnumerable<IEcsSystem> systems)
+        public GameSession(IEnumerable<IEcsSystem> systems, IEnumerable<IGameSessionOperation> sessionOperations = null)
         {
             if (systems == null)
                 throw new ArgumentNullException(nameof(systems));
@@ -22,6 +23,7 @@ namespace Project.Scripts.Gameplay.Ecs
             m_cancellationTokenSource = new CancellationTokenSource();
             m_world = new EcsWorld();
             m_systems = new EcsSystems(m_world);
+            m_sessionOperations = sessionOperations == null ? new List<IGameSessionOperation>() : new List<IGameSessionOperation>(sessionOperations);
 
             foreach (IEcsSystem system in systems)
             {
@@ -74,14 +76,27 @@ namespace Project.Scripts.Gameplay.Ecs
 
             try
             {
-                if (m_isStarted)
-                    m_systems.Destroy();
+                CancelSessionOperations();
             }
             finally
             {
-                m_world.Destroy();
-                m_cancellationTokenSource.Dispose();
+                try
+                {
+                    if (m_isStarted)
+                        m_systems.Destroy();
+                }
+                finally
+                {
+                    m_world.Destroy();
+                    m_cancellationTokenSource.Dispose();
+                }
             }
+        }
+
+        private void CancelSessionOperations()
+        {
+            foreach (IGameSessionOperation sessionOperation in m_sessionOperations)
+                sessionOperation?.Cancel();
         }
 
         private void ThrowIfDisposed()

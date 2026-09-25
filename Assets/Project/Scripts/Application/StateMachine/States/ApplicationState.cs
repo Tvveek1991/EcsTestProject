@@ -92,7 +92,7 @@ namespace Application.StateMachine.States
 #endif
 
       m_gameEcsLoop = new GameEcsLoop();
-      m_gameEcsLoop.Start(systems);
+      m_gameEcsLoop.Start(systems, m_dependenciesContainer.ResolveSessionOperations());
 
       m_reactionService.OnRestartGame += Restart;
     }

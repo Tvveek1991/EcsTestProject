@@ -3,6 +3,7 @@ using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Serializabled;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private readonly GameObject m_destroyParticlesPrefab;
         private readonly IEntityViewRegistry m_entityViewRegistry;
+        private readonly IGameplayTweenRegistry m_gameplayTweenRegistry;
 
         private EcsWorld m_world;
 
@@ -21,9 +23,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<DeadCommand> m_deadCommandPool;
         private EcsPool<TransformKeeper> m_transformPool;
 
-        public DestroyObjectViewSystem(GameObject destroyParticlesPrefab, IEntityViewRegistry entityViewRegistry)
+        public DestroyObjectViewSystem(GameObject destroyParticlesPrefab, IEntityViewRegistry entityViewRegistry, IGameplayTweenRegistry gameplayTweenRegistry)
         {
             m_entityViewRegistry = entityViewRegistry;
+            m_gameplayTweenRegistry = gameplayTweenRegistry;
             m_destroyParticlesPrefab = destroyParticlesPrefab;
         }
         
@@ -53,13 +56,16 @@ namespace Project.Scripts.Gameplay.Systems
                 var particles = Object.Instantiate(m_destroyParticlesPrefab, view.GetDestroyParticlesPoint().position, Quaternion.identity, null);
 
                 var objectTransform = m_transformPool.Get(entity).ObjectTransform;
-                objectTransform.DOScale(0, .25f)
+                m_gameplayTweenRegistry.Track(objectTransform.DOScale(0, .25f))
                     .OnComplete(() =>
                     {
-                        objectTransform.DOKill();
-                        Object.Destroy(particles.gameObject);
+                        m_gameplayTweenRegistry.TryExecute(() =>
+                        {
+                            objectTransform.DOKill();
+                            Object.Destroy(particles.gameObject);
 
-                        m_deadCommandPool.Get(entity).Status = ProcessStatus.Completed;
+                            m_deadCommandPool.Get(entity).Status = ProcessStatus.Completed;
+                        });
                     });
             }
         }

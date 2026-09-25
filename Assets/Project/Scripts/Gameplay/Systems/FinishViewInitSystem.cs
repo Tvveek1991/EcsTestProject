@@ -3,6 +3,7 @@ using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Services.FinishViewService;
+using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ namespace Project.Scripts.Gameplay.Systems
         private readonly FinishView m_finishViewPrefab;
         private readonly IFinishViewService m_finishViewService;
         private readonly ICanvasService m_canvasService;
+        private readonly IGameplayTweenRegistry m_gameplayTweenRegistry;
 
         private EcsWorld m_world;
 
@@ -30,11 +32,12 @@ namespace Project.Scripts.Gameplay.Systems
         
         private int m_coinsTotalCount;
 
-        public FinishViewInitSystem(FinishView finishViewPrefab, IFinishViewService finishViewService, ICanvasService canvasService)
+        public FinishViewInitSystem(FinishView finishViewPrefab, IFinishViewService finishViewService, ICanvasService canvasService, IGameplayTweenRegistry gameplayTweenRegistry)
         {
             m_canvasService = canvasService;
             m_finishViewPrefab = finishViewPrefab;
             m_finishViewService = finishViewService;
+            m_gameplayTweenRegistry = gameplayTweenRegistry;
         }
 
         public void Init(IEcsSystems systems)
@@ -96,15 +99,18 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_finishViewService.View.RestartButton.onClick.AddListener(() =>
             {
-                var entity = m_world.NewEntity();
-                m_reactionPool.Add(entity).Type = ReactionType.CompleteState;
+                m_gameplayTweenRegistry.TryExecute(() =>
+                {
+                    var entity = m_world.NewEntity();
+                    m_reactionPool.Add(entity).Type = ReactionType.CompleteState;
+                });
             });
         }
 
         private void ShowView(bool isWin)
         {
             m_finishViewService.View.CanvasGroup.alpha = 1;
-            m_finishViewService.View.CanvasGroup.DOFade(1f, FADE_DURATION);
+            m_gameplayTweenRegistry.Track(m_finishViewService.View.CanvasGroup.DOFade(1f, FADE_DURATION));
 
             m_finishViewService.View.Title.text = isWin ? "You win" : "You died";
             m_finishViewService.View.ButtonText.text = isWin ? "Start new game" : "Restart";

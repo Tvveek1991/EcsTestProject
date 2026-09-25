@@ -10,12 +10,12 @@ namespace Project.Scripts.Gameplay.Ecs
 
         public bool IsRunning => m_session != null && m_session.IsRunning;
 
-        public void Start(IEnumerable<IEcsSystem> systems)
+        public void Start(IEnumerable<IEcsSystem> systems, IEnumerable<IGameSessionOperation> sessionOperations = null)
         {
             if (m_session != null)
                 throw new InvalidOperationException("Game ECS loop is already running.");
 
-            GameSession session = new GameSession(systems);
+            GameSession session = new GameSession(systems, sessionOperations);
 
             try
             {

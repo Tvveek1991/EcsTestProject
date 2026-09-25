@@ -1,17 +1,17 @@
-using System.Collections.Generic;
 using DG.Tweening;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CoinsViewAnimationSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem, IEcsPostRunSystem
+    public class CoinsViewAnimationSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
     {
         private readonly IEntityViewRegistry m_entityViewRegistry;
-        private readonly List<Sequence> m_sequences = new();
+        private readonly IGameplayTweenRegistry m_gameplayTweenRegistry;
         
         private EcsWorld m_world;
 
@@ -20,9 +20,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<TransformKeeper> m_transformPool;
         private EcsPool<CoinsCounterChange> m_coinsCounterChangePool;
 
-        public CoinsViewAnimationSystem(IEntityViewRegistry entityViewRegistry)
+        public CoinsViewAnimationSystem(IEntityViewRegistry entityViewRegistry, IGameplayTweenRegistry gameplayTweenRegistry)
         {
             m_entityViewRegistry = entityViewRegistry;
+            m_gameplayTweenRegistry = gameplayTweenRegistry;
         }
         
         public void Init(IEcsSystems systems)
@@ -41,28 +42,25 @@ namespace Project.Scripts.Gameplay.Systems
             {
                 var coinTransform = m_transformPool.Get(coinView).ObjectTransform;
 
-                var sequence = DOTween.Sequence();
+                var sequence = m_gameplayTweenRegistry.Track(DOTween.Sequence());
                 sequence
                     .Append(coinTransform.DOScale(0, .5f))
                     .Join(coinTransform.DOLocalMoveY(coinTransform.localPosition.y + 1, .5f))
                     .OnComplete(() =>
                     {
-                        var entity = m_world.NewEntity();
-                        m_coinsCounterChangePool.Add(entity).CorrectionValue = 1;
-                        coinTransform.DOKill();
+                        m_gameplayTweenRegistry.TryExecute(() =>
+                        {
+                            var entity = m_world.NewEntity();
+                            m_coinsCounterChangePool.Add(entity).CorrectionValue = 1;
+                            coinTransform.DOKill();
 
-                        m_sequences.Remove(sequence);
-                        
-                        sequence.Kill();
-                        sequence = null;
+                            if (!m_entityViewRegistry.TryGet(coinView, out CoinView view))
+                                return;
 
-                        if (!m_entityViewRegistry.TryGet(coinView, out CoinView view))
-                            return;
-                        
-                        Object.Destroy(view.gameObject);
-                        m_entityViewRegistry.Unregister(coinView);
+                            m_entityViewRegistry.Unregister(coinView);
+                            Object.Destroy(view.gameObject);
+                        });
                     });
-                m_sequences.Add(sequence);
             }
         }
 
@@ -74,12 +72,5 @@ namespace Project.Scripts.Gameplay.Systems
             }
         }
         
-        public void Destroy(IEcsSystems systems)
-        {
-            /*m_sequences.ForEach(item =>
-            {
-                item?.Kill();
-            });*/
-        }
     }
 }

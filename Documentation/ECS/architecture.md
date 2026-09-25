@@ -52,6 +52,13 @@ teardown scoped registry очищает связи; системы удален�
 фабрики, регистрируют его и настраивают presentation-state, но не вызывают
 `Object.Instantiate` напрямую.
 
+`IGameplayTweenRegistry` — scoped owner всех gameplay tween и sequence. Он
+передаётся в `GameSession` как external operation: при teardown сначала
+отменяется token, затем registry убивает отслеживаемые tween, и только после
+этого уничтожаются ECS systems и world. Любой callback, который пишет в ECS,
+выполняется через `TryExecute`, поэтому после отмены сессии он не обращается к
+уже уничтоженному миру.
+
 ## Фазы игрового цикла
 
 ```text

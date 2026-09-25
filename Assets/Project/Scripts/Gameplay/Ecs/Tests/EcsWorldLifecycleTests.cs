@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Views;
@@ -63,9 +64,11 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         public void GameSession_CancelsBeforeDestroyingSystemsAndWorld()
         {
             var probeSystem = new SessionLifecycleProbeSystem();
-            using var session = new GameSession(new IEcsSystem[] { probeSystem });
+            var sessionOperation = new SessionOperationProbe();
+            using var session = new GameSession(new IEcsSystem[] { probeSystem }, new IGameSessionOperation[] { sessionOperation });
 
             probeSystem.SetCancellationToken(session.CancellationToken);
+            probeSystem.SetSessionOperation(sessionOperation);
             session.Start();
             session.Tick();
             session.Dispose();
@@ -75,7 +78,9 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             Assert.That(probeSystem.RunCallCount, Is.EqualTo(1));
             Assert.That(probeSystem.DestroyCallCount, Is.EqualTo(1));
             Assert.That(probeSystem.CancellationWasRequestedDuringDestroy, Is.True);
+            Assert.That(probeSystem.SessionOperationWasCanceledDuringDestroy, Is.True);
             Assert.That(probeSystem.WorldWasAliveDuringDestroy, Is.True);
+            Assert.That(sessionOperation.CancelCallCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -116,6 +121,31 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 world.Destroy();
                 Object.DestroyImmediate(personData);
             }
+        }
+
+        [Test]
+        public void GameplayTweenRegistry_BlocksCallbacksAfterCancellation()
+        {
+            var tweenRegistry = new GameplayTweenRegistry();
+            bool callbackWasCalled = false;
+
+            tweenRegistry.Cancel();
+
+            Assert.That(tweenRegistry.IsSessionActive, Is.False);
+            Assert.That(tweenRegistry.TryExecute(() => callbackWasCalled = true), Is.False);
+            Assert.That(callbackWasCalled, Is.False);
+        }
+
+        [Test]
+        public void GameSession_DestroysSystemsWhenSessionOperationCancellationFails()
+        {
+            var probeSystem = new LifecycleProbeSystem();
+            var session = new GameSession(new IEcsSystem[] { probeSystem }, new IGameSessionOperation[] { new ThrowingSessionOperation() });
+            session.Start();
+
+            Assert.Throws<System.InvalidOperationException>(() => session.Dispose());
+            Assert.That(probeSystem.DestroyCallCount, Is.EqualTo(1));
+            Assert.That(probeSystem.WorldWasAliveDuringDestroy, Is.True);
         }
 
         [Test]
@@ -246,6 +276,7 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         private sealed class SessionLifecycleProbeSystem : IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem
         {
             private System.Threading.CancellationToken m_cancellationToken;
+            private SessionOperationProbe m_sessionOperation;
 
             public int InitCallCount { get; private set; }
 
@@ -255,11 +286,18 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
 
             public bool CancellationWasRequestedDuringDestroy { get; private set; }
 
+            public bool SessionOperationWasCanceledDuringDestroy { get; private set; }
+
             public bool WorldWasAliveDuringDestroy { get; private set; }
 
             public void SetCancellationToken(System.Threading.CancellationToken cancellationToken)
             {
                 m_cancellationToken = cancellationToken;
+            }
+
+            public void SetSessionOperation(SessionOperationProbe sessionOperation)
+            {
+                m_sessionOperation = sessionOperation;
             }
 
             public void Init(IEcsSystems systems)
@@ -276,7 +314,28 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             {
                 DestroyCallCount++;
                 CancellationWasRequestedDuringDestroy = m_cancellationToken.IsCancellationRequested;
+                SessionOperationWasCanceledDuringDestroy = m_sessionOperation.IsCanceled;
                 WorldWasAliveDuringDestroy = systems.GetWorld().IsAlive();
+            }
+        }
+
+        private sealed class SessionOperationProbe : IGameSessionOperation
+        {
+            public int CancelCallCount { get; private set; }
+
+            public bool IsCanceled => CancelCallCount > 0;
+
+            public void Cancel()
+            {
+                CancelCallCount++;
+            }
+        }
+
+        private sealed class ThrowingSessionOperation : IGameSessionOperation
+        {
+            public void Cancel()
+            {
+                throw new System.InvalidOperationException();
             }
         }
     }

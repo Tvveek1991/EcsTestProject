@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Views;
 
 namespace Project.Scripts.Gameplay.Systems
@@ -12,6 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
         private const float SLIDER_CHANGE_DURATION = .25f;
         
         private readonly IEntityViewRegistry m_entityViewRegistry;
+        private readonly IGameplayTweenRegistry m_gameplayTweenRegistry;
 
         private EcsWorld m_world;
 
@@ -22,9 +24,10 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<HitCommand> m_hitCommandPool;
         private EcsPool<HealCommand> m_healCommandPool;
 
-        public HealthViewChangeSystem(IEntityViewRegistry entityViewRegistry)
+        public HealthViewChangeSystem(IEntityViewRegistry entityViewRegistry, IGameplayTweenRegistry gameplayTweenRegistry)
         {
             m_entityViewRegistry = entityViewRegistry;
+            m_gameplayTweenRegistry = gameplayTweenRegistry;
         }
         
         public void Init(IEcsSystems systems)
@@ -54,11 +57,14 @@ namespace Project.Scripts.Gameplay.Systems
                 if(!m_entityViewRegistry.TryGet(health.ViewEntity, out HealthView view))
                     continue;
 
-                view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION)
+                m_gameplayTweenRegistry.Track(view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION))
                     .OnComplete(() =>
                     {
-                        if (view.HealthBar.value >= view.HealthBar.maxValue)
-                            view.CanvasGroup.DOFade(0f, FADE_DURATION);
+                        m_gameplayTweenRegistry.TryExecute(() =>
+                        {
+                            if (view.HealthBar.value >= view.HealthBar.maxValue)
+                                m_gameplayTweenRegistry.Track(view.CanvasGroup.DOFade(0f, FADE_DURATION));
+                        });
                     });
                 
                 m_healCommandPool.Del(entity);
@@ -75,9 +81,9 @@ namespace Project.Scripts.Gameplay.Systems
                     continue;
 
                 if (view.CanvasGroup.alpha <= 0)
-                    view.CanvasGroup.DOFade(1f, FADE_DURATION);
+                    m_gameplayTweenRegistry.Track(view.CanvasGroup.DOFade(1f, FADE_DURATION));
 
-                view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION);
+                m_gameplayTweenRegistry.Track(view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION));
                 
                 m_hitCommandPool.Del(entity);
             }

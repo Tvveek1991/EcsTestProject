@@ -70,6 +70,9 @@ namespace Application.ContainerMediator
       return composer.Compose(registeredSystems);
     }
 
+    public IEnumerable<IGameSessionOperation> ResolveSessionOperations() =>
+      _applicationScope.Container.Resolve<IEnumerable<IGameSessionOperation>>();
+
     public void CleanupApplicationStateDependencies()
     {
       _applicationScope?.Dispose();
