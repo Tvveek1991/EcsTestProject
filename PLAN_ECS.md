@@ -92,9 +92,9 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 **Задачи**
 
-1. Согласовать canonical location и namespace для нового кода: либо миграционный план к `Assets/sablegames`, либо актуализировать `AGENTS.md` под `Assets/Project`.
-2. Добавить `Documentation/ECS/architecture.md` с этой моделью, правилами систем и примером новой механики.
-3. Создать тестовую assembly для pure ECS-тестов и добавить минимальный test runner setup.
+1. [x] Canonical location и namespace согласованы: новый ECS-код находится в `Assets/Project/Scripts/Gameplay/Ecs/` и использует `Project.Scripts.Gameplay.Ecs.*`; `AGENTS.md` актуализирован под `Assets/Project`.
+2. [x] Добавлен `Documentation/ECS/architecture.md` с целевой моделью, правилами систем и примером новой механики.
+3. [x] Создана EditMode assembly `Project.Scripts.Gameplay.Ecs.Tests` для pure ECS-тестов и smoke-тест жизненного цикла `EcsWorld`.
 4. Подготовить профилировочный сценарий: старт уровня, бег/прыжок, атака объектов, сбор монет, рестарт во время анимации.
 5. Зафиксировать baseline: CPU/frame, GC Alloc/frame, количество сущностей, количество активных tween, время рестарта.
 6. Пиновать Git-зависимости ECS, UniTask и VContainer на tag или commit SHA в `Packages/manifest.json`; `packages-lock.json` остаётся в репозитории.
