@@ -56,6 +56,12 @@ Unity-ссылки в ECS допустимы только как явно наз
 Порядок систем внутри каждой фазы объявляется в одном composer/installer, а не
 вытекает из порядка разрешения `IEnumerable<IEcsSystem>` контейнером.
 
+На переходном этапе `GameSystemsInstaller` уже регистрирует шесть явных групп
+в порядке `Initialization → Input → Simulation → Physics → Presentation →
+Cleanup`, но они пока исполняются одним `Update` tick. Отдельный composer
+закрепит порядок систем, а отдельные Unity ticks для physics/presentation будут
+добавлены только после фиксации правил передачи команд между фазами.
+
 Команда, созданная в Input, доступна Simulation в том же кадре. Presentation
 читает результаты Simulation, но не создаёт gameplay-команды в ответ на
 визуальное завершение. Bridge-событие, которое действительно должно влиять на

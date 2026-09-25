@@ -111,7 +111,7 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 1. [x] Введены `GameEcsLoop` / `GameSession`, владеющие `EcsWorld`, системами и cancellation token сессии; порядок teardown проверяется EditMode-тестом.
 2. [x] `Observable.EveryUpdate()` заменён на VContainer `ITickable`: `ApplicationState` получает Unity `Update` и тикает активный `GameEcsLoop`.
-3. Разделить регистрацию на явные группы: `InitializationSystems`, `InputSystems`, `SimulationSystems`, `PhysicsSystems`, `PresentationSystems`, `CleanupSystems`.
+3. [x] Регистрация разделена на явные группы `Initialization`, `Input`, `Simulation`, `Physics`, `Presentation` и `Cleanup` в `GameSystemsInstaller`; пока они исполняются одним `Update` tick.
 4. Вынести порядок систем из неявного `IEnumerable<IEcsSystem>` в один декларативный composer/installer.
 5. Определить правила перехода между фазами: команды, созданные в Input, доступны Simulation в этом же кадре; presentation не меняет gameplay-состояние, кроме явно разрешённых bridge-событий.
 6. В `Destroy` сначала остановить тики и отменить внешние операции, затем вызвать `EcsSystems.Destroy()`, затем уничтожить мир и scoped DI-container.
