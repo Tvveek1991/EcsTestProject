@@ -70,6 +70,10 @@ ticks для physics/presentation будут добавлены только п�
 игру (например, контакт коллайдера), имеет отдельный явно описанный компонент и
 обрабатывается в следующей разрешённой simulation-фазе.
 
+Полный контракт срока жизни команд и переходов между текущими группами приведён
+в [phase-transition-rules.md](phase-transition-rules.md). В нём также отмечены
+legacy-нарушения, включая текущий путь `CheckHitSystem` → `HitCommand`.
+
 ## Владение сессией и отложенными операциями
 
 Каждая игровая сессия владеет своим `EcsWorld`, наборами систем, подписками,
@@ -89,6 +93,13 @@ view registry и cancellation token. При завершении сессии п
 поэтому текущий общий ECS tick вызывается Unity `Update`, а не
 `Observable.EveryUpdate()`. Разделение тиков на fixed/late-фазы остаётся
 следующим шагом миграции.
+
+При выходе `ApplicationState` сначала отписывается от restart event и отменяет
+незавершённую загрузку scoped-зависимостей. Затем `GameEcsLoop.Stop()` убирает
+активную session из tick path; `GameSession` отменяет token, уничтожает системы
+и мир. Только после этого `DependenciesContainer` dispose scoped DI-container
+и освобождает Addressables handles. Legacy DOTween пока не зарегистрирован у
+session owner — это отдельная задача presentation bridge.
 
 DOTween callback обязан принадлежать конкретной сессии и перед записью в ECS
 проверять, что сессия активна, а entity ещё валидна. Callback не может замыкать

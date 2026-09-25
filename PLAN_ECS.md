@@ -43,7 +43,7 @@
 2. Порядок систем зависит от порядка VContainer-регистраций, который легко нарушить при добавлении нового класса.
 3. Одноразовые компоненты-команды (`HitCommand`, `HealCommand`, `CoinsCounterChange`, `ReactionComponent`) очищаются разными системами и в разных местах.
 4. `RunSystem` хранит `m_delayToIdle` на уровне системы, поэтому таймер разделяется всеми сущностями с `Run`.
-5. [ ] После разбиения систем на группы `HitCommand` от `CheckHitSystem` перестал уменьшать `Health` ящика. Восстановить сценарий «атака ящика уменьшает здоровье» и добавить для него регрессионный тест до переноса physics-группы в `FixedUpdate`.
+5. [ ] После разбиения систем на группы `HitCommand` от `CheckHitSystem` перестал уменьшать `Health` ящика: Physics создаёт команду после Simulation, а Presentation удаляет её до следующей Simulation. Восстановить сценарий «атака ящика уменьшает здоровье» и добавить для него регрессионный тест до переноса physics-группы в `FixedUpdate`.
 
 ### P2 — стоимость кадра и связность
 
@@ -114,8 +114,8 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 2. [x] `Observable.EveryUpdate()` заменён на VContainer `ITickable`: `ApplicationState` получает Unity `Update` и тикает активный `GameEcsLoop`.
 3. [x] Регистрация разделена на явные группы `Initialization`, `Input`, `Simulation`, `Physics`, `Presentation` и `Cleanup` в `GameSystemsInstaller`; пока они исполняются одним `Update` tick.
 4. [x] Порядок систем вынесен из неявного `IEnumerable<IEcsSystem>` в декларативный `GameSystemsComposer`, который валидирует состав scoped-сессии.
-5. Определить правила перехода между фазами: команды, созданные в Input, доступны Simulation в этом же кадре; presentation не меняет gameplay-состояние, кроме явно разрешённых bridge-событий.
-6. В `Destroy` сначала остановить тики и отменить внешние операции, затем вызвать `EcsSystems.Destroy()`, затем уничтожить мир и scoped DI-container.
+5. [x] Правила перехода, сроков жизни команд и bridge-событий описаны в `Documentation/ECS/phase-transition-rules.md`; legacy-нарушения перечислены отдельно.
+6. [x] Teardown упорядочен: `ApplicationState` отменяет загрузку и event-подписки, `GameEcsLoop.Stop()` убирает session из tick path, `GameSession` отменяет token и уничтожает systems/world, затем dispose scoped DI и Addressables handles.
 
 **Критерии готовности**
 

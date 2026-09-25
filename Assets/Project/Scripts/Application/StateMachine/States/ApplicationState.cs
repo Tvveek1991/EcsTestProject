@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using Application.ContainerMediator;
 using Application.StateMachine.Interfaces;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Ecs;
 using Project.Scripts.Gameplay.Services.LoadScreenService;
 using Project.Scripts.Gameplay.Services.ReactionService;
+using UnityEngine;
 using VContainer.Unity;
 
 namespace Application.StateMachine.States
@@ -20,6 +23,8 @@ namespace Application.StateMachine.States
     private IEnumerable<IEcsSystem> m_ecsSystems;
 
     private GameEcsLoop m_gameEcsLoop;
+
+    private CancellationTokenSource m_initializationCancellationTokenSource;
     
     public ApplicationState(IDependenciesContainer dependenciesContainer, IReactionService reactionService, IApplicationStateMachine applicationStateMachine,
       ILoadScreenService loadScreenService)
@@ -31,18 +36,48 @@ namespace Application.StateMachine.States
     }
 
     public async void Enter()
-    {    
-      await m_dependenciesContainer.CreateApplicationStateDependencies();
-      m_ecsSystems = m_dependenciesContainer.ResolveSystems();
-      
-      LaunchEcs();
-      
-      m_loadScreenService.SetComplete();
+    {
+      CancelInitialization();
+
+      var cancellationTokenSource = new CancellationTokenSource();
+      m_initializationCancellationTokenSource = cancellationTokenSource;
+
+      try
+      {
+        await m_dependenciesContainer.CreateApplicationStateDependencies(cancellationTokenSource.Token);
+
+        if (cancellationTokenSource.IsCancellationRequested)
+        {
+          m_dependenciesContainer.CleanupApplicationStateDependencies();
+          return;
+        }
+
+        m_ecsSystems = m_dependenciesContainer.ResolveSystems();
+        LaunchEcs();
+
+        m_loadScreenService.SetComplete();
+      }
+      catch (OperationCanceledException) when (cancellationTokenSource.IsCancellationRequested)
+      {
+      }
+      catch (Exception exception)
+      {
+        m_dependenciesContainer.CleanupApplicationStateDependencies();
+        Debug.LogException(exception);
+      }
+      finally
+      {
+        if (m_initializationCancellationTokenSource == cancellationTokenSource)
+          m_initializationCancellationTokenSource = null;
+
+        cancellationTokenSource.Dispose();
+      }
     }
 
     public void Exit()
     {
       m_reactionService.OnRestartGame -= Restart;
+      CancelInitialization();
       DestroyEcs();
 
       m_dependenciesContainer.CleanupApplicationStateDependencies();
@@ -67,8 +102,18 @@ namespace Application.StateMachine.States
 
     private void DestroyEcs()
     {
-      m_gameEcsLoop?.Dispose();
+      m_gameEcsLoop?.Stop();
       m_gameEcsLoop = null;
+      m_ecsSystems = null;
+    }
+
+    private void CancelInitialization()
+    {
+      if (m_initializationCancellationTokenSource == null)
+        return;
+
+      m_initializationCancellationTokenSource.Cancel();
+      m_initializationCancellationTokenSource = null;
     }
 
     private void Restart()

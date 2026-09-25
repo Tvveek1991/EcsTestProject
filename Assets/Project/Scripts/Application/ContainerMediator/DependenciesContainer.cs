@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System;
+using System.Threading;
 using Application.StateMachine.ApplicationDependenciesInstaller;
 using AssetProvider.Scripts;
 using Cysharp.Threading.Tasks;
@@ -25,20 +27,39 @@ namespace Application.ContainerMediator
       _applicationLifetimeScope = applicationLifetimeScope;
     }
 
-    public async UniTask CreateApplicationStateDependencies()
-    {       
-      _gamePlayInstaller = new GamePlayInstaller(_assetProvider);
+    public async UniTask CreateApplicationStateDependencies(CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+
+      var gamePlayInstaller = new GamePlayInstaller(_assetProvider);
       var gameSystemsInstaller = new GameSystemsInstaller();
       var gameServicesInstaller = new GameServicesInstaller();
-      
-      await _gamePlayInstaller.Preload();
-      
-      _applicationScope = _applicationLifetimeScope.CreateChild(builder =>
+
+      LifetimeScope applicationScope = null;
+
+      try
       {
-        _gamePlayInstaller.Install(builder);
-        gameServicesInstaller.Install(builder);
-        gameSystemsInstaller.Install(builder);
-      });
+        await gamePlayInstaller.Preload(cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        applicationScope = _applicationLifetimeScope.CreateChild(builder =>
+        {
+          gamePlayInstaller.Install(builder);
+          gameServicesInstaller.Install(builder);
+          gameSystemsInstaller.Install(builder);
+        });
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        _gamePlayInstaller = gamePlayInstaller;
+        _applicationScope = applicationScope;
+      }
+      catch
+      {
+        applicationScope?.Dispose();
+        gamePlayInstaller.Clear();
+        throw;
+      }
     }
 
     public IEnumerable<IEcsSystem> ResolveSystems()
@@ -51,10 +72,11 @@ namespace Application.ContainerMediator
 
     public void CleanupApplicationStateDependencies()
     {
-      _gamePlayInstaller.Clear();
-      
-      _applicationScope.Dispose();
+      _applicationScope?.Dispose();
       _applicationScope = null;
+
+      _gamePlayInstaller?.Clear();
+      _gamePlayInstaller = null;
     }
   }
 }

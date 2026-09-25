@@ -1,3 +1,4 @@
+using System.Threading;
 using AssetProvider.Scripts;
 using Cysharp.Threading.Tasks;
 using Gameplay.Data;
@@ -60,30 +61,30 @@ namespace Gameplay
     public GamePlayInstaller(IAssetProvider assetProvider) =>
       _assetProvider = assetProvider;
 
-    public async UniTask Preload()
+    public async UniTask Preload(CancellationToken cancellationToken)
     {
-      _canvasPrefab = (await _assetProvider.Load<GameObject>(CanvasAddress)).GetComponentInChildren<Canvas>();
+      _canvasPrefab = (await Load<GameObject>(CanvasAddress, cancellationToken)).GetComponentInChildren<Canvas>();
       
-      m_personData = await _assetProvider.Load<PersonData>(PersonDataAddress);
-      _sensorsData = await _assetProvider.Load<SensorsData>(SensorsDataAddress);
-      _cameraData = await _assetProvider.Load<CameraData>(CameraDataAddress);
-      _fieldAnimationData = await _assetProvider.Load<FieldAnimationData>(AnimationDataAddress);
+      m_personData = await Load<PersonData>(PersonDataAddress, cancellationToken);
+      _sensorsData = await Load<SensorsData>(SensorsDataAddress, cancellationToken);
+      _cameraData = await Load<CameraData>(CameraDataAddress, cancellationToken);
+      _fieldAnimationData = await Load<FieldAnimationData>(AnimationDataAddress, cancellationToken);
 
-      m_tutorialViewPrefab = (await _assetProvider.Load<GameObject>(TutorialViewAddress)).GetComponentInChildren<TextMeshProUGUI>();
+      m_tutorialViewPrefab = (await Load<GameObject>(TutorialViewAddress, cancellationToken)).GetComponentInChildren<TextMeshProUGUI>();
       
-      m_personViewPrefab = (await _assetProvider.Load<GameObject>(PersonViewAddress)).GetComponentInChildren<PersonView>();
-      m_finishViewPrefab = (await _assetProvider.Load<GameObject>(FinishViewAddress)).GetComponentInChildren<FinishView>();
-      m_healthViewPrefab = (await _assetProvider.Load<GameObject>(HealthViewAddress)).GetComponentInChildren<HealthView>();
-      m_gameLevelViewPrefab = (await _assetProvider.Load<GameObject>(GameLevelViewAddress)).GetComponentInChildren<GameLevelView>();
-      m_coinViewPrefab = (await _assetProvider.Load<GameObject>(CoinViewAddress)).GetComponentInChildren<CoinView>();
-      m_objectViewPrefab = (await _assetProvider.Load<GameObject>(BoxViewAddress)).GetComponentInChildren<ObjectView>();
-      m_coinsCounterViewPrefab = (await _assetProvider.Load<GameObject>(CoinsCounterViewAddress)).GetComponentInChildren<CoinsCounterView>();
+      m_personViewPrefab = (await Load<GameObject>(PersonViewAddress, cancellationToken)).GetComponentInChildren<PersonView>();
+      m_finishViewPrefab = (await Load<GameObject>(FinishViewAddress, cancellationToken)).GetComponentInChildren<FinishView>();
+      m_healthViewPrefab = (await Load<GameObject>(HealthViewAddress, cancellationToken)).GetComponentInChildren<HealthView>();
+      m_gameLevelViewPrefab = (await Load<GameObject>(GameLevelViewAddress, cancellationToken)).GetComponentInChildren<GameLevelView>();
+      m_coinViewPrefab = (await Load<GameObject>(CoinViewAddress, cancellationToken)).GetComponentInChildren<CoinView>();
+      m_objectViewPrefab = (await Load<GameObject>(BoxViewAddress, cancellationToken)).GetComponentInChildren<ObjectView>();
+      m_coinsCounterViewPrefab = (await Load<GameObject>(CoinsCounterViewAddress, cancellationToken)).GetComponentInChildren<CoinsCounterView>();
 
-      m_connectSensorPrefab = (await _assetProvider.Load<GameObject>(ConnectSensorAddress)).GetComponentInChildren<Sensor>();
+      m_connectSensorPrefab = (await Load<GameObject>(ConnectSensorAddress, cancellationToken)).GetComponentInChildren<Sensor>();
 
-      m_destroyedParticlesPrefab = await _assetProvider.Load<GameObject>(DestroyedParticlesAddress);
+      m_destroyedParticlesPrefab = await Load<GameObject>(DestroyedParticlesAddress, cancellationToken);
 
-      _camera = Camera.main == null ? (Object.Instantiate(await _assetProvider.Load<GameObject>(CameraAddress))).GetComponentInChildren<Camera>() : Camera.main;
+      _camera = Camera.main == null ? (Object.Instantiate(await Load<GameObject>(CameraAddress, cancellationToken))).GetComponentInChildren<Camera>() : Camera.main;
     }
 
     public void Install(IContainerBuilder builder)
@@ -135,6 +136,16 @@ namespace Gameplay
 
       // Object.Destroy(_camera.gameObject);
       _assetProvider.Release(CameraAddress);
+    }
+
+    private async UniTask<T> Load<T>(string address, CancellationToken cancellationToken) where T : class
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+
+      T asset = await _assetProvider.Load<T>(address);
+
+      cancellationToken.ThrowIfCancellationRequested();
+      return asset;
     }
   }
 }

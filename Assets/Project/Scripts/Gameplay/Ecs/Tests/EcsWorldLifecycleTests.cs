@@ -62,6 +62,7 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             session.Start();
             session.Tick();
             session.Dispose();
+            session.Tick();
 
             Assert.That(probeSystem.InitCallCount, Is.EqualTo(1));
             Assert.That(probeSystem.RunCallCount, Is.EqualTo(1));
