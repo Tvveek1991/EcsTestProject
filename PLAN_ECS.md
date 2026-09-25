@@ -94,10 +94,10 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 1. [x] Canonical location и namespace согласованы: новый ECS-код находится в `Assets/Project/Scripts/Gameplay/Ecs/` и использует `Project.Scripts.Gameplay.Ecs.*`; `AGENTS.md` актуализирован под `Assets/Project`.
 2. [x] Добавлен `Documentation/ECS/architecture.md` с целевой моделью, правилами систем и примером новой механики.
-3. [x] Создана EditMode assembly `Project.Scripts.Gameplay.Ecs.Tests` для pure ECS-тестов и smoke-тест жизненного цикла `EcsWorld`.
-4. Подготовить профилировочный сценарий: старт уровня, бег/прыжок, атака объектов, сбор монет, рестарт во время анимации.
-5. Зафиксировать baseline: CPU/frame, GC Alloc/frame, количество сущностей, количество активных tween, время рестарта.
-6. Пиновать Git-зависимости ECS, UniTask и VContainer на tag или commit SHA в `Packages/manifest.json`; `packages-lock.json` остаётся в репозитории.
+3. [x] Создана EditMode assembly `Project.Scripts.Gameplay.Ecs.Tests` для pure ECS-тестов и smoke-тест жизненного цикла `EcsWorld`; тест подтверждён Unity Test Runner (1/1 passed).
+4. [x] Подготовлен профилировочный сценарий в `Documentation/ECS/profiling-baseline.md`: старт уровня, бег/прыжок, атака объектов, сбор монет и рестарт во время анимации.
+5. [x] Зафиксирован baseline в `Documentation/ECS/baseline-results.md`: три прогона idle, movement, combat, coins и restart-during-tween с CPU/frame, GC Alloc/frame, memory и ручным временем рестарта; entities и active tween отмечены `N/A` до добавления diagnostics.
+6. [x] Git-зависимости ECS, UniTask и VContainer закреплены на commit SHA в `Packages/manifest.json`; согласованные записи сохранены в `packages-lock.json`.
 
 **Критерии готовности**
 

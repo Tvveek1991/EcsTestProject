@@ -18,35 +18,35 @@
       "hash": "30d22075093d1d35dfb0091c1c7550e9ad948577"
     },
     "com.cysharp.unitask": {
-      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#06067cd4c83e372310d6f79d1c625f6870ff7a2a",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "06067cd4c83e372310d6f79d1c625f6870ff7a2a"
     },
     "com.leopotam.ecslite": {
-      "version": "https://github.com/Leopotam/ecslite.git",
+      "version": "https://github.com/Leopotam/ecslite.git#153dfd4043e1471a01a201624dcbebb25436b638",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "153dfd4043e1471a01a201624dcbebb25436b638"
     },
     "com.leopotam.ecslite.di": {
-      "version": "https://github.com/Leopotam/ecslite-di.git",
+      "version": "https://github.com/Leopotam/ecslite-di.git#482b14e87c09cd1bf3f8f3dffc5c0099f00a693a",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "482b14e87c09cd1bf3f8f3dffc5c0099f00a693a"
     },
     "com.leopotam.ecslite.unityeditor": {
-      "version": "https://github.com/Leopotam/ecslite-unityeditor.git",
+      "version": "https://github.com/Leopotam/ecslite-unityeditor.git#aecbac1b9ec48575f2c7f14f3e707eb1d6ad9180",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "aecbac1b9ec48575f2c7f14f3e707eb1d6ad9180"
     },
     "com.nenuacho.ecslite.interval-systems": {
-      "version": "https://github.com/nenuacho/ecslite-interval-systems.git",
+      "version": "https://github.com/nenuacho/ecslite-interval-systems.git#108fd330cc5da2a569a5fda3825ef791576b4350",
       "depth": 0,
       "source": "git",
       "dependencies": {},
@@ -455,7 +455,7 @@
       "url": "https://packages.unity.com"
     },
     "jp.hadashikick.vcontainer": {
-      "version": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.4",
+      "version": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#4f099507f7c13bbb8ba00f4a91c78feeccc778ba",
       "depth": 0,
       "source": "git",
       "dependencies": {},
