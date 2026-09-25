@@ -4,6 +4,7 @@ using AssetProvider.Scripts;
 using Cysharp.Threading.Tasks;
 using Gameplay;
 using Leopotam.EcsLite;
+using Project.Scripts.Gameplay.Ecs;
 using VContainer;
 using VContainer.Unity;
 
@@ -40,8 +41,13 @@ namespace Application.ContainerMediator
       });
     }
 
-    public IEnumerable<IEcsSystem> ResolveSystems() => 
-      _applicationScope.Container.Resolve<IEnumerable<IEcsSystem>>();
+    public IEnumerable<IEcsSystem> ResolveSystems()
+    {
+      var registeredSystems = _applicationScope.Container.Resolve<IEnumerable<IEcsSystem>>();
+      var composer = _applicationScope.Container.Resolve<GameSystemsComposer>();
+
+      return composer.Compose(registeredSystems);
+    }
 
     public void CleanupApplicationStateDependencies()
     {

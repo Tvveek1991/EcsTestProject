@@ -1,5 +1,6 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay;
+using Project.Scripts.Gameplay.Ecs;
 using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Systems.Input;
 using Project.Scripts.Gameplay.Systems.PersonAnimations;
@@ -12,6 +13,8 @@ namespace Gameplay
   {
     public void Install(IContainerBuilder builder)
     {
+      builder.Register<GameSystemsComposer>(Lifetime.Scoped);
+
       RegisterInitializationSystems(builder);
       RegisterInputSystems(builder);
       RegisterSimulationSystems(builder);
