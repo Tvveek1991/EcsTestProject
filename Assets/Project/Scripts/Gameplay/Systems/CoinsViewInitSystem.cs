@@ -4,6 +4,7 @@ using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.CoinsService;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.GameLevelService;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private const string CoinViewsParentName = "CoinViewsContainer";
 
-        private readonly CoinView m_coinViewPrefab;
+        private readonly IGameplayViewFactory m_gameplayViewFactory;
         private readonly ICoinsService m_coinsService;
         private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly IGameLevelService m_gameLevelService;
@@ -28,11 +29,11 @@ namespace Project.Scripts.Gameplay.Systems
         private GameObject m_parentObject;
         private List<Transform> m_coinSpawnPoints;
 
-        public CoinsViewInitSystem(CoinView coinViewPrefab, ICoinsService coinsService, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
+        public CoinsViewInitSystem(IGameplayViewFactory gameplayViewFactory, ICoinsService coinsService, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
         {
             m_coinsService = coinsService;
             m_entityViewRegistry = entityViewRegistry;
-            m_coinViewPrefab = coinViewPrefab;
+            m_gameplayViewFactory = gameplayViewFactory;
             m_gameLevelService = gameLevelService;
         }
 
@@ -62,7 +63,7 @@ namespace Project.Scripts.Gameplay.Systems
             for (int i = 0; i < m_coinSpawnPoints.Count; i++)
             {
                 var newEntity = m_world.NewEntity();
-                var coinView = Object.Instantiate(m_coinViewPrefab, m_parentObject.transform);
+                var coinView = m_gameplayViewFactory.CreateCoin(m_parentObject.transform);
 
                 m_entityViewRegistry.Register(newEntity, coinView);
                 

@@ -2,6 +2,7 @@ using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private const string PlayerParentName = "Hero";
         
-        private readonly PersonView m_personViewPrefab;
+        private readonly IGameplayViewFactory m_gameplayViewFactory;
         private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly IGameLevelService m_gameLevelService;
 
@@ -23,9 +24,9 @@ namespace Project.Scripts.Gameplay.Systems
         
         private GameObject m_parentObject;
         
-        public PlayerInitSystem(PersonView personViewPrefab, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
+        public PlayerInitSystem(IGameplayViewFactory gameplayViewFactory, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
         {
-            m_personViewPrefab = personViewPrefab;
+            m_gameplayViewFactory = gameplayViewFactory;
             m_gameLevelService = gameLevelService;
             m_entityViewRegistry = entityViewRegistry;
         }
@@ -51,7 +52,7 @@ namespace Project.Scripts.Gameplay.Systems
             
             var playerEntity = m_world.NewEntity();
 
-            var heroView = Object.Instantiate(m_personViewPrefab, m_parentObject.transform);
+            var heroView = m_gameplayViewFactory.CreatePlayer(m_parentObject.transform);
 
             AttachComponents(playerEntity, heroView);
         }

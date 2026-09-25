@@ -3,6 +3,7 @@ using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.CanvasService;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -17,14 +18,14 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<Health> m_healthPool;
         private EcsPool<HealthViewComponent> m_healthViewPool;
 
-        private readonly HealthView m_healthViewPrefab;
+        private readonly IGameplayViewFactory m_gameplayViewFactory;
         private readonly ICanvasService m_canvasService;
         private readonly IEntityViewRegistry m_entityViewRegistry;
 
-        public HealthViewInitSystem(HealthView healthViewPrefab, IEntityViewRegistry entityViewRegistry, ICanvasService canvasService)
+        public HealthViewInitSystem(IGameplayViewFactory gameplayViewFactory, IEntityViewRegistry entityViewRegistry, ICanvasService canvasService)
         {
             m_canvasService = canvasService;
-            m_healthViewPrefab = healthViewPrefab;
+            m_gameplayViewFactory = gameplayViewFactory;
             m_entityViewRegistry = entityViewRegistry;
         }
         
@@ -55,7 +56,7 @@ namespace Project.Scripts.Gameplay.Systems
                 
                 var spawnPoint = m_canvasService.Canvas.transform;
                     
-                var healthView = Object.Instantiate(m_healthViewPrefab, spawnPoint);
+                var healthView = m_gameplayViewFactory.CreateHealth(spawnPoint);
                 SetViewOptions(healthView, health);
 
                 m_entityViewRegistry.Register(newEntity, healthView);

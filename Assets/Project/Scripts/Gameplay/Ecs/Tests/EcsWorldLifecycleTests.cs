@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
@@ -169,6 +170,49 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 firstRegistry.Dispose();
                 secondRegistry.Dispose();
                 Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void GameplayViewFactory_CreatesAllViewsUnderRequestedParent()
+        {
+            var playerPrefab = new GameObject("Player prefab");
+            var boxPrefab = new GameObject("Box prefab");
+            var coinPrefab = new GameObject("Coin prefab");
+            var healthPrefab = new GameObject("Health prefab");
+            var parent = new GameObject("View parent");
+
+            playerPrefab.AddComponent<PersonView>();
+            boxPrefab.AddComponent<ObjectView>();
+            coinPrefab.AddComponent<CoinView>();
+            healthPrefab.AddComponent<HealthView>();
+
+            var factory = new GameplayViewFactory(
+                playerPrefab.GetComponent<PersonView>(),
+                boxPrefab.GetComponent<ObjectView>(),
+                coinPrefab.GetComponent<CoinView>(),
+                healthPrefab.GetComponent<HealthView>());
+
+            try
+            {
+                PersonView player = factory.CreatePlayer(parent.transform);
+                ObjectView box = factory.CreateBox(parent.transform);
+                CoinView coin = factory.CreateCoin(parent.transform);
+                HealthView health = factory.CreateHealth(parent.transform);
+
+                Assert.That(player.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(box.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(coin.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(health.transform.parent, Is.EqualTo(parent.transform));
+                Assert.That(player.gameObject, Is.Not.SameAs(playerPrefab));
+            }
+            finally
+            {
+                Object.DestroyImmediate(parent);
+                Object.DestroyImmediate(playerPrefab);
+                Object.DestroyImmediate(boxPrefab);
+                Object.DestroyImmediate(coinPrefab);
+                Object.DestroyImmediate(healthPrefab);
             }
         }
 

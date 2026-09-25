@@ -47,6 +47,11 @@ Unity-ссылки в ECS допустимы только как явно наз
 teardown scoped registry очищает связи; системы удаления сначала снимают
 регистрацию, затем уничтожают GameObject и ECS-entity.
 
+`IGameplayViewFactory` — scoped presentation bridge для создания `PersonView`,
+`ObjectView`, `CoinView` и `HealthView`. ECS-системы запрашивают typed view у
+фабрики, регистрируют его и настраивают presentation-state, но не вызывают
+`Object.Instantiate` напрямую.
+
 ## Фазы игрового цикла
 
 ```text

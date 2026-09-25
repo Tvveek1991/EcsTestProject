@@ -6,6 +6,7 @@ using Project.Scripts.Gameplay.Services.FinishViewService;
 using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.TutorialService;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 using VContainer;
 using VContainer.Unity;
 
@@ -19,6 +20,7 @@ namespace Gameplay
       
       builder.Register<ICameraService, CameraService>(Lifetime.Scoped);
       builder.Register<IEntityViewRegistry, EntityViewRegistry>(Lifetime.Scoped);
+      builder.Register<IGameplayViewFactory, GameplayViewFactory>(Lifetime.Scoped);
 
       builder.Register<ICoinsService, CoinsService>(Lifetime.Scoped);
       builder.Register<IGameLevelService, GameLevelService>(Lifetime.Scoped);

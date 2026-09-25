@@ -3,6 +3,7 @@ using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Services.GameLevelService;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ namespace Project.Scripts.Gameplay.Systems
     {
         private const string BoxParentName = "Boxes";
 
-        private readonly ObjectView m_objectViewPrefab;
+        private readonly IGameplayViewFactory m_gameplayViewFactory;
         private readonly IEntityViewRegistry m_entityViewRegistry;
         private readonly IGameLevelService m_gameLevelService;
 
@@ -25,10 +26,10 @@ namespace Project.Scripts.Gameplay.Systems
         private GameObject m_parentObject;
         private List<Transform> m_boxSpawnPoints;
 
-        public BoxViewInitSystem(ObjectView objectViewPrefab, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
+        public BoxViewInitSystem(IGameplayViewFactory gameplayViewFactory, IEntityViewRegistry entityViewRegistry, IGameLevelService gameLevelService)
         {
             m_entityViewRegistry = entityViewRegistry;
-            m_objectViewPrefab = objectViewPrefab;
+            m_gameplayViewFactory = gameplayViewFactory;
             m_gameLevelService = gameLevelService;
         }
 
@@ -58,7 +59,7 @@ namespace Project.Scripts.Gameplay.Systems
             for (int i = 0; i < m_boxSpawnPoints.Count; i++)
             {
                 var entity = m_world.NewEntity();
-                var view = Object.Instantiate(m_objectViewPrefab, m_parentObject.transform);
+                var view = m_gameplayViewFactory.CreateBox(m_parentObject.transform);
                 
                 m_entityViewRegistry.Register(entity, view);
                 
