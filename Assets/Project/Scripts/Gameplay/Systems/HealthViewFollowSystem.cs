@@ -13,12 +13,9 @@ namespace Project.Scripts.Gameplay.Systems
         private readonly IEntityViewRegistry m_entityViewRegistry;
 
         private EcsWorld m_world;
-        private EcsFilter m_healthViewFilter;
-        private EcsFilter m_personViewWithHealthFilter;
-        private EcsFilter m_objectViewWithHealthFilter;
+        private EcsFilter m_healthOwnerFilter;
 
         private EcsPool<Health> m_healthPool;
-        private EcsPool<TransformKeeper> m_transformPool;
 
         public HealthViewFollowSystem(ICameraService cameraService, IEntityViewRegistry entityViewRegistry)
         {
@@ -30,56 +27,42 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_healthViewFilter = m_world.Filter<HealthViewComponent>().Inc<TransformKeeper>().End();
-            m_personViewWithHealthFilter = m_world.Filter<PersonViewComponent>().Inc<Health>().End();
-            m_objectViewWithHealthFilter = m_world.Filter<ObjectViewComponent>().Inc<Health>().End();
+            m_healthOwnerFilter = m_world.Filter<Health>().End();
 
             m_healthPool = m_world.GetPool<Health>();
-            m_transformPool = m_world.GetPool<TransformKeeper>();
         }
         
         public void Run(IEcsSystems systems)
         {
-            FollowHealthViewToPerson();
-            FollowHealthViewToObject();
+            foreach (var healthOwnerEntity in m_healthOwnerFilter)
+                FollowHealthView(healthOwnerEntity);
         }
 
-        private void FollowHealthViewToPerson()
+        private void FollowHealthView(int healthOwnerEntity)
         {
-            foreach (var healthViewEntity in m_healthViewFilter)
-            foreach (var personViewWithHealthEntity in m_personViewWithHealthFilter)
-            {
-                ref Health health = ref m_healthPool.Get(personViewWithHealthEntity);
-                if (healthViewEntity == health.ViewEntity)
-                {
-                    ref TransformKeeper transformKeeper = ref m_transformPool.Get(healthViewEntity);
+            ref Health health = ref m_healthPool.Get(healthOwnerEntity);
 
-                    if (!m_entityViewRegistry.TryGet(personViewWithHealthEntity, out PersonView view))
-                        continue;
+            if (!m_entityViewRegistry.TryGet(health.ViewEntity, out HealthView healthView) ||
+                !m_entityViewRegistry.TryGet(healthOwnerEntity, out EntityView ownerView))
+                return;
 
-                    Vector3 screenPosition = m_cameraService.Camera.WorldToScreenPoint(view.GetHealthFollowPoint().position);
-                    transformKeeper.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
-                }
-            }
+            Transform followPoint = GetHealthFollowPoint(ownerView);
+            if (followPoint == null)
+                return;
+
+            Vector3 screenPosition = m_cameraService.Camera.WorldToScreenPoint(followPoint.position);
+            healthView.transform.position = new Vector2(screenPosition.x, screenPosition.y);
         }
 
-        private void FollowHealthViewToObject()
+        private static Transform GetHealthFollowPoint(EntityView ownerView)
         {
-            foreach (var healthViewEntity in m_healthViewFilter)
-            foreach (var objectViewWithHealthEntity in m_objectViewWithHealthFilter)
-            {
-                ref Health health = ref m_healthPool.Get(objectViewWithHealthEntity);
-                if (healthViewEntity == health.ViewEntity)
-                {
-                    ref TransformKeeper transformKeeper = ref m_transformPool.Get(healthViewEntity);
-                    
-                    if (!m_entityViewRegistry.TryGet(objectViewWithHealthEntity, out ObjectView view))
-                        continue;
+            if (ownerView is PersonView personView)
+                return personView.GetHealthFollowPoint();
 
-                    Vector3 screenPosition = m_cameraService.Camera.WorldToScreenPoint(view.GetHealthFollowPoint().position);
-                    transformKeeper.ObjectTransform.position = new Vector2(screenPosition.x, screenPosition.y);
-                }
-            }
+            if (ownerView is ObjectView objectView)
+                return objectView.GetHealthFollowPoint();
+
+            return null;
         }
     }
 }

@@ -8,6 +8,7 @@ using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.Input;
 using Project.Scripts.Gameplay.Services.BridgeFactory;
+using Project.Scripts.Gameplay.Services.CameraService;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Sensors;
@@ -340,6 +341,78 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 registry.Dispose();
                 Object.DestroyImmediate(playerObject);
                 Object.DestroyImmediate(targetObject);
+            }
+        }
+
+        [Test]
+        public void HealthViewFollowSystem_FollowsEachHealthOwnerViewDirectly()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var registry = new EntityViewRegistry();
+            var cameraObject = new GameObject("Health camera");
+            var personObject = new GameObject("Health person");
+            var objectObject = new GameObject("Health object");
+            var personPointObject = new GameObject("Person health point");
+            var objectPointObject = new GameObject("Object health point");
+            var personHealthObject = new GameObject("Person health view");
+            var objectHealthObject = new GameObject("Object health view");
+            var camera = cameraObject.AddComponent<Camera>();
+            var personView = personObject.AddComponent<PersonView>();
+            var objectView = objectObject.AddComponent<ObjectView>();
+            var personHealthView = personHealthObject.AddComponent<HealthView>();
+            var objectHealthView = objectHealthObject.AddComponent<HealthView>();
+
+            camera.transform.position = new Vector3(0, 0, -10);
+            camera.orthographic = true;
+            personPointObject.transform.SetParent(personObject.transform);
+            objectPointObject.transform.SetParent(objectObject.transform);
+            personPointObject.transform.position = new Vector3(-2, 1, 0);
+            objectPointObject.transform.position = new Vector3(2, 3, 0);
+            typeof(PersonView).GetField("m_healthSpawnPoint", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(personView, personPointObject.transform);
+            typeof(ObjectView).GetField("m_healthSpawnPoint", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(objectView, objectPointObject.transform);
+
+            systems.Add(new HealthViewFollowSystem(new CameraService(camera, null), registry));
+
+            try
+            {
+                int personEntity = world.NewEntity();
+                int personHealthEntity = world.NewEntity();
+                world.GetPool<Health>().Add(personEntity).ViewEntity = personHealthEntity;
+                world.GetPool<HealthViewComponent>().Add(personHealthEntity);
+                registry.Register(personEntity, personView);
+                registry.Register(personHealthEntity, personHealthView);
+
+                int objectEntity = world.NewEntity();
+                int objectHealthEntity = world.NewEntity();
+                world.GetPool<Health>().Add(objectEntity).ViewEntity = objectHealthEntity;
+                world.GetPool<HealthViewComponent>().Add(objectHealthEntity);
+                registry.Register(objectEntity, objectView);
+                registry.Register(objectHealthEntity, objectHealthView);
+
+                systems.Init();
+                systems.Run();
+
+                Vector3 expectedPersonPosition = camera.WorldToScreenPoint(personPointObject.transform.position);
+                Vector3 expectedObjectPosition = camera.WorldToScreenPoint(objectPointObject.transform.position);
+
+                Assert.That(personHealthView.transform.position.x, Is.EqualTo(expectedPersonPosition.x).Within(0.001f));
+                Assert.That(personHealthView.transform.position.y, Is.EqualTo(expectedPersonPosition.y).Within(0.001f));
+                Assert.That(objectHealthView.transform.position.x, Is.EqualTo(expectedObjectPosition.x).Within(0.001f));
+                Assert.That(objectHealthView.transform.position.y, Is.EqualTo(expectedObjectPosition.y).Within(0.001f));
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+                registry.Dispose();
+                Object.DestroyImmediate(cameraObject);
+                Object.DestroyImmediate(personObject);
+                Object.DestroyImmediate(objectObject);
+                Object.DestroyImmediate(personHealthObject);
+                Object.DestroyImmediate(objectHealthObject);
             }
         }
 
