@@ -62,6 +62,7 @@ namespace Project.Scripts.Gameplay.Systems
                 var view = m_gameplayViewFactory.CreateBox(m_parentObject.transform);
                 
                 m_entityViewRegistry.Register(entity, view);
+                RegisterColliders(entity, view);
                 
                 AttachComponents(entity, view);
             }
@@ -93,6 +94,14 @@ namespace Project.Scripts.Gameplay.Systems
                 ref SpriteRendererKeeper spriteRendererKeeper = ref m_world.GetPool<SpriteRendererKeeper>().Add(entity);
                 spriteRendererKeeper.SpriteRenderer = view.GetComponent<SpriteRenderer>();
             }
+        }
+
+        private void RegisterColliders(int entity, ObjectView view)
+        {
+            Collider2D[] colliders = view.GetComponentsInChildren<Collider2D>(true);
+
+            foreach (Collider2D collider in colliders)
+                m_entityViewRegistry.RegisterCollider(entity, collider);
         }
         
         private void SetBoxStartPosition()

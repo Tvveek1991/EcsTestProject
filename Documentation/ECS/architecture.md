@@ -42,6 +42,11 @@ Unity-ссылки в ECS допустимы только как явно наз
 сессии и предоставляет только typed `Register`, `TryGet`, `TryGetEntity` и
 `Unregister`: gameplay-системы не получают mutable dictionary view.
 
+Для физического bridge registry также хранит scoped-связь каждого
+`Collider2D` view с entity. После `Physics2D.Raycast` система получает entity
+одним `TryGetEntity(collider, ...)`, без обхода всех объектов; обратный индекс
+снимает все collider-связи при `Unregister` и teardown.
+
 Повторная регистрация entity, попытка использовать view другой сессии и
 устаревший или уничтоженный view не возвращают произвольную ссылку. При
 teardown scoped registry очищает связи; системы удаления сначала снимают

@@ -255,6 +255,95 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         }
 
         [Test]
+        public void EntityViewRegistry_MapsAllViewCollidersAndCleansThemOnUnregister()
+        {
+            var root = new GameObject("Collider registry view");
+            var child = new GameObject("Child collider");
+            var registry = new EntityViewRegistry();
+            var view = root.AddComponent<ObjectView>();
+            var rootCollider = root.AddComponent<BoxCollider2D>();
+            child.transform.SetParent(root.transform);
+            var childCollider = child.AddComponent<CircleCollider2D>();
+
+            try
+            {
+                registry.Register(5, view);
+                registry.RegisterCollider(5, rootCollider);
+                registry.RegisterCollider(5, childCollider);
+
+                Assert.That(registry.TryGetEntity(rootCollider, out int rootEntity), Is.True);
+                Assert.That(rootEntity, Is.EqualTo(5));
+                Assert.That(registry.TryGetEntity(childCollider, out int childEntity), Is.True);
+                Assert.That(childEntity, Is.EqualTo(5));
+
+                registry.Unregister(5);
+
+                Assert.That(registry.TryGetEntity(rootCollider, out _), Is.False);
+                Assert.That(registry.TryGetEntity(childCollider, out _), Is.False);
+            }
+            finally
+            {
+                registry.Dispose();
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void CheckHitSystem_ResolvesRaycastColliderThroughRegistry()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var registry = new EntityViewRegistry();
+            var playerObject = new GameObject("Attacking player");
+            var checkerObject = new GameObject("Attack checker");
+            var targetObject = new GameObject("Raycast target");
+            var playerView = playerObject.AddComponent<PersonView>();
+            var playerRenderer = playerObject.AddComponent<SpriteRenderer>();
+            var targetView = targetObject.AddComponent<ObjectView>();
+            var targetCollider = targetObject.AddComponent<BoxCollider2D>();
+
+            checkerObject.transform.SetParent(playerObject.transform);
+            checkerObject.transform.position = Vector3.zero;
+            targetObject.transform.position = Vector3.right;
+            targetObject.layer = LayerMask.NameToLayer("InteractiveObject");
+            typeof(PersonView).GetField("m_checkerSpawnPoint", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(playerView, checkerObject.transform);
+
+            systems.Add(new CheckHitSystem(registry));
+
+            try
+            {
+                Assert.That(targetObject.layer, Is.GreaterThanOrEqualTo(0));
+
+                int playerEntity = world.NewEntity();
+                world.GetPool<PersonViewComponent>().Add(playerEntity);
+                world.GetPool<Attack>().Add(playerEntity).IsActive = true;
+                world.GetPool<SpriteRendererKeeper>().Add(playerEntity).SpriteRenderer = playerRenderer;
+                registry.Register(playerEntity, playerView);
+
+                int targetEntity = world.NewEntity();
+                world.GetPool<Health>().Add(targetEntity).Count = 100;
+                registry.Register(targetEntity, targetView);
+                registry.RegisterCollider(targetEntity, targetCollider);
+
+                systems.Init();
+                Physics2D.SyncTransforms();
+                systems.Run();
+
+                Assert.That(world.GetPool<HitCommand>().Has(targetEntity), Is.True);
+                Assert.That(world.GetPool<HitCommand>().Get(targetEntity).HitValue, Is.EqualTo(10));
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+                registry.Dispose();
+                Object.DestroyImmediate(playerObject);
+                Object.DestroyImmediate(targetObject);
+            }
+        }
+
+        [Test]
         public void GameplayViewFactory_CreatesAllViewsUnderRequestedParent()
         {
             var playerPrefab = new GameObject("Player prefab");

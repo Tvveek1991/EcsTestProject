@@ -15,7 +15,6 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsWorld m_world;
 
-        private EcsFilter m_hitFilter;
         private EcsFilter m_attackedPersonFilter;
 
         private EcsPool<Attack> m_attackPool;
@@ -32,8 +31,6 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_hitFilter = m_world.Filter<ObjectViewComponent>().Inc<Health>()
-                .Exc<HitCommand>().End();
             m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<Attack>().Inc<SpriteRendererKeeper>().End();
 
             m_attackPool = m_world.GetPool<Attack>();
@@ -65,26 +62,14 @@ namespace Project.Scripts.Gameplay.Systems
                 
                 // Debug.DrawLine(checkerTr.position, checkerTr.position + direction * maxDistance, Color.green);
                     
-                if (hit.collider != null)
-                {
-                    foreach (var hitObject in m_hitFilter)
-                    {
-                        if(!m_entityViewRegistry.TryGet(hitObject, out ObjectView view))
-                            continue;
-                        
-                        if (view.gameObject == hit.collider.gameObject)
-                        {
-                            if(m_healthPool.Get(hitObject).Count <= 0)
-                                return;
-                            
-                            m_hitCommandPool.Add(hitObject).HitValue = 10;
-                            
-                            // Debug.Log("Объект обнаружен: " + hit.collider.gameObject.name);
-                            
-                            break;
-                        }
-                    }
-                }
+                if (hit.collider == null ||
+                    !m_entityViewRegistry.TryGetEntity(hit.collider, out int hitEntity) ||
+                    !m_healthPool.Has(hitEntity) ||
+                    m_hitCommandPool.Has(hitEntity) ||
+                    m_healthPool.Get(hitEntity).Count <= 0)
+                    continue;
+
+                m_hitCommandPool.Add(hitEntity).HitValue = 10;
             }
         }
     }
