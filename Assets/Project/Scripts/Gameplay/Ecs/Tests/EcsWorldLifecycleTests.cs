@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Leopotam.EcsLite;
 using NUnit.Framework;
 using System.Collections;
@@ -17,6 +18,7 @@ using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Systems.Input;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.TestTools;
 using TMPro;
 
@@ -196,6 +198,185 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             {
                 systems.Destroy();
                 world.Destroy();
+            }
+        }
+
+        [Test]
+        public void InputSnapshot_MoveRightCreatesRunForPlayer()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var inputReader = new InputReaderProbe
+            {
+                Snapshot = new GameplayInputSnapshot
+                {
+                    IsEnabled = true,
+                    IsMoveRight = true
+                }
+            };
+            systems.Add(new InputSystem(inputReader));
+            systems.Add(new CheckInputMoveSystem());
+
+            try
+            {
+                int playerEntity = world.NewEntity();
+                world.GetPool<Player>().Add(playerEntity);
+                world.GetPool<GroundCheckComponent>().Add(playerEntity);
+                world.GetPool<WallCheck>().Add(playerEntity);
+
+                systems.Init();
+                systems.Run();
+
+                Assert.That(world.GetPool<Run>().Has(playerEntity), Is.True);
+                Assert.That(world.GetPool<Run>().Get(playerEntity).Direction, Is.EqualTo(1));
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+            }
+        }
+
+        [Test]
+        public void HitCommand_ChangesHealthAndCompletesDeathTransition()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var registry = new EntityViewRegistry();
+            var personData = ScriptableObject.CreateInstance<PersonData>();
+            var healthViewObject = new GameObject("Death health view");
+            var healthBar = healthViewObject.AddComponent<Slider>();
+            var canvasGroup = healthViewObject.AddComponent<CanvasGroup>();
+            var healthView = healthViewObject.AddComponent<HealthView>();
+
+            healthBar.minValue = 0;
+            healthBar.maxValue = 100;
+            healthBar.value = 0;
+            SetPrivateField(healthView, "m_healthBar", healthBar);
+            SetPrivateField(healthView, "m_canvasGroup", canvasGroup);
+
+            systems.Add(new HealthChangeSystem(personData));
+            systems.Add(new CheckDeathSystem(registry));
+
+            try
+            {
+                int healthViewEntity = world.NewEntity();
+                world.GetPool<HealthViewComponent>().Add(healthViewEntity);
+                registry.Register(healthViewEntity, healthView);
+
+                int playerEntity = world.NewEntity();
+                world.GetPool<Player>().Add(playerEntity);
+                world.GetPool<Health>().Add(playerEntity).Count = 10;
+                world.GetPool<Health>().Get(playerEntity).ViewEntity = healthViewEntity;
+                world.GetPool<HitCommand>().Add(playerEntity).HitValue = 10;
+
+                systems.Init();
+                systems.Run();
+
+                Assert.That(world.GetPool<Health>().Get(playerEntity).Count, Is.Zero);
+                Assert.That(world.GetPool<DeadCommand>().Get(playerEntity).Status, Is.EqualTo(ProcessStatus.Ready));
+
+                world.GetPool<DeadCommand>().Get(playerEntity).Status = ProcessStatus.Completed;
+                systems.Run();
+
+                Assert.That(world.GetPool<Dead>().Has(playerEntity), Is.True);
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+                registry.Dispose();
+                Object.DestroyImmediate(personData);
+                Object.DestroyImmediate(healthViewObject);
+            }
+        }
+
+        [Test]
+        public void CoinSensor_AnimationIncrementsCounter()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var registry = new EntityViewRegistry();
+            var tweenRegistry = new GameplayTweenRegistry();
+            var coinObject = new GameObject("Coin view");
+            var sensorObject = new GameObject("Coin sensor");
+            var collectorObject = new GameObject("Coin collector");
+            var coinView = coinObject.AddComponent<CoinView>();
+            var sensor = sensorObject.AddComponent<Sensor>();
+            var collector = collectorObject.AddComponent<BoxCollider2D>();
+
+            SetPrivateField(coinView, "m_sensor", sensor);
+
+            systems.Add(new CoinsViewCheckSystem(registry));
+            systems.Add(new CoinsViewAnimationSystem(registry, tweenRegistry));
+            systems.Add(new CoinsCounterChangeSystem());
+
+            try
+            {
+                int counterEntity = world.NewEntity();
+                world.GetPool<CoinsCounter>().Add(counterEntity).Count = 0;
+
+                int coinEntity = world.NewEntity();
+                world.GetPool<CoinViewKeeper>().Add(coinEntity);
+                world.GetPool<TransformKeeper>().Add(coinEntity).ObjectTransform = coinObject.transform;
+                registry.Register(coinEntity, coinView);
+
+                systems.Init();
+                InvokeSensorTrigger(sensor, "OnTriggerEnter2D", collector);
+                systems.Run();
+
+                registry.Unregister(coinEntity);
+                DOTween.CompleteAll();
+
+                systems.Run();
+
+                Assert.That(world.GetPool<CoinsCounter>().Get(counterEntity).Count, Is.EqualTo(1));
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+                registry.Dispose();
+                tweenRegistry.Dispose();
+
+                if (coinObject != null)
+                    Object.DestroyImmediate(coinObject);
+
+                Object.DestroyImmediate(sensorObject);
+                Object.DestroyImmediate(collectorObject);
+            }
+        }
+
+        [Test]
+        public void RestartDuringTween_CancelsFirstSessionCallbackAndStartsNewSession()
+        {
+            var tweenRegistry = new GameplayTweenRegistry();
+            var loop = new GameEcsLoop();
+            var secondSessionProbe = new LifecycleProbeSystem();
+            bool firstSessionCallbackWasCalled = false;
+
+            try
+            {
+                tweenRegistry.Track(DOVirtual.DelayedCall(1f, () =>
+                    tweenRegistry.TryExecute(() => firstSessionCallbackWasCalled = true)));
+
+                loop.Start(new IEcsSystem[0], new IGameSessionOperation[] { tweenRegistry });
+                loop.Stop();
+
+                Assert.That(tweenRegistry.IsSessionActive, Is.False);
+                Assert.That(firstSessionCallbackWasCalled, Is.False);
+
+                loop.Start(new IEcsSystem[] { secondSessionProbe });
+                loop.Tick();
+
+                Assert.That(loop.IsRunning, Is.True);
+                Assert.That(secondSessionProbe.InitCallCount, Is.EqualTo(1));
+                Assert.That(secondSessionProbe.RunCallCount, Is.EqualTo(1));
+            }
+            finally
+            {
+                loop.Dispose();
+                tweenRegistry.Dispose();
             }
         }
 
@@ -728,6 +909,12 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         {
             var method = typeof(Sensor).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
             method.Invoke(sensor, new object[] { collider });
+        }
+
+        private static void SetPrivateField(object target, string fieldName, object value)
+        {
+            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            field.SetValue(target, value);
         }
 
         private static int CreateRunningEntity(EcsWorld world, Rigidbody2D rigidbody)

@@ -161,7 +161,7 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 **Задачи**
 
-1. Добавить тесты на input → movement, hit → health → death, coin → counter, restart during tween, sensor overlap.
+1. [x] Добавлены EditMode-регрессии input → movement, hit → health → death, coin → counter и restart during tween; sensor overlap покрыт проверками множественных collider, повторного enter и уничтожения view. Все 24 теста `Project.Scripts.Gameplay.Ecs.Tests` проходят в Unity Test Runner.
 2. Добавить editor diagnostics: число сущностей по ключевым компонентам, одноразовые команды текущего кадра, активная фаза и счётчик активных presentation-операций.
 3. Добавить шаблон ECS-системы и чек-лист pull request:
    - указана фаза и зависимости по порядку;
