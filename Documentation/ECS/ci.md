@@ -12,7 +12,8 @@ this project.
 
 Before the first run, configure one of the following repository-secret sets:
 
-- `UNITY_LICENSE` — an activated Unity license file for a Personal license;
+- `UNITY_LICENSE`, `UNITY_EMAIL`, `UNITY_PASSWORD` — an activated Unity
+  license file and account credentials for a Personal license;
 - `UNITY_EMAIL`, `UNITY_PASSWORD`, `UNITY_SERIAL` — credentials for a
   Professional license.
 

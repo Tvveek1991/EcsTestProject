@@ -30,10 +30,16 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         shell: bash
         run: |
-          if [[ -z "$UNITY_LICENSE" && ( -z "$UNITY_EMAIL" || -z "$UNITY_PASSWORD" || -z "$UNITY_SERIAL" ) ]]; then
-            echo "::error::Configure UNITY_LICENSE or UNITY_EMAIL, UNITY_PASSWORD and UNITY_SERIAL repository secrets."
-            exit 1
+          if [[ -n "$UNITY_LICENSE" && -n "$UNITY_EMAIL" && -n "$UNITY_PASSWORD" ]]; then
+            exit 0
           fi
+
+          if [[ -n "$UNITY_EMAIL" && -n "$UNITY_PASSWORD" && -n "$UNITY_SERIAL" ]]; then
+            exit 0
+          fi
+
+          echo "::error::Configure UNITY_LICENSE, UNITY_EMAIL and UNITY_PASSWORD for Personal, or UNITY_EMAIL, UNITY_PASSWORD and UNITY_SERIAL for Professional."
+          exit 1
 
       - name: Restore Unity Library cache
         uses: actions/cache@v4
