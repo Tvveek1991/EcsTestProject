@@ -3,13 +3,16 @@ using NUnit.Framework;
 using System.Collections;
 using System.Reflection;
 using Project.Scripts.Gameplay.Components;
+using Project.Scripts.Gameplay.Components.Input;
 using Project.Scripts.Gameplay.Data;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
+using Project.Scripts.Gameplay.Services.Input;
 using Project.Scripts.Gameplay.Services.BridgeFactory;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Services.ViewFactory;
 using Project.Scripts.Gameplay.Sensors;
 using Project.Scripts.Gameplay.Systems;
+using Project.Scripts.Gameplay.Systems.Input;
 using Project.Scripts.Gameplay.Views;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -140,6 +143,48 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             Assert.That(tweenRegistry.IsSessionActive, Is.False);
             Assert.That(tweenRegistry.TryExecute(() => callbackWasCalled = true), Is.False);
             Assert.That(callbackWasCalled, Is.False);
+        }
+
+        [Test]
+        public void InputSystem_CopiesSnapshotBeforeInputCommandsRun()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var inputReader = new InputReaderProbe
+            {
+                Snapshot = new GameplayInputSnapshot
+                {
+                    IsEnabled = true,
+                    IsJump = true,
+                    IsRolling = true,
+                    IsMoveRight = true,
+                    IsAttack = true,
+                    IsBlock = true
+                }
+            };
+            systems.Add(new InputSystem(inputReader));
+
+            try
+            {
+                systems.Init();
+                systems.Run();
+
+                var inputFilter = world.Filter<InputComponent>().End();
+                int inputEntity = inputFilter.GetRawEntities()[0];
+                InputComponent input = world.GetPool<InputComponent>().Get(inputEntity);
+
+                Assert.That(input.IsEnabled, Is.True);
+                Assert.That(input.IsJump, Is.True);
+                Assert.That(input.IsRolling, Is.True);
+                Assert.That(input.IsMoveRight, Is.True);
+                Assert.That(input.IsAttack, Is.True);
+                Assert.That(input.IsBlock, Is.True);
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+            }
         }
 
         [Test]
@@ -481,6 +526,15 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 CancellationWasRequestedDuringDestroy = m_cancellationToken.IsCancellationRequested;
                 SessionOperationWasCanceledDuringDestroy = m_sessionOperation.IsCanceled;
                 WorldWasAliveDuringDestroy = systems.GetWorld().IsAlive();
+            }
+        }
+
+        private sealed class InputReaderProbe : IGameplayInputReader
+        {
+            public GameplayInputSnapshot Snapshot { get; set; }
+
+            public void UpdateSnapshot()
+            {
             }
         }
 

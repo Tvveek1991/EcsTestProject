@@ -15,9 +15,11 @@
 2. Команда или событие имеет одного владельца cleanup и документированных
    producer/consumer. Однокадровая команда удаляется только после того, как
    отработали все её разрешённые consumers.
-3. `InputComponent` — snapshot текущего `Update`: `InputSystem` полностью
-   перезаписывает его один раз за кадр. Системы `CheckInput*` могут создавать
-   intent-компоненты, доступные Simulation в этом же кадре.
+3. Unity input bridge обновляет единый `GameplayInputSnapshot` из
+   `GameplayInputActions` ровно один раз перед `GameEcsLoop.Tick()`.
+   `InputSystem` копирует этот snapshot в `InputComponent`; системы
+   `CheckInput*` могут создавать intent-компоненты, доступные Simulation в
+   этом же кадре.
 4. Simulation читает input intents, изменяет gameplay-state и создаёт
    намерения для Physics. Она не обращается к Unity view, UI, Animator,
    Rigidbody2D или DOTween. `CheckHitSystem` временно является legacy-
@@ -37,7 +39,7 @@
 
 | Тип | Producer | Consumer | Срок жизни и owner |
 | --- | --- | --- | --- |
-| `InputComponent` | `InputSystem` | `CheckInput*`, `EndGameSystem` | Snapshot одного `Update`; перезаписывается `InputSystem`, удаляется вместе с session. |
+| `GameplayInputSnapshot` / `InputComponent` | Unity input bridge / `InputSystem` | `CheckInput*`, `EndGameSystem` | Bridge читает `InputAction` asset перед ECS tick, `InputSystem` один раз копирует snapshot; `InputComponent` удаляется вместе с session. |
 | `Jump` | `CheckInputJumpSystem` | `JumpSystem` | Intent текущего кадра; `JumpSystem.PostRun` удаляет его после physics-действия. |
 | `Run`, `Rolling`, `Block`, `Attack` | `CheckInput*` | соответствующие movement systems | Это краткоживущие gameplay-state, а не универсальные команды. Их владелец удаляет компонент по собственному condition. |
 | `HitCommand` от `Q` | `CheckInputHurtSystem` | `HealthChangeSystem` | Должен быть доступен Simulation в тот же кадр и очищаться единым cleanup после UI/animation consumers. Сейчас его удаляет `HealthViewChangeSystem`; это legacy-исключение. |

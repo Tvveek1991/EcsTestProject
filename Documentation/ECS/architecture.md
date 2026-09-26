@@ -24,7 +24,7 @@ Unity является внешним слоем представления и �
 | Слой | Владеет | Не делает |
 | --- | --- | --- |
 | ECS components | Состоянием игры и краткоживущими командами/событиями. | Не хранит неявные правила во view. |
-| Input bridge | Читает Unity Input System и записывает snapshot или ECS-команды. | Не применяет игровой эффект напрямую. |
+| Input bridge | Читает `GameplayInputActions` через Unity Input System и обновляет один snapshot перед ECS tick. | Не применяет игровой эффект напрямую и не создаёт gameplay-команды. |
 | Simulation systems | Правилами игры: движение как намерение, здоровье, состояния, награды, смерть. | Не вызывает Unity API, DOTween, `Instantiate` или `Destroy`. |
 | Physics bridge | Синхронизацией намерений и результатов с `Rigidbody2D`/`Collider2D` на fixed tick. | Не принимает решения о правилах игры вне явно опубликованных bridge-событий. |
 | Presentation bridge | Созданием, обновлением и удалением view; Animator, UI, камера, эффекты и DOTween. | Не меняет gameplay-состояние как побочный эффект отображения. |
@@ -89,7 +89,10 @@ Cleanup`, но они пока исполняются одним `Update` tick. 
 ticks для physics/presentation будут добавлены только после фиксации правил
 передачи команд между фазами.
 
-Команда, созданная в Input, доступна Simulation в том же кадре. Presentation
+Перед каждым `GameEcsLoop.Tick()` Unity input bridge обновляет
+`GameplayInputSnapshot`; `InputSystem` копирует его в `InputComponent` первой
+системой Input-фазы. Поэтому команда, созданная в Input, доступна Simulation в
+том же кадре. Presentation
 читает результаты Simulation, но не создаёт gameplay-команды в ответ на
 визуальное завершение. Bridge-событие, которое действительно должно влиять на
 игру (например, контакт коллайдера), имеет отдельный явно описанный компонент и

@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Gameplay;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Ecs;
+using Project.Scripts.Gameplay.Services.Input;
 using VContainer;
 using VContainer.Unity;
 
@@ -72,6 +73,9 @@ namespace Application.ContainerMediator
 
     public IEnumerable<IGameSessionOperation> ResolveSessionOperations() =>
       _applicationScope.Container.Resolve<IEnumerable<IGameSessionOperation>>();
+
+    public IGameplayInputReader ResolveInputReader() =>
+      _applicationScope.Container.Resolve<IGameplayInputReader>();
 
     public void CleanupApplicationStateDependencies()
     {

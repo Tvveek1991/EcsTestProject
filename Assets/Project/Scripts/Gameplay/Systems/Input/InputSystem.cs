@@ -1,16 +1,23 @@
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Components.Input;
-using UnityEngine;
+using Project.Scripts.Gameplay.Services.Input;
 
 namespace Project.Scripts.Gameplay.Systems.Input
 {
     public sealed class InputSystem : IEcsInitSystem, IEcsRunSystem
     {
+        private readonly IGameplayInputReader m_gameplayInputReader;
+
         private EcsWorld m_world;
     
         private EcsFilter m_inputFilter;
         
         private EcsPool<InputComponent> m_inputPool;
+
+        public InputSystem(IGameplayInputReader gameplayInputReader)
+        {
+            m_gameplayInputReader = gameplayInputReader;
+        }
         
         public void Init(IEcsSystems systems)
         {
@@ -28,18 +35,17 @@ namespace Project.Scripts.Gameplay.Systems.Input
             foreach (var i in m_inputFilter)
             {
                 ref var input = ref m_inputPool.Get(i);
-            
-                input.IsJump = UnityEngine.Input.GetKeyDown(KeyCode.Space);
-                input.IsRolling = UnityEngine.Input.GetKeyDown(KeyCode.LeftShift);
-                
-                input.IsMoveLeft = UnityEngine.Input.GetKey(KeyCode.A);
-                input.IsMoveRight = UnityEngine.Input.GetKey(KeyCode.D);
-                
-                input.IsDead = UnityEngine.Input.GetKeyDown(KeyCode.E);
-                input.IsHurt = UnityEngine.Input.GetKeyDown(KeyCode.Q);
-                
-                input.IsAttack = UnityEngine.Input.GetKeyDown(KeyCode.Mouse0);
-                input.IsBlock = UnityEngine.Input.GetKey(KeyCode.Mouse1);
+                GameplayInputSnapshot snapshot = m_gameplayInputReader.Snapshot;
+
+                input.IsEnabled = snapshot.IsEnabled;
+                input.IsJump = snapshot.IsJump;
+                input.IsRolling = snapshot.IsRolling;
+                input.IsMoveLeft = snapshot.IsMoveLeft;
+                input.IsMoveRight = snapshot.IsMoveRight;
+                input.IsDead = snapshot.IsDead;
+                input.IsHurt = snapshot.IsHurt;
+                input.IsAttack = snapshot.IsAttack;
+                input.IsBlock = snapshot.IsBlock;
             }
         }
 

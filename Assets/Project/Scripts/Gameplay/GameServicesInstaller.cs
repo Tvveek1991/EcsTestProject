@@ -5,6 +5,7 @@ using Project.Scripts.Gameplay.Services.CoinsCounterService;
 using Project.Scripts.Gameplay.Services.CoinsService;
 using Project.Scripts.Gameplay.Services.FinishViewService;
 using Project.Scripts.Gameplay.Services.GameLevelService;
+using Project.Scripts.Gameplay.Services.Input;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.TutorialService;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
@@ -27,6 +28,7 @@ namespace Gameplay
       builder.Register<IGameplayUiBridgeFactory, GameplayUiBridgeFactory>(Lifetime.Scoped);
       builder.Register<IGameplaySensorBridgeFactory, GameplaySensorBridgeFactory>(Lifetime.Scoped);
       builder.Register<IGameplayEffectsBridgeFactory, GameplayEffectsBridgeFactory>(Lifetime.Scoped);
+      builder.Register<IGameplayInputReader, GameplayInputReader>(Lifetime.Scoped);
 
       builder.Register<ICoinsService, CoinsService>(Lifetime.Scoped);
       builder.Register<IGameLevelService, GameLevelService>(Lifetime.Scoped);

@@ -5,6 +5,7 @@ using Application.ContainerMediator;
 using Application.StateMachine.Interfaces;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay.Ecs;
+using Project.Scripts.Gameplay.Services.Input;
 using Project.Scripts.Gameplay.Services.LoadScreenService;
 using Project.Scripts.Gameplay.Services.ReactionService;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace Application.StateMachine.States
     private IEnumerable<IEcsSystem> m_ecsSystems;
 
     private GameEcsLoop m_gameEcsLoop;
+    private IGameplayInputReader m_gameplayInputReader;
 
     private CancellationTokenSource m_initializationCancellationTokenSource;
     
@@ -92,18 +94,23 @@ namespace Application.StateMachine.States
 #endif
 
       m_gameEcsLoop = new GameEcsLoop();
+      m_gameplayInputReader = m_dependenciesContainer.ResolveInputReader();
       m_gameEcsLoop.Start(systems, m_dependenciesContainer.ResolveSessionOperations());
 
       m_reactionService.OnRestartGame += Restart;
     }
 
-    public void Tick() =>
+    public void Tick()
+    {
+      m_gameplayInputReader?.UpdateSnapshot();
       m_gameEcsLoop?.Tick();
+    }
 
     private void DestroyEcs()
     {
       m_gameEcsLoop?.Stop();
       m_gameEcsLoop = null;
+      m_gameplayInputReader = null;
       m_ecsSystems = null;
     }
 
