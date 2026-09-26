@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Leopotam.EcsLite;
+using Project.Scripts.Gameplay.Ecs.Diagnostics;
+using Project.Scripts.Gameplay.Services.TweenRegistry;
 
 namespace Project.Scripts.Gameplay.Ecs
 {
@@ -11,6 +13,7 @@ namespace Project.Scripts.Gameplay.Ecs
         private readonly EcsWorld m_world;
         private readonly IEcsSystems m_systems;
         private readonly List<IGameSessionOperation> m_sessionOperations;
+        private readonly GameEcsDiagnostics m_diagnostics;
 
         private bool m_isStarted;
         private bool m_isDisposed;
@@ -24,19 +27,22 @@ namespace Project.Scripts.Gameplay.Ecs
             m_world = new EcsWorld();
             m_systems = new EcsSystems(m_world);
             m_sessionOperations = sessionOperations == null ? new List<IGameSessionOperation>() : new List<IGameSessionOperation>(sessionOperations);
+            m_diagnostics = new GameEcsDiagnostics(FindTweenRegistry(m_sessionOperations));
 
             foreach (IEcsSystem system in systems)
             {
                 if (system == null)
                     throw new ArgumentException("ECS session cannot contain a null system.", nameof(systems));
 
-                m_systems.Add(system);
+                m_systems.Add(new EcsDiagnosticsSystemProxy(system, m_diagnostics));
             }
         }
 
         public CancellationToken CancellationToken => m_cancellationTokenSource.Token;
 
         public bool IsRunning => m_isStarted && !m_isDisposed;
+
+        public GameEcsDiagnosticsSnapshot Diagnostics => m_diagnostics.Snapshot;
 
         public void Start()
         {
@@ -46,10 +52,12 @@ namespace Project.Scripts.Gameplay.Ecs
                 throw new InvalidOperationException("Game session is already started.");
 
             m_isStarted = true;
+            m_diagnostics.Activate();
 
             try
             {
                 m_systems.Init();
+                m_diagnostics.CaptureWorld(m_world);
             }
             catch
             {
@@ -63,7 +71,9 @@ namespace Project.Scripts.Gameplay.Ecs
             if (!IsRunning)
                 return;
 
+            m_diagnostics.BeginFrame();
             m_systems.Run();
+            m_diagnostics.CaptureWorld(m_world);
         }
 
         public void Dispose()
@@ -88,6 +98,7 @@ namespace Project.Scripts.Gameplay.Ecs
                 finally
                 {
                     m_world.Destroy();
+                    m_diagnostics.Deactivate();
                     m_cancellationTokenSource.Dispose();
                 }
             }
@@ -97,6 +108,17 @@ namespace Project.Scripts.Gameplay.Ecs
         {
             foreach (IGameSessionOperation sessionOperation in m_sessionOperations)
                 sessionOperation?.Cancel();
+        }
+
+        private static IGameplayTweenRegistry FindTweenRegistry(IEnumerable<IGameSessionOperation> sessionOperations)
+        {
+            foreach (IGameSessionOperation sessionOperation in sessionOperations)
+            {
+                if (sessionOperation is IGameplayTweenRegistry tweenRegistry)
+                    return tweenRegistry;
+            }
+
+            return null;
         }
 
         private void ThrowIfDisposed()

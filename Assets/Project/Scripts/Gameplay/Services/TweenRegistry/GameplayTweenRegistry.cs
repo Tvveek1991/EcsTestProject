@@ -10,6 +10,8 @@ namespace Project.Scripts.Gameplay.Services.TweenRegistry
 
         public bool IsSessionActive { get; private set; } = true;
 
+        public int ActiveTweenCount => m_tweens.Count;
+
         public T Track<T>(T tween) where T : Tween
         {
             if (tween == null)

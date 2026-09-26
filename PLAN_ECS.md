@@ -161,8 +161,8 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 **Задачи**
 
-1. [x] Добавлены EditMode-регрессии input → movement, hit → health → death, coin → counter и restart during tween; sensor overlap покрыт проверками множественных collider, повторного enter и уничтожения view. Все 24 теста `Project.Scripts.Gameplay.Ecs.Tests` проходят в Unity Test Runner.
-2. Добавить editor diagnostics: число сущностей по ключевым компонентам, одноразовые команды текущего кадра, активная фаза и счётчик активных presentation-операций.
+1. [x] Добавлены EditMode-регрессии input → movement, hit → health → death, coin → counter и restart during tween; sensor overlap покрыт проверками множественных collider, повторного enter и уничтожения view. Все 26 тестов `Project.Scripts.Gameplay.Ecs.Tests` проходят в Unity Test Runner.
+2. [x] Добавлено окно **Tools → BestWood → ECS Diagnostics**: read-only snapshot показывает ключевые сущности, одноразовые команды до cleanup, активную фазу/систему и число активных presentation tween. Использование описано в `Documentation/ECS/diagnostics.md`.
 3. Добавить шаблон ECS-системы и чек-лист pull request:
    - указана фаза и зависимости по порядку;
    - фильтры и pools кэшируются в `Init`;

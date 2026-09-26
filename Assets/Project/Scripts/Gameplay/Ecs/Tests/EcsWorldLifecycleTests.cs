@@ -6,6 +6,7 @@ using System.Reflection;
 using Project.Scripts.Gameplay.Components;
 using Project.Scripts.Gameplay.Components.Input;
 using Project.Scripts.Gameplay.Data;
+using Project.Scripts.Gameplay.Ecs.Diagnostics;
 using Project.Scripts.Gameplay.Services.EntityViewRegistry;
 using Project.Scripts.Gameplay.Services.Input;
 using Project.Scripts.Gameplay.Services.BridgeFactory;
@@ -94,6 +95,54 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             Assert.That(probeSystem.SessionOperationWasCanceledDuringDestroy, Is.True);
             Assert.That(probeSystem.WorldWasAliveDuringDestroy, Is.True);
             Assert.That(sessionOperation.CancelCallCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GameSession_ForwardsPreInitSystems()
+        {
+            var probeSystem = new PreInitProbeSystem();
+            using var session = new GameSession(new IEcsSystem[] { probeSystem });
+
+            session.Start();
+            session.Tick();
+
+            Assert.That(probeSystem.PreInitCallCount, Is.EqualTo(1));
+            Assert.That(probeSystem.RunCallCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GameSessionDiagnostics_CapturesEntitiesCommandsAndCleanupPhase()
+        {
+            var setupSystem = new DiagnosticsSetupSystem();
+            var tweenRegistry = new GameplayTweenRegistry();
+            var session = new GameSession(
+                new IEcsSystem[] { setupSystem, new EndOfFrameCleanupSystem() },
+                new IGameSessionOperation[] { tweenRegistry });
+
+            try
+            {
+                session.Start();
+                session.Tick();
+
+                GameEcsDiagnosticsSnapshot snapshot = session.Diagnostics;
+
+                Assert.That(GameEcsDiagnosticsRegistry.ActiveSnapshot, Is.SameAs(snapshot));
+                Assert.That(snapshot.IsSessionRunning, Is.True);
+                Assert.That(snapshot.FrameIndex, Is.EqualTo(1));
+                Assert.That(snapshot.ActivePhase, Is.EqualTo(GameEcsPhase.Cleanup));
+                Assert.That(snapshot.ActiveSystemName, Is.EqualTo(nameof(EndOfFrameCleanupSystem)));
+                Assert.That(snapshot.PlayerCount, Is.EqualTo(1));
+                Assert.That(snapshot.HealthCount, Is.EqualTo(1));
+                Assert.That(snapshot.OneFrameHitCommandCount, Is.EqualTo(1));
+                Assert.That(snapshot.ActivePresentationOperationCount, Is.Zero);
+            }
+            finally
+            {
+                session.Dispose();
+                tweenRegistry.Dispose();
+            }
+
+            Assert.That(GameEcsDiagnosticsRegistry.ActiveSnapshot, Is.Null);
         }
 
         [Test]
@@ -902,6 +951,35 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             {
                 DestroyCallCount++;
                 WorldWasAliveDuringDestroy = systems.GetWorld().IsAlive();
+            }
+        }
+
+        private sealed class DiagnosticsSetupSystem : IEcsInitSystem
+        {
+            public void Init(IEcsSystems systems)
+            {
+                EcsWorld world = systems.GetWorld();
+                int entity = world.NewEntity();
+                world.GetPool<Player>().Add(entity);
+                world.GetPool<Health>().Add(entity).Count = 10;
+                world.GetPool<HitCommand>().Add(entity).HitValue = 1;
+            }
+        }
+
+        private sealed class PreInitProbeSystem : IEcsPreInitSystem, IEcsRunSystem
+        {
+            public int PreInitCallCount { get; private set; }
+
+            public int RunCallCount { get; private set; }
+
+            public void PreInit(IEcsSystems systems)
+            {
+                PreInitCallCount++;
+            }
+
+            public void Run(IEcsSystems systems)
+            {
+                RunCallCount++;
             }
         }
 

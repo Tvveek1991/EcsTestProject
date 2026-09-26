@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Leopotam.EcsLite;
 using Project.Scripts.Gameplay;
+using Project.Scripts.Gameplay.Ecs.Diagnostics;
 using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Systems.Input;
 using Project.Scripts.Gameplay.Systems.PersonAnimations;
@@ -88,6 +89,31 @@ namespace Project.Scripts.Gameplay.Ecs
             }
 
             return -1;
+        }
+
+        public static GameEcsPhase GetPhase(Type systemType)
+        {
+            int systemIndex = GetOrderIndex(systemType);
+
+            if (systemIndex < 0)
+                return GameEcsPhase.None;
+
+            if (systemIndex < GetOrderIndex(typeof(InputSystem)))
+                return GameEcsPhase.Initialization;
+
+            if (systemIndex < GetOrderIndex(typeof(ReactionSystem)))
+                return GameEcsPhase.Input;
+
+            if (systemIndex < GetOrderIndex(typeof(JumpSystem)))
+                return GameEcsPhase.Simulation;
+
+            if (systemIndex < GetOrderIndex(typeof(CameraFollowSystem)))
+                return GameEcsPhase.Physics;
+
+            if (systemIndex < GetOrderIndex(typeof(DestroyHealthViewSystem)))
+                return GameEcsPhase.Presentation;
+
+            return GameEcsPhase.Cleanup;
         }
 
         public IReadOnlyList<IEcsSystem> Compose(IEnumerable<IEcsSystem> registeredSystems)
