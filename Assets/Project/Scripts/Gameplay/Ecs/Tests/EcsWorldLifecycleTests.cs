@@ -417,6 +417,45 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         }
 
         [Test]
+        public void RunSystem_StoresIdleTimerOnEachRunningEntity()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var personData = ScriptableObject.CreateInstance<PersonData>();
+            var movingObject = new GameObject("Moving body");
+            var idleObject = new GameObject("Idle body");
+            var runSystem = new RunSystem(personData);
+
+            systems.Add(runSystem);
+
+            try
+            {
+                int movingEntity = CreateRunningEntity(world, movingObject.AddComponent<Rigidbody2D>());
+                int idleEntity = CreateRunningEntity(world, idleObject.AddComponent<Rigidbody2D>());
+                ref Run movingRun = ref world.GetPool<Run>().Get(movingEntity);
+                ref Run idleRun = ref world.GetPool<Run>().Get(idleEntity);
+                movingRun.Direction = 1;
+                idleRun.Direction = 0;
+                idleRun.IdleTimeRemaining = 7f;
+
+                systems.Init();
+                typeof(RunSystem).GetMethod("TryMove", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(runSystem, null);
+
+                Assert.That(movingRun.IdleTimeRemaining, Is.EqualTo(.05f));
+                Assert.That(idleRun.IdleTimeRemaining, Is.EqualTo(7f));
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+                Object.DestroyImmediate(personData);
+                Object.DestroyImmediate(movingObject);
+                Object.DestroyImmediate(idleObject);
+            }
+        }
+
+        [Test]
         public void GameplayViewFactory_CreatesAllViewsUnderRequestedParent()
         {
             var playerPrefab = new GameObject("Player prefab");
@@ -631,6 +670,16 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         {
             var method = typeof(Sensor).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
             method.Invoke(sensor, new object[] { collider });
+        }
+
+        private static int CreateRunningEntity(EcsWorld world, Rigidbody2D rigidbody)
+        {
+            int entity = world.NewEntity();
+            world.GetPool<Run>().Add(entity);
+            world.GetPool<Rigidbody2d>().Add(entity).Rigidbody = rigidbody;
+            world.GetPool<WallCheck>().Add(entity);
+            world.GetPool<GroundCheckComponent>().Add(entity);
+            return entity;
         }
 
         private static object GetPendingExitCancellationTokenSource(Sensor sensor)

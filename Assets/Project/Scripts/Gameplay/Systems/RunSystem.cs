@@ -8,6 +8,8 @@ namespace Project.Scripts.Gameplay.Systems
 {
     public class RunSystem : IEcsInitSystem, IEcsRunSystem
     {
+        private const float IdleDelay = .05f;
+
         private readonly PersonData m_personData;
 
         private EcsWorld m_world;
@@ -19,8 +21,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsPool<Rigidbody2d> m_rigidbody2dPool;
         private EcsPool<WallCheck> m_wallCheckPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
-
-        private float m_delayToIdle;
 
         public RunSystem(PersonData personData)
         {
@@ -54,12 +54,12 @@ namespace Project.Scripts.Gameplay.Systems
                     if (m_wallCheckPool.Get(runIndex).WallSensors.Any(item => item.IsConnected) && m_groundCheckPool.Get(runIndex).GroundSensors.All(item => !item.IsConnected))
                         continue;
 
-                int direction = m_runPool.Get(runIndex).Direction;
+                ref Run run = ref m_runPool.Get(runIndex);
+                int direction = run.Direction;
                 m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(direction * m_personData.Speed, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
 
-                //Run
                 if (Mathf.Abs(direction) > Mathf.Epsilon)
-                    m_delayToIdle = 0.05f;
+                    run.IdleTimeRemaining = IdleDelay;
             }
         }
 
@@ -67,8 +67,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var runIndex in m_runFilter)
             {
-                m_delayToIdle -= Time.deltaTime;
-                if (m_delayToIdle < 0 && m_runPool.Has(runIndex))
+                ref Run run = ref m_runPool.Get(runIndex);
+                run.IdleTimeRemaining -= Time.deltaTime;
+
+                if (run.IdleTimeRemaining < 0 && m_runPool.Has(runIndex))
                 {
                     m_runPool.Del(runIndex);
                     m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity = new Vector2(0, m_rigidbody2dPool.Get(runIndex).Rigidbody.linearVelocity.y);
