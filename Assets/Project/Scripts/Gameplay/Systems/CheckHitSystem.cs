@@ -31,7 +31,8 @@ namespace Project.Scripts.Gameplay.Systems
         {
             m_world = systems.GetWorld();
 
-            m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<Attack>().Inc<SpriteRendererKeeper>().End();
+            m_attackedPersonFilter = m_world.Filter<PersonViewComponent>().Inc<Attack>().Inc<SpriteRendererKeeper>()
+                .Exc<Rolling>().End();
 
             m_attackPool = m_world.GetPool<Attack>();
             m_healthPool = m_world.GetPool<Health>();

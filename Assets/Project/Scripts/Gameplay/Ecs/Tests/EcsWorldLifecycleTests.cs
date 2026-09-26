@@ -656,6 +656,61 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         }
 
         [Test]
+        public void CheckHitSystem_DoesNotDamageWhileRolling()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var registry = new EntityViewRegistry();
+            var playerObject = new GameObject("Rolling player");
+            var checkerObject = new GameObject("Attack checker");
+            var targetObject = new GameObject("Raycast target");
+            var playerView = playerObject.AddComponent<PersonView>();
+            var playerRenderer = playerObject.AddComponent<SpriteRenderer>();
+            var targetView = targetObject.AddComponent<ObjectView>();
+            var targetCollider = targetObject.AddComponent<BoxCollider2D>();
+
+            checkerObject.transform.SetParent(playerObject.transform);
+            checkerObject.transform.position = Vector3.zero;
+            targetObject.transform.position = Vector3.right;
+            targetObject.layer = LayerMask.NameToLayer("InteractiveObject");
+            typeof(PersonView).GetField("m_checkerSpawnPoint", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(playerView, checkerObject.transform);
+
+            systems.Add(new CheckHitSystem(registry));
+
+            try
+            {
+                Assert.That(targetObject.layer, Is.GreaterThanOrEqualTo(0));
+
+                int playerEntity = world.NewEntity();
+                world.GetPool<PersonViewComponent>().Add(playerEntity);
+                world.GetPool<Attack>().Add(playerEntity).IsActive = true;
+                world.GetPool<Rolling>().Add(playerEntity);
+                world.GetPool<SpriteRendererKeeper>().Add(playerEntity).SpriteRenderer = playerRenderer;
+                registry.Register(playerEntity, playerView);
+
+                int targetEntity = world.NewEntity();
+                world.GetPool<Health>().Add(targetEntity).Count = 100;
+                registry.Register(targetEntity, targetView);
+                registry.RegisterCollider(targetEntity, targetCollider);
+
+                systems.Init();
+                Physics2D.SyncTransforms();
+                systems.Run();
+
+                Assert.That(world.GetPool<HitCommand>().Has(targetEntity), Is.False);
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+                registry.Dispose();
+                Object.DestroyImmediate(playerObject);
+                Object.DestroyImmediate(targetObject);
+            }
+        }
+
+        [Test]
         public void HealthViewFollowSystem_FollowsEachHealthOwnerViewDirectly()
         {
             var world = new EcsWorld();
