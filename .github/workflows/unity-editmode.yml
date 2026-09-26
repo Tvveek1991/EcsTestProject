@@ -62,7 +62,6 @@ jobs:
           testMode: EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: Unity EditMode tests
-          coverageEnabled: false
 
       - name: Upload EditMode results
         if: always()

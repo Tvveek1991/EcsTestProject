@@ -6,9 +6,8 @@ Unity `6000.3.19f1`, so loading the project compiles game assemblies before the
 EditMode suite is executed.
 
 The workflow uses `game-ci/unity-test-runner@v4` with `testMode: EditMode`.
-Code coverage is deliberately disabled: the current CI gate is compilation and
-regression tests, while Unity 6 coverage instrumentation is not required for
-this project.
+The current CI gate is compilation and regression tests; coverage reports are
+not uploaded as CI artifacts.
 
 Before the first run, configure one of the following repository-secret sets:
 
