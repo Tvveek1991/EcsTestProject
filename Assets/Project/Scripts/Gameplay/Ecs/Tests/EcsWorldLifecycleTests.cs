@@ -11,6 +11,7 @@ using Project.Scripts.Gameplay.Services.BridgeFactory;
 using Project.Scripts.Gameplay.Services.CameraService;
 using Project.Scripts.Gameplay.Services.TweenRegistry;
 using Project.Scripts.Gameplay.Services.ViewFactory;
+using Project.Scripts.Gameplay.Serializabled;
 using Project.Scripts.Gameplay.Sensors;
 using Project.Scripts.Gameplay.Systems;
 using Project.Scripts.Gameplay.Systems.Input;
@@ -103,6 +104,16 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             Assert.That(checkHitIndex, Is.GreaterThanOrEqualTo(0));
             Assert.That(checkHitIndex, Is.LessThan(healthChangeIndex));
             Assert.That(healthChangeIndex, Is.LessThan(healthViewChangeIndex));
+        }
+
+        [Test]
+        public void EndOfFrameCleanupSystem_RunsAfterPresentationSystems()
+        {
+            int endGameIndex = GameSystemsComposer.GetOrderIndex(typeof(EndGameSystem));
+            int cleanupIndex = GameSystemsComposer.GetOrderIndex(typeof(EndOfFrameCleanupSystem));
+
+            Assert.That(endGameIndex, Is.GreaterThanOrEqualTo(0));
+            Assert.That(cleanupIndex, Is.GreaterThan(endGameIndex));
         }
 
         [Test]
@@ -452,6 +463,53 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 Object.DestroyImmediate(personData);
                 Object.DestroyImmediate(movingObject);
                 Object.DestroyImmediate(idleObject);
+            }
+        }
+
+        [Test]
+        public void EndOfFrameCleanupSystem_RemovesOneFrameCommandsAndKeepsDeadCommand()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            systems.Add(new EndOfFrameCleanupSystem());
+
+            try
+            {
+                int hitEntity = world.NewEntity();
+                world.GetPool<Health>().Add(hitEntity);
+                world.GetPool<HitCommand>().Add(hitEntity).HitValue = 10;
+
+                int healEntity = world.NewEntity();
+                world.GetPool<Health>().Add(healEntity);
+                world.GetPool<HealCommand>().Add(healEntity).AddHealth = 10;
+
+                int reactionEntity = world.NewEntity();
+                world.GetPool<ReactionComponent>().Add(reactionEntity).Type = ReactionType.Default;
+
+                int jumpEntity = world.NewEntity();
+                world.GetPool<Player>().Add(jumpEntity);
+                world.GetPool<Jump>().Add(jumpEntity);
+
+                int coinsCounterChangeEntity = world.NewEntity();
+                world.GetPool<CoinsCounterChange>().Add(coinsCounterChangeEntity).CorrectionValue = 1;
+
+                int deadEntity = world.NewEntity();
+                world.GetPool<DeadCommand>().Add(deadEntity).Status = ProcessStatus.Started;
+
+                systems.Init();
+                systems.Run();
+
+                Assert.That(world.GetPool<HitCommand>().Has(hitEntity), Is.False);
+                Assert.That(world.GetPool<HealCommand>().Has(healEntity), Is.False);
+                Assert.That(world.GetEntityGen(reactionEntity), Is.LessThan(0));
+                Assert.That(world.GetPool<Jump>().Has(jumpEntity), Is.False);
+                Assert.That(world.GetEntityGen(coinsCounterChangeEntity), Is.LessThan(0));
+                Assert.That(world.GetPool<DeadCommand>().Has(deadEntity), Is.True);
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
             }
         }
 

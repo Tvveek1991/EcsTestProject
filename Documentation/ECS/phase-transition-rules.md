@@ -40,15 +40,15 @@
 | Тип | Producer | Consumer | Срок жизни и owner |
 | --- | --- | --- | --- |
 | `GameplayInputSnapshot` / `InputComponent` | Unity input bridge / `InputSystem` | `CheckInput*`, `EndGameSystem` | Bridge читает `InputAction` asset перед ECS tick, `InputSystem` один раз копирует snapshot; `InputComponent` удаляется вместе с session. |
-| `Jump` | `CheckInputJumpSystem` | `JumpSystem` | Intent текущего кадра; `JumpSystem.PostRun` удаляет его после physics-действия. |
+| `Jump` | `CheckInputJumpSystem` | `JumpSystem` | Intent текущего кадра; удаляется `EndOfFrameCleanupSystem` после всех фаз. |
 | `Run`, `Rolling`, `Block`, `Attack` | `CheckInput*` | соответствующие movement systems | Это краткоживущие gameplay-state, а не универсальные команды. Их владелец удаляет компонент по собственному condition. |
-| `HitCommand` от `Q` | `CheckInputHurtSystem` | `HealthChangeSystem` | Должен быть доступен Simulation в тот же кадр и очищаться единым cleanup после UI/animation consumers. Сейчас его удаляет `HealthViewChangeSystem`; это legacy-исключение. |
-| `HitCommand` от raycast | `CheckHitSystem` (Simulation, временно) | `HealthChangeSystem` | Создаётся после `AttackSystem` и до `HealthChangeSystem`, поэтому обрабатывается в том же `Update`; удаляется presentation consumer после отображения. |
-| `HealCommand` | future Simulation/bridge producer | `HealthChangeSystem` | Аналогичен `HitCommand`; очистка не должна происходить в Presentation. |
-| `CoinsCounterChange` | bridge после завершения coin animation | `CoinsCounterChangeSystem` | Однокадровая Simulation-команда; удаляется consumer в `PostRun`. Callback DOTween пока пишет её напрямую — legacy-нарушение. |
+| `HitCommand` от `Q` | `CheckInputHurtSystem` | `HealthChangeSystem`, `HealthViewChangeSystem` | Доступен Simulation в тот же кадр; удаляется `EndOfFrameCleanupSystem` после presentation consumers. |
+| `HitCommand` от raycast | `CheckHitSystem` (Simulation, временно) | `HealthChangeSystem`, `HealthViewChangeSystem` | Создаётся после `AttackSystem` и до `HealthChangeSystem`, обрабатывается в том же `Update` и удаляется end-of-frame. |
+| `HealCommand` | future Simulation/bridge producer | `HealthChangeSystem`, `HealthViewChangeSystem` | Однокадровая команда; удаляется `EndOfFrameCleanupSystem` после presentation consumer. |
+| `CoinsCounterChange` | bridge после завершения coin animation | `CoinsCounterChangeSystem` | Одноразовая Simulation entity; удаляется `EndOfFrameCleanupSystem`. Callback DOTween пока пишет её напрямую — legacy-нарушение. |
 | `CoinViewFlyAwayAnimation` | `CoinsViewCheckSystem` | `CoinsViewAnimationSystem` | Presentation request. После старта анимации entity удаляется `CoinsViewAnimationSystem.PostRun`; callback не должен создавать gameplay-команды напрямую. |
 | `DeadCommand` | `CheckDeathSystem` | destruction и death presentation systems | Многофазная команда со статусами `Ready → Started → Completed`; остаётся до перевода owner в `Dead`. |
-| `ReactionComponent` | Finish UI bridge | `ReactionSystem` | Однокадровая Simulation-команда. UI callback не должен вызывать `EcsWorld.NewEntity()` напрямую. |
+| `ReactionComponent` | Finish UI bridge | `ReactionSystem` | Однокадровая Simulation-команда; удаляется `EndOfFrameCleanupSystem`, если restart не уничтожил session раньше. UI callback не должен вызывать `EcsWorld.NewEntity()` напрямую. |
 
 ## Действующие переходы и известные нарушения
 
@@ -69,6 +69,8 @@
 создать bridge-event, привязанный к `GameSession.CancellationToken`; callback
 проверяет актуальность session и не замыкает `EcsWorld`.
 
-До введения `EndOfFrameCleanupSystem` новые presentation-системы не удаляют
-`HitCommand`, `HealCommand`, `ReactionComponent` или другие gameplay-команды.
-Временное исключение должно быть перечислено в этой таблице.
+`EndOfFrameCleanupSystem` — единственный owner очистки `HitCommand`,
+`HealCommand`, `ReactionComponent`, `Jump` и `CoinsCounterChange`. Его нельзя
+использовать для `DeadCommand`: эта команда многофазно переходит
+`Ready → Started → Completed` и удаляется `CheckDeathSystem` только при
+переводе owner в `Dead`. Другие исключения должны быть перечислены в таблице.

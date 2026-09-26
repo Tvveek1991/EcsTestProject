@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class JumpSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
+    public class JumpSystem : IEcsInitSystem, IEcsRunSystem
     {
         private readonly PersonData m_personData;
 
@@ -13,7 +13,6 @@ namespace Project.Scripts.Gameplay.Systems
 
         private EcsFilter m_jumperFilter;
 
-        private EcsPool<Jump> m_jumpPool;
         private EcsPool<Rigidbody2d> m_rigidbody2dPool;
         private EcsPool<GroundCheckComponent> m_groundCheckPool;
 
@@ -28,7 +27,6 @@ namespace Project.Scripts.Gameplay.Systems
 
             m_jumperFilter = m_world.Filter<Jump>().Inc<Rigidbody2d>().Inc<GroundCheckComponent>().End();
 
-            m_jumpPool = m_world.GetPool<Jump>();
             m_rigidbody2dPool = m_world.GetPool<Rigidbody2d>();
             m_groundCheckPool = m_world.GetPool<GroundCheckComponent>();
         }
@@ -36,14 +34,6 @@ namespace Project.Scripts.Gameplay.Systems
         public void Run(IEcsSystems systems)
         {
             TryJump();
-        }
-
-        public void PostRun(IEcsSystems systems)
-        {
-            foreach (var jumper in m_jumperFilter)
-            {
-                m_jumpPool.Del(jumper);
-            }
         }
 
         private void TryJump()

@@ -72,7 +72,8 @@ namespace Project.Scripts.Gameplay.Ecs
 
             // Cleanup
             typeof(DestroyHealthViewSystem),
-            typeof(DestroyObjectViewSystem)
+            typeof(DestroyObjectViewSystem),
+            typeof(EndOfFrameCleanupSystem)
         };
 
         public static int GetOrderIndex(Type systemType)

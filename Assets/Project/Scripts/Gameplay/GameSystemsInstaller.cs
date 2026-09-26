@@ -101,6 +101,7 @@ namespace Gameplay
     {
       builder.Register<IEcsSystem, DestroyHealthViewSystem>(Lifetime.Scoped);
       builder.Register<IEcsSystem, DestroyObjectViewSystem>(Lifetime.Scoped);
+      builder.Register<IEcsSystem, EndOfFrameCleanupSystem>(Lifetime.Scoped);
     }
   }
 }

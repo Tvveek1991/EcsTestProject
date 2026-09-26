@@ -36,15 +36,11 @@ namespace Project.Scripts.Gameplay.Systems
                 switch (reactionComponent.Type)
                 {
                     case ReactionType.CompleteState:
-                        m_reactionPool.Del(reaction);
                         m_reactionService.RestartGame();
                         return;
                     default:
                         break;
                 }
-
-                // очищаем реакцию, чтобы не обрабатывать повторно
-                m_reactionPool.Del(reaction);
             }
         }
     }

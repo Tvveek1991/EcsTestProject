@@ -21,8 +21,6 @@ namespace Project.Scripts.Gameplay.Systems
         private EcsFilter m_healHealthFilter;
 
         private EcsPool<Health> m_healthPool;
-        private EcsPool<HitCommand> m_hitCommandPool;
-        private EcsPool<HealCommand> m_healCommandPool;
 
         public HealthViewChangeSystem(IEntityViewRegistry entityViewRegistry, IGameplayTweenRegistry gameplayTweenRegistry)
         {
@@ -38,8 +36,6 @@ namespace Project.Scripts.Gameplay.Systems
             m_healHealthFilter = m_world.Filter<Health>().Inc<HealCommand>().End();
 
             m_healthPool = m_world.GetPool<Health>();
-            m_hitCommandPool = m_world.GetPool<HitCommand>();
-            m_healCommandPool = m_world.GetPool<HealCommand>();
         }
 
         public void Run(IEcsSystems systems)
@@ -67,7 +63,6 @@ namespace Project.Scripts.Gameplay.Systems
                         });
                     });
                 
-                m_healCommandPool.Del(entity);
             }
         }
 
@@ -85,7 +80,6 @@ namespace Project.Scripts.Gameplay.Systems
 
                 m_gameplayTweenRegistry.Track(view.HealthBar.DOValue(health.Count, SLIDER_CHANGE_DURATION));
                 
-                m_hitCommandPool.Del(entity);
             }
         }
     }

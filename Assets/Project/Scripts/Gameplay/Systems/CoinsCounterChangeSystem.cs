@@ -3,7 +3,7 @@ using Project.Scripts.Gameplay.Components;
 
 namespace Project.Scripts.Gameplay.Systems
 {
-    public class CoinsCounterChangeSystem : IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem
+    public class CoinsCounterChangeSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld m_world;
         
@@ -33,12 +33,5 @@ namespace Project.Scripts.Gameplay.Systems
             }
         }
 
-        public void PostRun(IEcsSystems systems)
-        {
-            foreach (var coinsCounterChange in m_coinsCounterChangeFilter)
-            {
-                m_world.DelEntity(coinsCounterChange);
-            }
-        }
     }
 }
