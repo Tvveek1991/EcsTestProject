@@ -43,7 +43,7 @@
 2. Порядок систем зависит от порядка VContainer-регистраций, который легко нарушить при добавлении нового класса.
 3. Одноразовые компоненты-команды (`HitCommand`, `HealCommand`, `CoinsCounterChange`, `ReactionComponent`) очищаются разными системами и в разных местах.
 4. `RunSystem` хранит `m_delayToIdle` на уровне системы, поэтому таймер разделяется всеми сущностями с `Run`.
-5. [x] Восстановлен сценарий «атака ящика уменьшает здоровье»: `CheckHitSystem` временно перенесён в Simulation между `AttackSystem` и `HealthChangeSystem`; порядок закреплён EditMode-регрессионным тестом до переноса physics-группы в `FixedUpdate`.
+5. [x] Сценарий «атака ящика уменьшает здоровье» закреплён: `CheckHitSystem` остаётся в Simulation между `AttackSystem` и `HealthChangeSystem`, а порядок защищён EditMode-регрессионным тестом при отдельной Physics-фазе.
 
 ### P2 — стоимость кадра и связность
 
@@ -111,8 +111,8 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 **Задачи**
 
 1. [x] Введены `GameEcsLoop` / `GameSession`, владеющие `EcsWorld`, системами и cancellation token сессии; порядок teardown проверяется EditMode-тестом.
-2. [x] `Observable.EveryUpdate()` заменён на VContainer `ITickable`: `ApplicationState` получает Unity `Update` и тикает активный `GameEcsLoop`.
-3. [x] Регистрация разделена на явные группы `Initialization`, `Input`, `Simulation`, `Physics`, `Presentation` и `Cleanup` в `GameSystemsInstaller`; пока они исполняются одним `Update` tick.
+2. [x] `Observable.EveryUpdate()` заменён на VContainer `ITickable` / `IFixedTickable`: `ApplicationState` получает Unity `Update` и `FixedUpdate`, а `GameEcsLoop` тикает соответствующую группу активной сессии.
+3. [x] Регистрация разделена на явные группы `Initialization`, `Input`, `Simulation`, `Physics`, `Presentation` и `Cleanup` в `GameSystemsInstaller`; Physics-системы исполняются отдельным fixed tick.
 4. [x] Порядок систем вынесен из неявного `IEnumerable<IEcsSystem>` в декларативный `GameSystemsComposer`, который валидирует состав scoped-сессии.
 5. [x] Правила перехода, сроков жизни команд и bridge-событий описаны в `Documentation/ECS/phase-transition-rules.md`; legacy-нарушения перечислены отдельно.
 6. [x] Teardown упорядочен: `ApplicationState` отменяет загрузку и event-подписки, `GameEcsLoop.Stop()` убирает session из tick path, `GameSession` отменяет token и уничтожает systems/world, затем dispose scoped DI и Addressables handles.
@@ -120,7 +120,7 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 **Критерии готовности**
 
 - Порядок и фаза каждой системы видны в одном файле.
-- Запись в `Rigidbody2D` выполняется только в fixed-фазе.
+- [x] Запись в `Rigidbody2D` выполняется только в fixed-фазе; это закреплено EditMode-регрессией `GameSession_RunsPhysicsSystemsOnlyDuringFixedTick`.
 - Повторный рестарт не создаёт второй tick loop, не оставляет подписок и не вызывает обращений к уничтоженному миру.
 
 ### Этап 2. Надёжная связь ECS и Unity

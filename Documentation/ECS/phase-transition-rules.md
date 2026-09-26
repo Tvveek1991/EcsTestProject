@@ -4,9 +4,9 @@
 
 Этот документ задаёт контракт между группами `Initialization`, `Input`,
 `Simulation`, `Physics`, `Presentation` и `Cleanup`. Он действует для всех
-новых систем и описывает, какие нарушения уже есть в legacy-коде. Пока группы
-исполняются одним Unity `Update`, но их относительный порядок уже
-`Input → Simulation → Physics → Presentation → Cleanup`.
+новых систем и описывает, какие нарушения уже есть в legacy-коде. `Input`,
+`Simulation`, `Presentation` и `Cleanup` исполняются в Unity `Update`, а
+`Physics` — отдельным Unity `FixedUpdate`.
 
 ## Базовые правила
 
@@ -40,7 +40,7 @@
 | Тип | Producer | Consumer | Срок жизни и owner |
 | --- | --- | --- | --- |
 | `GameplayInputSnapshot` / `InputComponent` | Unity input bridge / `InputSystem` | `CheckInput*`, `EndGameSystem` | Bridge читает `InputAction` asset перед ECS tick, `InputSystem` один раз копирует snapshot; `InputComponent` удаляется вместе с session. |
-| `Jump` | `CheckInputJumpSystem` | `JumpSystem` | Intent текущего кадра; удаляется `EndOfFrameCleanupSystem` после всех фаз. |
+| `Jump` | `CheckInputJumpSystem` | `JumpSystem` | Intent для ближайшего fixed tick; удаляется `JumpSystem.PostRun` после применения к `Rigidbody2D`. |
 | `Run`, `Rolling`, `Block`, `Attack` | `CheckInput*` | соответствующие movement systems | Это краткоживущие gameplay-state, а не универсальные команды. Их владелец удаляет компонент по собственному condition. |
 | `HitCommand` от `Q` | `CheckInputHurtSystem` | `HealthChangeSystem`, `HealthViewChangeSystem` | Доступен Simulation в тот же кадр; удаляется `EndOfFrameCleanupSystem` после presentation consumers. |
 | `HitCommand` от raycast | `CheckHitSystem` (Simulation, временно) | `HealthChangeSystem`, `HealthViewChangeSystem` | Создаётся после `AttackSystem` и до `HealthChangeSystem`, обрабатывается в том же `Update` и удаляется end-of-frame. |
@@ -55,8 +55,8 @@
 | Переход | Разрешённое поведение | Текущее состояние |
 | --- | --- | --- |
 | Input → Simulation | Input intent создан в `CheckInput*` и читается Simulation в том же `Update`. | Используется для `HitCommand` от `Q`; допустимо до ввода отдельного input snapshot adapter. |
-| Simulation → Physics | Simulation публикует `Jump`, `Run`, `Rolling`, `Block`, `Attack`; Physics применяет их к `Rigidbody2D`/raycast. | Группы уже разделены, но всё ещё работают в одном `Update`. |
-| Simulation → Simulation | Временный legacy-adapter может опубликовать команду для следующей системы той же фазы. | `CheckHitSystem` работает после `AttackSystem` и до `HealthChangeSystem`; регрессионный тест закрепляет этот порядок до переноса physics-группы в `FixedUpdate`. |
+| Simulation → Physics | Simulation публикует `Jump`, `Run`, `Rolling`, `Block`, `Attack`; Physics применяет их к `Rigidbody2D`/raycast. | `Jump` сохраняется до ближайшего `FixedUpdate` и удаляется его физическим consumer; остальное состояние принадлежит своим gameplay-системам. |
+| Simulation → Simulation | Временный legacy-adapter может опубликовать команду для следующей системы той же фазы. | `CheckHitSystem` работает после `AttackSystem` и до `HealthChangeSystem`; регрессионный тест закрепляет этот порядок при отдельной Physics-фазе. |
 | Physics → Simulation (next tick) | Результат physics живёт до следующей Simulation-фазы. | Пока нет systems, публикующих physics-результат. При их добавлении запрещено очищать результат в Presentation до consumer следующего tick. |
 | Presentation → Simulation (next tick) | UI/tween публикует typed `*BridgeEvent`, а bridge добавляет gameplay-команду в начале следующей Simulation. | **Нарушено:** Finish UI создаёт `ReactionComponent`, а coin DOTween callback создаёт `CoinsCounterChange` прямо через `EcsWorld`. |
 | Cleanup → session teardown | Сначала останавливаются ticks и отменяются внешние операции; затем systems, world и scope. | `GameSession` уже отменяет token перед `EcsSystems.Destroy()` и `EcsWorld.Destroy()`; ownership tween ещё предстоит внедрить. |
@@ -70,7 +70,8 @@
 проверяет актуальность session и не замыкает `EcsWorld`.
 
 `EndOfFrameCleanupSystem` — единственный owner очистки `HitCommand`,
-`HealCommand`, `ReactionComponent`, `Jump` и `CoinsCounterChange`. Его нельзя
+`HealCommand`, `ReactionComponent` и `CoinsCounterChange`. `Jump` удаляет
+`JumpSystem.PostRun` после fixed consumer. Его нельзя
 использовать для `DeadCommand`: эта команда многофазно переходит
 `Ready → Started → Completed` и удаляется `CheckDeathSystem` только при
 переводе owner в `Dead`. Другие исключения должны быть перечислены в таблице.

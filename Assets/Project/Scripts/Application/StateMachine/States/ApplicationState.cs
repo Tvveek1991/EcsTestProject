@@ -13,7 +13,7 @@ using VContainer.Unity;
 
 namespace Application.StateMachine.States
 {  
-  public sealed class ApplicationState : IApplicationState, ITickable
+  public sealed class ApplicationState : IApplicationState, ITickable, IFixedTickable
   {
     private readonly IReactionService m_reactionService;
     private readonly ILoadScreenService m_loadScreenService;
@@ -105,6 +105,9 @@ namespace Application.StateMachine.States
       m_gameplayInputReader?.UpdateSnapshot();
       m_gameEcsLoop?.Tick();
     }
+
+    public void FixedTick() =>
+      m_gameEcsLoop?.FixedTick();
 
     private void DestroyEcs()
     {

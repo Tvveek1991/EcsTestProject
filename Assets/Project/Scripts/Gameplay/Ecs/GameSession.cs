@@ -11,7 +11,8 @@ namespace Project.Scripts.Gameplay.Ecs
     {
         private readonly CancellationTokenSource m_cancellationTokenSource;
         private readonly EcsWorld m_world;
-        private readonly IEcsSystems m_systems;
+        private readonly IEcsSystems m_updateSystems;
+        private readonly IEcsSystems m_fixedSystems;
         private readonly List<IGameSessionOperation> m_sessionOperations;
         private readonly GameEcsDiagnostics m_diagnostics;
 
@@ -25,7 +26,8 @@ namespace Project.Scripts.Gameplay.Ecs
 
             m_cancellationTokenSource = new CancellationTokenSource();
             m_world = new EcsWorld();
-            m_systems = new EcsSystems(m_world);
+            m_updateSystems = new EcsSystems(m_world);
+            m_fixedSystems = new EcsSystems(m_world);
             m_sessionOperations = sessionOperations == null ? new List<IGameSessionOperation>() : new List<IGameSessionOperation>(sessionOperations);
             m_diagnostics = new GameEcsDiagnostics(FindTweenRegistry(m_sessionOperations));
 
@@ -34,7 +36,12 @@ namespace Project.Scripts.Gameplay.Ecs
                 if (system == null)
                     throw new ArgumentException("ECS session cannot contain a null system.", nameof(systems));
 
-                m_systems.Add(new EcsDiagnosticsSystemProxy(system, m_diagnostics));
+                var diagnosticsSystem = new EcsDiagnosticsSystemProxy(system, m_diagnostics);
+
+                if (GameSystemsComposer.GetPhase(system.GetType()) == GameEcsPhase.Physics)
+                    m_fixedSystems.Add(diagnosticsSystem);
+                else
+                    m_updateSystems.Add(diagnosticsSystem);
             }
         }
 
@@ -56,7 +63,8 @@ namespace Project.Scripts.Gameplay.Ecs
 
             try
             {
-                m_systems.Init();
+                m_updateSystems.Init();
+                m_fixedSystems.Init();
                 m_diagnostics.CaptureWorld(m_world);
             }
             catch
@@ -72,7 +80,16 @@ namespace Project.Scripts.Gameplay.Ecs
                 return;
 
             m_diagnostics.BeginFrame();
-            m_systems.Run();
+            m_updateSystems.Run();
+            m_diagnostics.CaptureWorld(m_world);
+        }
+
+        public void FixedTick()
+        {
+            if (!IsRunning)
+                return;
+
+            m_fixedSystems.Run();
             m_diagnostics.CaptureWorld(m_world);
         }
 
@@ -92,8 +109,7 @@ namespace Project.Scripts.Gameplay.Ecs
             {
                 try
                 {
-                    if (m_isStarted)
-                        m_systems.Destroy();
+                    DestroySystems();
                 }
                 finally
                 {
@@ -101,6 +117,21 @@ namespace Project.Scripts.Gameplay.Ecs
                     m_diagnostics.Deactivate();
                     m_cancellationTokenSource.Dispose();
                 }
+            }
+        }
+
+        private void DestroySystems()
+        {
+            if (!m_isStarted)
+                return;
+
+            try
+            {
+                m_fixedSystems.Destroy();
+            }
+            finally
+            {
+                m_updateSystems.Destroy();
             }
         }
 

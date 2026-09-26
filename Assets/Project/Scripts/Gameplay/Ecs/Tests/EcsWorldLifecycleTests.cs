@@ -430,6 +430,76 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         }
 
         [Test]
+        public void GameSession_RunsPhysicsSystemsOnlyDuringFixedTick()
+        {
+            var gameObject = new GameObject("Physics tick probe");
+            var rigidbody = gameObject.AddComponent<Rigidbody2D>();
+            var session = new GameSession(new IEcsSystem[] { new BlockSystem() });
+
+            try
+            {
+                session.Start();
+
+                EcsWorld world = GetSessionWorld(session);
+                int entity = world.NewEntity();
+                world.GetPool<Block>().Add(entity);
+                world.GetPool<Rigidbody2d>().Add(entity).Rigidbody = rigidbody;
+                rigidbody.linearVelocity = new Vector2(5f, 2f);
+
+                session.Tick();
+
+                Assert.That(rigidbody.linearVelocity.x, Is.EqualTo(5f));
+
+                session.FixedTick();
+
+                Assert.That(rigidbody.linearVelocity.x, Is.Zero);
+                Assert.That(rigidbody.linearVelocity.y, Is.EqualTo(2f));
+                Assert.That(session.Diagnostics.ActivePhase, Is.EqualTo(GameEcsPhase.Physics));
+                Assert.That(session.Diagnostics.ActiveSystemName, Is.EqualTo(nameof(BlockSystem)));
+            }
+            finally
+            {
+                session.Dispose();
+                Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void RollingSystem_MaintainsRollForceAfterAnimationSignalIsConsumed()
+        {
+            var world = new EcsWorld();
+            var systems = new EcsSystems(world);
+            var personData = ScriptableObject.CreateInstance<PersonData>();
+            var rollingObject = new GameObject("Rolling body");
+            var rigidbody = rollingObject.AddComponent<Rigidbody2D>();
+            var spriteRenderer = rollingObject.AddComponent<SpriteRenderer>();
+            personData.RollForce = 7f;
+            systems.Add(new RollingSystem(personData));
+
+            try
+            {
+                int entity = world.NewEntity();
+                world.GetPool<Rolling>().Add(entity).IsAnimate = false;
+                world.GetPool<Rigidbody2d>().Add(entity).Rigidbody = rigidbody;
+                world.GetPool<SpriteRendererKeeper>().Add(entity).SpriteRenderer = spriteRenderer;
+                rigidbody.linearVelocity = new Vector2(2f, 3f);
+
+                systems.Init();
+                systems.Run();
+
+                Assert.That(rigidbody.linearVelocity.x, Is.EqualTo(personData.RollForce));
+                Assert.That(rigidbody.linearVelocity.y, Is.EqualTo(3f));
+            }
+            finally
+            {
+                systems.Destroy();
+                world.Destroy();
+                Object.DestroyImmediate(personData);
+                Object.DestroyImmediate(rollingObject);
+            }
+        }
+
+        [Test]
         public void GameSession_DestroysSystemsWhenSessionOperationCancellationFails()
         {
             var probeSystem = new LifecycleProbeSystem();
@@ -697,7 +767,7 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
         }
 
         [Test]
-        public void EndOfFrameCleanupSystem_RemovesOneFrameCommandsAndKeepsDeadCommand()
+        public void EndOfFrameCleanupSystem_RemovesUpdateCommandsAndKeepsPhysicsAndDeathCommands()
         {
             var world = new EcsWorld();
             var systems = new EcsSystems(world);
@@ -732,7 +802,7 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
                 Assert.That(world.GetPool<HitCommand>().Has(hitEntity), Is.False);
                 Assert.That(world.GetPool<HealCommand>().Has(healEntity), Is.False);
                 Assert.That(world.GetEntityGen(reactionEntity), Is.LessThan(0));
-                Assert.That(world.GetPool<Jump>().Has(jumpEntity), Is.False);
+                Assert.That(world.GetPool<Jump>().Has(jumpEntity), Is.True);
                 Assert.That(world.GetEntityGen(coinsCounterChangeEntity), Is.LessThan(0));
                 Assert.That(world.GetPool<DeadCommand>().Has(deadEntity), Is.True);
             }
@@ -1003,6 +1073,12 @@ namespace Project.Scripts.Gameplay.Ecs.Tests
             world.GetPool<WallCheck>().Add(entity);
             world.GetPool<GroundCheckComponent>().Add(entity);
             return entity;
+        }
+
+        private static EcsWorld GetSessionWorld(GameSession session)
+        {
+            var field = typeof(GameSession).GetField("m_world", BindingFlags.Instance | BindingFlags.NonPublic);
+            return field.GetValue(session) as EcsWorld;
         }
 
         private static object GetPendingExitCancellationTokenSource(Sensor sensor)

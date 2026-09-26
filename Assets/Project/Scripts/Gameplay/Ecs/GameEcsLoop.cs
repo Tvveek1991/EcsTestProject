@@ -32,6 +32,9 @@ namespace Project.Scripts.Gameplay.Ecs
         public void Tick() =>
             m_session?.Tick();
 
+        public void FixedTick() =>
+            m_session?.FixedTick();
+
         public void Stop()
         {
             GameSession session = m_session;

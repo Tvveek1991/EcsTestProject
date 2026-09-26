@@ -46,13 +46,10 @@ namespace Project.Scripts.Gameplay.Systems
         {
             foreach (var roller in m_rollingFilter)
             {
-                if (m_rollingPool.Get(roller).IsAnimate)
-                {
-                    var facingDirection = m_spriteRendererPool.Get(roller).SpriteRenderer.flipX ? -1 : 1;
-                    
-                    m_rigidbody2dPool.Get(roller).Rigidbody.linearVelocity = new Vector2(
-                        facingDirection * m_personData.RollForce, m_rigidbody2dPool.Get(roller).Rigidbody.linearVelocity.y);
-                }
+                var facingDirection = m_spriteRendererPool.Get(roller).SpriteRenderer.flipX ? -1 : 1;
+
+                m_rigidbody2dPool.Get(roller).Rigidbody.linearVelocity = new Vector2(
+                    facingDirection * m_personData.RollForce, m_rigidbody2dPool.Get(roller).Rigidbody.linearVelocity.y);
             }
         }
 
