@@ -1,0 +1,42 @@
+using Leopotam.EcsLite;
+using Project.Scripts.Gameplay.Components;
+
+namespace Project.Scripts.Gameplay.Systems
+{
+    // Phase: <Initialization | Input | Simulation | Physics | Presentation | Cleanup>
+    // Inputs: <components/events read by this system>
+    // Outputs: <components/events written by this system>
+    // Cleanup owner: <EndOfFrameCleanupSystem | this system | entity teardown>
+    public sealed class ExampleSystem : IEcsInitSystem, IEcsRunSystem
+    {
+        private EcsWorld m_world;
+
+        private EcsFilter m_filter;
+
+        private EcsPool<ExampleInput> m_inputPool;
+        private EcsPool<ExampleOutput> m_outputPool;
+
+        public void Init(IEcsSystems systems)
+        {
+            m_world = systems.GetWorld();
+            m_filter = m_world.Filter<ExampleInput>().Exc<ExampleOutput>().End();
+
+            m_inputPool = m_world.GetPool<ExampleInput>();
+            m_outputPool = m_world.GetPool<ExampleOutput>();
+        }
+
+        public void Run(IEcsSystems systems)
+        {
+            foreach (int entity in m_filter)
+            {
+                ref ExampleInput input = ref m_inputPool.Get(entity);
+                ref ExampleOutput output = ref m_outputPool.Add(entity);
+
+                output.Value = input.Value;
+            }
+        }
+    }
+}
+
+// Replace ExampleInput/ExampleOutput with project components before copying.
+// Simulation code must not call Unity API, DOTween, Instantiate or Destroy.

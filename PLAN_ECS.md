@@ -163,7 +163,8 @@ Input -> Simulation -> Physics -> Presentation -> Cleanup
 
 1. [x] Добавлены EditMode-регрессии input → movement, hit → health → death, coin → counter и restart during tween; sensor overlap покрыт проверками множественных collider, повторного enter и уничтожения view. Все 26 тестов `Project.Scripts.Gameplay.Ecs.Tests` проходят в Unity Test Runner.
 2. [x] Добавлено окно **Tools → BestWood → ECS Diagnostics**: read-only snapshot показывает ключевые сущности, одноразовые команды до cleanup, активную фазу/систему и число активных presentation tween. Использование описано в `Documentation/ECS/diagnostics.md`.
-3. Добавить шаблон ECS-системы и чек-лист pull request:
+3. [x] Добавлены шаблон `Documentation/ECS/EcsSystemTemplate.cs.txt` и
+   [checklist для ECS PR](Documentation/ECS/pr-checklist.md):
    - указана фаза и зависимости по порядку;
    - фильтры и pools кэшируются в `Init`;
    - нет Unity-search/alloc в горячем `Run`;

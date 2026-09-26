@@ -110,6 +110,9 @@ ticks для physics/presentation будут добавлены только п�
 Полный контракт срока жизни команд и переходов между текущими группами приведён
 в [phase-transition-rules.md](phase-transition-rules.md). В нём также отмечены
 legacy-нарушения, включая текущий путь `CheckHitSystem` → `HitCommand`.
+Шаблон новой системы и checklist для review находятся в
+[EcsSystemTemplate.cs.txt](EcsSystemTemplate.cs.txt) и
+[pr-checklist.md](pr-checklist.md).
 
 ## Владение сессией и отложенными операциями
 
